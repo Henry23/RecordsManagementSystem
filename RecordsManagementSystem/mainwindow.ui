@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>666</width>
+    <height>359</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>666</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNewFile"/>
+    <addaction name="actionSaveFile"/>
+    <addaction name="actionPrintFile"/>
+    <addaction name="separator"/>
+    <addaction name="actionCloseFile"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuFields">
+    <property name="title">
+     <string>Fields</string>
+    </property>
+    <addaction name="actionCreateField"/>
+    <addaction name="actionModifyField"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowFields"/>
+   </widget>
+   <widget class="QMenu" name="menuRecords">
+    <property name="title">
+     <string>Records</string>
+    </property>
+    <addaction name="actionInsertRecord"/>
+    <addaction name="actionSearchRecord"/>
+    <addaction name="actionEraseRecord"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowRecords"/>
+    <addaction name="separator"/>
+    <addaction name="actionCrossRecords"/>
+   </widget>
+   <widget class="QMenu" name="menuIndices">
+    <property name="title">
+     <string>Indices</string>
+    </property>
+    <addaction name="actionCreateSimpleIndex"/>
+    <addaction name="actionCreateBTreeIndex"/>
+    <addaction name="separator"/>
+    <addaction name="actionReindexing"/>
+   </widget>
+   <widget class="QMenu" name="menuUtilities">
+    <property name="title">
+     <string>Utilities</string>
+    </property>
+    <addaction name="actionImportXML"/>
+    <addaction name="actionExportXML"/>
+    <addaction name="separator"/>
+    <addaction name="actionImportJSON"/>
+    <addaction name="actionExportJSON"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuFields"/>
+   <addaction name="menuRecords"/>
+   <addaction name="menuIndices"/>
+   <addaction name="menuUtilities"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionNewFile">
+   <property name="text">
+    <string>New</string>
+   </property>
+  </action>
+  <action name="actionSaveFile">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionPrintFile">
+   <property name="text">
+    <string>Print</string>
+   </property>
+  </action>
+  <action name="actionCloseFile">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionCreateField">
+   <property name="text">
+    <string>Create</string>
+   </property>
+  </action>
+  <action name="actionModifyField">
+   <property name="text">
+    <string>Modify</string>
+   </property>
+  </action>
+  <action name="actionCreateSimpleIndex">
+   <property name="text">
+    <string>Create a Simple Index</string>
+   </property>
+  </action>
+  <action name="actionShowFields">
+   <property name="text">
+    <string>Show Fields</string>
+   </property>
+  </action>
+  <action name="actionInsertRecord">
+   <property name="text">
+    <string>Insert</string>
+   </property>
+  </action>
+  <action name="actionSearchRecord">
+   <property name="text">
+    <string>Search</string>
+   </property>
+  </action>
+  <action name="actionEraseRecord">
+   <property name="text">
+    <string>Erase</string>
+   </property>
+  </action>
+  <action name="actionShowRecords">
+   <property name="text">
+    <string>Show Records</string>
+   </property>
+  </action>
+  <action name="actionCrossRecords">
+   <property name="text">
+    <string>Cross</string>
+   </property>
+  </action>
+  <action name="actionCreateBTreeIndex">
+   <property name="text">
+    <string>Create a B-Tree index</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionImportXML">
+   <property name="text">
+    <string>Import XML</string>
+   </property>
+  </action>
+  <action name="actionExportXML">
+   <property name="text">
+    <string>Export XML</string>
+   </property>
+  </action>
+  <action name="actionImportJSON">
+   <property name="text">
+    <string>Import JSON</string>
+   </property>
+  </action>
+  <action name="actionExportJSON">
+   <property name="text">
+    <string>Export JSON</string>
+   </property>
+  </action>
+  <action name="actionReindexing">
+   <property name="text">
+    <string>Reindexing</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
