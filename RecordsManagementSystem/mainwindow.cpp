@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "createfielddialog.h"
+#include "dialogs/createfielddialog.h"
 
 #include <QFileDialog>
 

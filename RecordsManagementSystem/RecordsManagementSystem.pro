@@ -16,10 +16,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    createfielddialog.cpp
+        dialogs/createfielddialog.cpp \
+        classes/recordsfile.cpp
 
 HEADERS  += mainwindow.h \
-    createfielddialog.h
+        dialogs/createfielddialog.h \
+        classes/recordsfile.h \
+        classes/adtfile.h
 
 FORMS    += mainwindow.ui \
-    createfielddialog.ui
+        dialogs/createfielddialog.ui
+
+RESOURCES += \
+    images.qrc
