@@ -15,7 +15,7 @@ RecordsFile::~RecordsFile()
 
 bool RecordsFile::open(const string &file, ios_base::openmode mode)
 {
-       io.open(file,mode);
+       io.open(file, mode);
 
        if(io.is_open())
        {
@@ -70,14 +70,26 @@ int RecordsFile::write(const char *buffer, int size)
 
 bool RecordsFile::flush()
 {
+  if(io.is_open()){
+
+    io.flush();
+
+    return true;
+  }else
+  {
+    return false;
+  } 
+
 }
 
 bool RecordsFile::seek(int pos)
 {
+
 }
 
 int RecordsFile::tell()
 {
+
 }
 
 bool RecordsFile::isOpen()
@@ -106,8 +118,18 @@ int RecordsFile::isOk()
 
 bool RecordsFile::isBoF()
 {
+
 }
 
 bool RecordsFile::isEof()
 {
+  if(io.eof())
+  {
+
+    return true;
+  }else
+  {
+    
+    return false;
+  }
 }
