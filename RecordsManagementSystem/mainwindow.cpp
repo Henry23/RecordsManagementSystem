@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "classes/recordsfile.h"
 #include "dialogs/createfielddialog.h"
 
 #include <QFileDialog>

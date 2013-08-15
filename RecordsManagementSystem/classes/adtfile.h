@@ -19,7 +19,7 @@ public:
     virtual bool seek(int) = 0;
     virtual int tell() = 0;
     virtual bool isOpen() = 0;
-    virtual int isOk() = 0;
+    virtual bool isOk() = 0;
     virtual bool isBoF() = 0;
     virtual bool isEof() = 0;
 };

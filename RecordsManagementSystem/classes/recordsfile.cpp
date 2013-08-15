@@ -2,33 +2,43 @@
 
 RecordsFile::RecordsFile()
 {
+    fileName = "";
 }
 
 RecordsFile::RecordsFile(const string &file, ios_base::openmode mode)
+    :fileName(file)
 {
-  this->fileName = file;
+    fileStream.open(fileName, mode);
 }
 
 RecordsFile::~RecordsFile()
 {
 }
 
-bool RecordsFile::open(const string &file, ios_base::openmode mode)
+bool RecordsFile::open(const string &fileName, ios_base::openmode mode)
 {
-       io.open(file, mode);
+    this->fileName = fileName;
 
-       if(io.is_open())
-       {
-           return true;
-       }else
-       {
-           return false;
-       }
+    fileStream.open(fileName, mode);
+
+    //Checks if there was an error during opening
+    if ( !isOpen() )
+    {
+        return false;
+    }
+
+    return true;
 }
 
 bool RecordsFile::close()
 {
-    io.close();
+    fileStream.close();
+
+    //Checks if the file was not closed
+    if ( isOpen() )
+    {
+        return false;
+    }
 
     return true;
 }
@@ -39,97 +49,64 @@ bool RecordsFile::trunc()
 
 int RecordsFile::read(char *buffer, int size)
 {
-
-  if(io.is_open())
-  {
-  
-    io.read(buffer, size);
-    return 0;
-  
-  }else
-  {
-  
-    return -1;
-  
-  }
 }
 
 int RecordsFile::write(const char *buffer, int size)
 {
-    if(io.is_open())
-    {
-        io.write(buffer,size);
-
-        return 0;
-
-    }else
-    {
-        return -1;
-    }
 }
 
 bool RecordsFile::flush()
 {
-  if(io.is_open()){
-
-    io.flush();
-
-    return true;
-  }else
-  {
-    return false;
-  } 
-
 }
 
 bool RecordsFile::seek(int pos)
 {
-
 }
 
 int RecordsFile::tell()
 {
-
 }
 
 bool RecordsFile::isOpen()
 {
-    if(io.is_open())
+    //Checks if the file is open
+    if ( fileStream.is_open() )
     {
-
-      return true;
-    }else
-    {
-
-      return false;
+        return true;
     }
+
+    return false;
 }
 
-int RecordsFile::isOk()
+bool RecordsFile::isOk()
 {
-    if(io.good())
+    //Verify if there is no problem with the file
+    if ( fileStream.good() )
     {
-        return 0;
-    }else
-    {
-        return -1;
+        return true;
     }
+
+    return false;
 }
 
 bool RecordsFile::isBoF()
 {
+    //Verify if the position in the file is at the beginning
+    if ( tell() == 0 )
+    {
+        return true;
+    }
 
+    return false;
 }
 
 bool RecordsFile::isEof()
 {
-  if(io.eof())
-  {
+    //Verify if the file has reached the end
+    if ( fileStream.eof() )
+    {
+        return true;
+    }
 
-    return true;
-  }else
-  {
-    
     return false;
-  }
 }
