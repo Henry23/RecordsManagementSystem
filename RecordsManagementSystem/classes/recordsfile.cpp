@@ -57,14 +57,24 @@ int RecordsFile::write(const char *buffer, int size)
 
 bool RecordsFile::flush()
 {
+    fileStream.flush();
+    
+    if ( isOk() )
+    {   
+        return true;
+    }
+
+    return false;
 }
 
 bool RecordsFile::seek(int pos)
 {
+
 }
 
 int RecordsFile::tell()
 {
+    
 }
 
 bool RecordsFile::isOpen()
