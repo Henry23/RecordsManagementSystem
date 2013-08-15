@@ -28,13 +28,13 @@ public:
     virtual bool seek(int);
     virtual int tell();
     virtual bool isOpen();
-    virtual int isOk();
+    virtual bool isOk();
     virtual bool isBoF();
     virtual bool isEof();
 
 private:
     string fileName;
-    fstream io;
+    fstream fileStream;
 };
 
 #endif // RECORDSFILE_H
