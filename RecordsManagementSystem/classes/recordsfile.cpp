@@ -93,8 +93,10 @@ bool RecordsFile::seek(int pos)
         return false;
     }
 
-    fileStream.seekg(0,fileStream.beg);
+    fileStream.seekg(0,fileStream.end);
     int lengthFile = this->fileStream.tellg();
+     fileStream.seekg(0,fileStream.beg);
+
     if ( pos > lengthFile)
     {
         return false;
@@ -108,6 +110,12 @@ bool RecordsFile::seek(int pos)
 
 int RecordsFile::tell()
 {
+    if ( !isOpen() )
+    {
+        return false;
+    }
+
+    return this->fileStream.tellg();
 }
 
 bool RecordsFile::isOpen()
