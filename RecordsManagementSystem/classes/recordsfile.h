@@ -31,6 +31,7 @@ public:
     virtual unsigned short int isOk();
     virtual bool isBoF();
     virtual bool isEof();
+    int fileLength();
 
 private:
     string fileName;
