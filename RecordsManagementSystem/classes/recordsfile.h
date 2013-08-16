@@ -12,9 +12,9 @@ public:
     RecordsFile();
     RecordsFile(const string&, ios_base::openmode = ios_base::in | ios_base::out);
     ~RecordsFile();
+    //bool writeRecord();
 
     /*readRecord();
-     *writeRecord();
      *updateRecord();
      *deleteRecord();
      */
@@ -22,13 +22,13 @@ public:
     virtual bool open(const string&, ios_base::openmode = ios_base::in | ios_base::out);
     virtual bool close();
     virtual bool trunc();
-    virtual int read(char*, int);
-    virtual int write(const char*, int);
+    virtual short int read(char*, int);
+    virtual short int write(const char*, int);
     virtual bool flush();
     virtual bool seek(int);
     virtual int tell();
     virtual bool isOpen();
-    virtual bool isOk();
+    virtual unsigned short int isOk();
     virtual bool isBoF();
     virtual bool isEof();
 

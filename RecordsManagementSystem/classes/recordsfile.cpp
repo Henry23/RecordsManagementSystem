@@ -8,7 +8,7 @@ RecordsFile::RecordsFile()
 RecordsFile::RecordsFile(const string &file, ios_base::openmode mode)
     :fileName(file)
 {
-    fileStream.open(fileName, mode);
+    this->fileStream.open(fileName, mode);
 }
 
 RecordsFile::~RecordsFile()
@@ -19,10 +19,10 @@ bool RecordsFile::open(const string &fileName, ios_base::openmode mode)
 {
     this->fileName = fileName;
 
-    fileStream.open(fileName, mode);
+    this->fileStream.open(fileName, mode);
 
     //Checks if there was an error during opening
-    if ( !isOpen() )
+    if ( !this->isOpen() )
     {
         return false;
     }
@@ -32,10 +32,10 @@ bool RecordsFile::open(const string &fileName, ios_base::openmode mode)
 
 bool RecordsFile::close()
 {
-    fileStream.close();
+    this->fileStream.close();
 
     //Checks if the file was not closed
-    if ( isOpen() )
+    if ( this->isOpen() )
     {
         return false;
     }
@@ -47,16 +47,43 @@ bool RecordsFile::trunc()
 {
 }
 
-int RecordsFile::read(char *buffer, int size)
+short int RecordsFile::read(char *buffer, int size)
 {
+    this->fileStream.read(buffer, size);
+
+    //Checks if something happen while reading
+    if ( this->isOk() != 0 )
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
-int RecordsFile::write(const char *buffer, int size)
+short int RecordsFile::write(const char *buffer, int size)
 {
+    this->fileStream.write(buffer, size);
+
+    //Checks if something happend while writing
+    if ( this->isOk() != 0 )
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
 bool RecordsFile::flush()
 {
+    this->fileStream.flush();
+
+    //Checks if the flush was successful
+    if ( this->isOk() == 0 )
+    {
+        return true;
+    }
+
+    return false;
 }
 
 bool RecordsFile::seek(int pos)
@@ -70,7 +97,7 @@ int RecordsFile::tell()
 bool RecordsFile::isOpen()
 {
     //Checks if the file is open
-    if ( fileStream.is_open() )
+    if ( this->fileStream.is_open() )
     {
         return true;
     }
@@ -78,21 +105,28 @@ bool RecordsFile::isOpen()
     return false;
 }
 
-bool RecordsFile::isOk()
+unsigned short int RecordsFile::isOk()
 {
-    //Verify if there is no problem with the file
-    if ( fileStream.good() )
+    //Logical error on i/o operation
+    if ( this->fileStream.rdstate() == ios::failbit )
     {
-        return true;
+        return 1;
     }
 
-    return false;
+    //Read/writing error on i/o operation
+    else if ( this->fileStream.rdstate() == ios::badbit )
+    {
+        return 2;
+    }
+
+    //There is no problem with the file (ios::goodbit)
+    return 0;
 }
 
 bool RecordsFile::isBoF()
 {
-    //Verify if the position in the file is at the beginning
-    if ( tell() == 0 )
+    //Checks if the position in the file is at the beginning
+    if ( this->tell() == 0 )
     {
         return true;
     }
@@ -102,11 +136,6 @@ bool RecordsFile::isBoF()
 
 bool RecordsFile::isEof()
 {
-    //Verify if the file has reached the end
-    if ( fileStream.eof() )
-    {
-        return true;
-    }
-
-    return false;
+    //Checks if the file has reached the end
+    return this->fileStream.eof();
 }

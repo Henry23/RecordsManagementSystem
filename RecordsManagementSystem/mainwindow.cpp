@@ -5,6 +5,8 @@
 #include "dialogs/createfielddialog.h"
 
 #include <QFileDialog>
+#include <QMessageBox>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,7 +22,28 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionNewFile_triggered()
 {
-    QString file = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::homePath(), tr("Text Files (*.txt)"));
+    //Open a dialog and save the file path
+    this->fileName = QFileDialog::getSaveFileName(this, tr("New File"), QDir::homePath(), tr("Text File (*.txt)"));
+
+    //If the user select a directory and name file
+    if ( !this->fileName.isEmpty() )
+    {
+        RecordsFile create;
+
+        //Check if there is a problem while creating the file
+        if ( !create.open(this->fileName.toStdString(), ios::out) )
+        {
+            QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
+        }
+
+        create.close();
+    }
+}
+
+void MainWindow::on_actionOpenFile_triggered()
+{
+    //Open a dialog and save the file path
+    this->fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::homePath(), tr("Text File (*.txt)"));
 }
 
 void MainWindow::on_actionSaveFile_triggered()
@@ -42,7 +65,7 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::on_actionCreateField_triggered()
 {
-    CreateFieldDialog *dialog = new CreateFieldDialog;
+    CreateFieldDialog *dialog = new CreateFieldDialog(this->fileName);
     dialog->exec();
     delete dialog;
 }

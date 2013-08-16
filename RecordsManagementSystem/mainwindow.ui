@@ -34,6 +34,7 @@
      <string>File</string>
     </property>
     <addaction name="actionNewFile"/>
+    <addaction name="actionOpenFile"/>
     <addaction name="actionSaveFile"/>
     <addaction name="actionPrintFile"/>
     <addaction name="separator"/>
@@ -206,6 +207,11 @@
   <action name="actionReindexing">
    <property name="text">
     <string>Reindexing</string>
+   </property>
+  </action>
+  <action name="actionOpenFile">
+   <property name="text">
+    <string>Open</string>
    </property>
   </action>
  </widget>

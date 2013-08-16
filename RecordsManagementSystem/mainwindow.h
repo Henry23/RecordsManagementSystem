@@ -18,6 +18,8 @@ public:
 private slots:
     void on_actionNewFile_triggered();
 
+    void on_actionOpenFile_triggered();
+
     void on_actionSaveFile_triggered();
 
     void on_actionPrintFile_triggered();
@@ -60,6 +62,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    QString fileName = "";
 };
 
 #endif // MAINWINDOW_H
