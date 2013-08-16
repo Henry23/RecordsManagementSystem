@@ -63,9 +63,6 @@ void CreateFieldDialog::on_pushButtonAccept_clicked()
     //If everything is ok
     else
     {
-        //Example(2 fields):
-        // 2|Id,Integer,5,0,1|Name,Text,10,0,1|:
-
         //If the file is empty, this is the first field.
         if ( this->getNumberOfFields() == 0 )
         {
@@ -134,16 +131,6 @@ int CreateFieldDialog::getNumberOfFields()
     return numberOfFields.toInt();
 }
 
-void CreateFieldDialog::updateNumberOfFields(int currentNumberOfFields)
-{
-    QString temp = "";
-    temp += currentNumberOfFields;
-
-    RecordsFile out(this->fileName.toStdString());
-
-    //char
-}
-
 bool CreateFieldDialog::addFirstField()
 {
     //Opening file
@@ -177,4 +164,10 @@ bool CreateFieldDialog::addFirstField()
 
 bool CreateFieldDialog::addField()
 {
+    int numberOfFields = this->getNumberOfFields();
+
+    //const int size
+    //char
+
+    RecordsFile file;
 }

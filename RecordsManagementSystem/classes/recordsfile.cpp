@@ -8,7 +8,7 @@ RecordsFile::RecordsFile()
 RecordsFile::RecordsFile(const string &file, ios_base::openmode mode)
     :fileName(file)
 {
-    this->fileStream.open(fileName, mode);
+    this->fileStream.open(file, mode);
 }
 
 RecordsFile::~RecordsFile()
@@ -88,14 +88,12 @@ bool RecordsFile::flush()
 
 bool RecordsFile::seek(int pos)
 {
-    if ( !isOpen() )
+    if ( !this->isOpen() )
     {
         return false;
     }
 
-    fileStream.seekg(0,fileStream.beg);
-    int lengthFile = this->fileStream.tellg();
-    if ( pos > lengthFile)
+    if ( pos > this->fileLength()  )
     {
         return false;
     }
@@ -154,4 +152,15 @@ bool RecordsFile::isEof()
 {
     //Checks if the file has reached the end
     return this->fileStream.eof();
+}
+
+int RecordsFile::fileLength()
+{
+    this->fileStream.seekg(0, this->fileStream.end);
+
+    int length = this->fileStream.tellg();
+
+    this->fileStream.seekg(0, this->fileStream.beg);
+
+    return length;
 }

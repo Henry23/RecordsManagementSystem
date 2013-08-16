@@ -24,7 +24,6 @@ private slots:
 
 private:
     int getNumberOfFields();
-    void updateNumberOfFields(int);
     bool addFirstField();
     bool addField();
 
