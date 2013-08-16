@@ -88,6 +88,22 @@ bool RecordsFile::flush()
 
 bool RecordsFile::seek(int pos)
 {
+    if ( !isOpen() )
+    {
+        return false;
+    }
+
+    fileStream.seekg(0,fileStream.beg);
+    int lengthFile = this->fileStream.tellg();
+    if ( pos > lengthFile)
+    {
+        return false;
+    }
+
+    this->fileStream.seekg(pos);
+    this->fileStream.seekp(pos);
+
+    return true;
 }
 
 int RecordsFile::tell()
