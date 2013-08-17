@@ -93,15 +93,8 @@ bool RecordsFile::seek(int pos)
         return false;
     }
 
-<<<<<<< HEAD
-    fileStream.seekg(0,fileStream.end);
-    int lengthFile = this->fileStream.tellg();
-     fileStream.seekg(0,fileStream.beg);
+    if ( pos > this->fileLength() )
 
-    if ( pos > lengthFile)
-=======
-    if ( pos > this->fileLength()  )
->>>>>>> 3ea93a4cba6910ea80ab828c2bab18e2d19b8088
     {
         return false;
     }
