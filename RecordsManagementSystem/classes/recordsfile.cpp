@@ -106,6 +106,12 @@ bool RecordsFile::seek(int pos)
 
 int RecordsFile::tell()
 {
+    if ( !isOpen() )
+    {
+        return false;
+    }
+
+    return this->fileStream.tellg();
 }
 
 bool RecordsFile::isOpen()
