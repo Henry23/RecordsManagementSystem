@@ -74,7 +74,7 @@
          <number>1</number>
         </property>
         <property name="maximum">
-         <number>64</number>
+         <number>12</number>
         </property>
        </widget>
       </item>
@@ -89,6 +89,9 @@
        <widget class="QSpinBox" name="spinBoxDecimal">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="maximum">
+         <number>6</number>
         </property>
        </widget>
       </item>

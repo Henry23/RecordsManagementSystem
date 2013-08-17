@@ -3,6 +3,7 @@
 
 #include "classes/recordsfile.h"
 #include "dialogs/createfielddialog.h"
+#include "dialogs/showfieldsdialog.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -36,7 +37,20 @@ void MainWindow::on_actionNewFile_triggered()
             QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
         }
 
+        //Close
         create.close();
+
+        //Enable actions
+        ui->actionSaveFile->setEnabled(true);
+        ui->actionPrintFile->setEnabled(true);
+        ui->actionCloseFile->setEnabled(true);
+        ui->actionCreateField->setEnabled(true);
+        ui->actionModifyField->setEnabled(true);
+        ui->actionShowFields->setEnabled(true);
+        ui->actionInsertRecord->setEnabled(true);
+        ui->actionSearchRecord->setEnabled(true);
+        ui->actionEraseRecord->setEnabled(true);
+        ui->actionShowRecords->setEnabled(true);
     }
 }
 
@@ -44,6 +58,22 @@ void MainWindow::on_actionOpenFile_triggered()
 {
     //Open a dialog and save the file path
     this->fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::homePath(), tr("Text File (*.txt)"));
+
+    //If the user select a valid file
+    if ( !this->fileName.isEmpty() )
+    {
+        //Enable actions
+        ui->actionSaveFile->setEnabled(true);
+        ui->actionPrintFile->setEnabled(true);
+        ui->actionCloseFile->setEnabled(true);
+        ui->actionCreateField->setEnabled(true);
+        ui->actionModifyField->setEnabled(true);
+        ui->actionShowFields->setEnabled(true);
+        ui->actionInsertRecord->setEnabled(true);
+        ui->actionSearchRecord->setEnabled(true);
+        ui->actionEraseRecord->setEnabled(true);
+        ui->actionShowRecords->setEnabled(true);
+    }
 }
 
 void MainWindow::on_actionSaveFile_triggered()
@@ -72,10 +102,17 @@ void MainWindow::on_actionCreateField_triggered()
 
 void MainWindow::on_actionModifyField_triggered()
 {
+    //Open dialgo in modify mode
+    ShowFieldsDialog *dialog = new ShowFieldsDialog(this->fileName, true);
+    dialog->exec();
+    delete dialog;
 }
 
 void MainWindow::on_actionShowFields_triggered()
 {
+    ShowFieldsDialog *dialog = new ShowFieldsDialog(this->fileName);
+    dialog->exec();
+    delete dialog;
 }
 
 void MainWindow::on_actionInsertRecord_triggered()

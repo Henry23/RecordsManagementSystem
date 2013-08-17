@@ -93,7 +93,7 @@ bool RecordsFile::seek(int pos)
         return false;
     }
 
-    if ( pos > this->fileLength()  )
+    if ( pos > this->fileLength() )
     {
         return false;
     }
