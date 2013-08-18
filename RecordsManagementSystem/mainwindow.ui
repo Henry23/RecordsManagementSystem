@@ -57,9 +57,6 @@
     </property>
     <addaction name="actionInsertRecord"/>
     <addaction name="actionSearchRecord"/>
-    <addaction name="actionEraseRecord"/>
-    <addaction name="separator"/>
-    <addaction name="actionShowRecords"/>
     <addaction name="separator"/>
     <addaction name="actionCrossRecords"/>
    </widget>

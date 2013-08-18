@@ -38,10 +38,6 @@ private slots:
 
     void on_actionSearchRecord_triggered();
 
-    void on_actionEraseRecord_triggered();
-
-    void on_actionShowRecords_triggered();
-
     void on_actionCrossRecords_triggered();
 
     void on_actionCreateSimpleIndex_triggered();

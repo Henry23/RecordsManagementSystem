@@ -7,7 +7,6 @@
 using std::remove;
 
 #include "QMessageBox"
-#include <QDebug>
 
 CreateFieldDialog::CreateFieldDialog(QString file, QWidget *parent) :
     QDialog(parent),
@@ -74,6 +73,11 @@ void CreateFieldDialog::on_pushButtonAccept_clicked()
             {
                 QMessageBox::critical(this, "Error", "An error occurred while trying to add the field");
             }
+
+            else
+            {
+                QMessageBox::information(this, "Success", "The field has been added successfully");
+            }
         }
 
         //There is one or more fields in the file
@@ -83,6 +87,11 @@ void CreateFieldDialog::on_pushButtonAccept_clicked()
             if ( !this->addField() )
             {
                 QMessageBox::critical(this, "Error", "An error occurred while trying to add the field");
+            }
+
+            else
+            {
+                QMessageBox::information(this, "Success", "The field has been added successfully");
             }
         }
 
@@ -108,7 +117,7 @@ int CreateFieldDialog::getNumberOfFields()
         return -1;
     }
 
-    const unsigned short int size = 7; //max number of digits of the number of fields
+    const unsigned short int size = 4; //max number of digits of the number of fields (Example: 1000 fields)
     char buffer[size] = {};
 
     //Reading
@@ -150,7 +159,7 @@ int CreateFieldDialog::getLengthOfTheNumberOfFields()
         return -1;
     }
 
-    const unsigned short int size = 7; //max number of digits of the number of fields
+    const unsigned short int size = 4; //max number of digits of the number of fields(Example: 1000 fields)
     char buffer[size] = {};
 
     //Reading
@@ -180,41 +189,124 @@ int CreateFieldDialog::getLengthOfTheNumberOfFields()
     return numberOfFields.length();
 }
 
-int CreateFieldDialog::getTotalLengthOfFieldsProperties()
+int CreateFieldDialog::getSizeOfTheFieldProperties(int position)
 {
-    //Open file
-    RecordsFile file(this->fileName.toStdString());
+    //Opening file
+    RecordsFile in;
 
-    //Amount of existing fields in the file
-    int numberOfFields = this->getNumberOfFields();
+    //Checks if there is a problem while opening the file
+    if ( !in.open(this->fileName.toStdString()))
+    {
+        return -1;
+    }
 
-    int fieldsPropertiesApproximateSize = numberOfFields * 28;
-    int fieldsPropertiesSize = 0;
+    //max number of digits of the size of the field properties (Example: 18 caracter of properties)
+    const unsigned short int size = 2;
+    char buffer[size] = {};
 
-    char buffer[fieldsPropertiesApproximateSize];
+    //Sets the read start position
+    in.seek(position);
 
-    //put the cursor of the file after the number of fields (after first number in the file)
-    file.seek(this->getLengthOfTheNumberOfFields());
+    //Reading
+    in.read(buffer, size);
 
-    //Read
-    file.read(buffer, fieldsPropertiesApproximateSize);
+    in.close();
 
-    //Close
-    file.close();
+    //Stores the size of the field properties
+    QString sizeOfFieldProperties = "";
 
     //We move through the array of characters (buffer)
-    while ( fieldsPropertiesSize < fieldsPropertiesApproximateSize )
+    for ( int a = 0; a < size; a++ )
     {
-        //if this caracter is found, all the fields propertied are already readed
-        if ( buffer[fieldsPropertiesSize] == ':' )
+        //if this caracter is found, the size of the field properties was already readed
+        if ( buffer[a] == ',' )
         {
             break;
         }
 
-        fieldsPropertiesSize++;
+        else
+        {
+            //Concatenate the digit
+            sizeOfFieldProperties += buffer[a];
+        }
     }
 
-    return fieldsPropertiesSize;
+    //zero if the file is empty
+    return sizeOfFieldProperties.toInt();
+}
+
+int CreateFieldDialog::getLengthOfTheSizeOfTheFieldProperties(int position)
+{
+    //Opening file
+    RecordsFile in;
+
+    //Checks if there is a problem while opening the file
+    if ( !in.open(this->fileName.toStdString()))
+    {
+        return -1;
+    }
+
+    //max number of digits of the size of the field properties (Example: 18 caracter of properties)
+    const unsigned short int size = 2;
+    char buffer[size] = {};
+
+    //Sets the read start position
+    in.seek(position);
+
+    //Reading
+    in.read(buffer, size);
+
+    in.close();
+
+    //Stores the size of the field properties
+    QString sizeOfFieldProperties = "";
+
+    //We move through the array of characters (buffer)
+    for ( int a = 0; a < size; a++ )
+    {
+        //if this caracter is found, the size of the field properties was already readed
+        if ( buffer[a] == ',' )
+        {
+            break;
+        }
+
+        else
+        {
+            //Concatenate the digit
+            sizeOfFieldProperties += buffer[a];
+        }
+    }
+
+    //zero if the file is empty
+    return sizeOfFieldProperties.length();
+}
+
+int CreateFieldDialog::getTotalLengthOfFieldsProperties()
+{
+    //Opening file
+    RecordsFile file;
+
+    //Checks if there is a problem while opening the file
+    if ( !file.open(this->fileName.toStdString()))
+    {
+        return -1;
+    }
+
+    int numberOfFields = this->getNumberOfFields();
+    int characterCounter = this->getLengthOfTheNumberOfFields() + 1; //The number of fields + the first ' | '
+
+    //All the fields
+    for ( int a = 0; a < numberOfFields; a++ )
+    {
+        int position = characterCounter;
+
+        characterCounter += this->getLengthOfTheSizeOfTheFieldProperties(position) +
+                this->getSizeOfTheFieldProperties(position);
+
+        file.seek(characterCounter);
+    }
+
+    return (characterCounter - this->getLengthOfTheNumberOfFields());
 }
 
 bool CreateFieldDialog::addFirstField()
@@ -228,9 +320,16 @@ bool CreateFieldDialog::addFirstField()
         return false;
     }
 
+    //Field properties size
+    int fieldPropertiesSize = 8; // 5(,)  1(|)  1(Decimal)  1(Key)
+    fieldPropertiesSize += ui->lineEditName->text().size(); //Text size field name
+    fieldPropertiesSize += ui->comboBoxType->currentText().size(); //Text size fiel type
+    fieldPropertiesSize += QString::number(ui->spinBoxLength->value()).size(); //Digits of the field name length
+
     //Save field information
-    QString fieldInfo = QString::number(1) + "|" + ui->lineEditName->text() + "," + ui->comboBoxType->currentText() +
-            "," + QString::number(ui->spinBoxLength->value()) + "," + QString::number(ui->spinBoxDecimal->value()) +
+    QString fieldInfo = QString::number(1) + "|" + QString::number(fieldPropertiesSize) + "," +
+            ui->lineEditName->text() + "," + ui->comboBoxType->currentText() + "," +
+            QString::number(ui->spinBoxLength->value()) + "," + QString::number(ui->spinBoxDecimal->value()) +
             "," + QString::number(ui->checkBoxKey->isChecked()) + "|:";
 
     //convert field information into a const char*
@@ -265,39 +364,37 @@ bool CreateFieldDialog::addField()
     currentFile.seek(this->getLengthOfTheNumberOfFields());
     currentFile.read(fieldsBuffer, fieldsPropertiesSize);
 
-    qDebug() << fieldsBuffer;
-
 
     //------------------------- Read records ----------------------------------
     int recordsSize = currentFile.fileLength() - this->getLengthOfTheNumberOfFields() - fieldsPropertiesSize;
     char recordsBuffer[recordsSize];
 
-    currentFile.seek(fieldsPropertiesSize + 1);
+    currentFile.seek(this->getLengthOfTheNumberOfFields() + fieldsPropertiesSize);
     currentFile.read(recordsBuffer, recordsSize);
-
-    qDebug() << recordsBuffer;
 
     //Close current file
     currentFile.close();
 
 
     //------------------------- New field -------------------------------------
-    QString fieldInfo = ui->lineEditName->text() + "," + ui->comboBoxType->currentText() +
+    //Field properties size
+    int fieldPropertiesSize = 8; // 5(,)  1(|)  1(Decimal)  1(Key)
+    fieldPropertiesSize += ui->lineEditName->text().size(); //Text size field name
+    fieldPropertiesSize += ui->comboBoxType->currentText().size(); //Text size fiel type
+    fieldPropertiesSize += QString::number(ui->spinBoxLength->value()).size(); //Digits of the field name length
+
+    QString fieldInfo = QString::number(fieldPropertiesSize) + "," + ui->lineEditName->text() + "," + ui->comboBoxType->currentText() +
             "," + QString::number(ui->spinBoxLength->value()) + "," + QString::number(ui->spinBoxDecimal->value()) +
             "," + QString::number(ui->checkBoxKey->isChecked()) + "|";
 
     //convert field information into a const char*
     const char *newField = fieldInfo.toStdString().c_str();
 
-    qDebug() << newField;
-
 
     //------------------------- Insert new field ------------------------------
     QString newNumberOfFieldsSize = "";
     newNumberOfFieldsSize += QString::number(this->getNumberOfFields() + 1);
     const char *newNumberOfFields = newNumberOfFieldsSize.toStdString().c_str();
-
-    qDebug() << newNumberOfFields;
 
     if ( remove(this->fileName.toStdString().c_str()) != 0 )
     {

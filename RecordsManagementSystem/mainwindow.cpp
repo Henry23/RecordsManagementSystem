@@ -49,8 +49,6 @@ void MainWindow::on_actionNewFile_triggered()
         ui->actionShowFields->setEnabled(true);
         ui->actionInsertRecord->setEnabled(true);
         ui->actionSearchRecord->setEnabled(true);
-        ui->actionEraseRecord->setEnabled(true);
-        ui->actionShowRecords->setEnabled(true);
     }
 }
 
@@ -71,8 +69,6 @@ void MainWindow::on_actionOpenFile_triggered()
         ui->actionShowFields->setEnabled(true);
         ui->actionInsertRecord->setEnabled(true);
         ui->actionSearchRecord->setEnabled(true);
-        ui->actionEraseRecord->setEnabled(true);
-        ui->actionShowRecords->setEnabled(true);
     }
 }
 
@@ -120,14 +116,6 @@ void MainWindow::on_actionInsertRecord_triggered()
 }
 
 void MainWindow::on_actionSearchRecord_triggered()
-{
-}
-
-void MainWindow::on_actionEraseRecord_triggered()
-{
-}
-
-void MainWindow::on_actionShowRecords_triggered()
 {
 }
 

@@ -177,9 +177,6 @@ public:
         menuFields->addAction(actionShowFields);
         menuRecords->addAction(actionInsertRecord);
         menuRecords->addAction(actionSearchRecord);
-        menuRecords->addAction(actionEraseRecord);
-        menuRecords->addSeparator();
-        menuRecords->addAction(actionShowRecords);
         menuRecords->addSeparator();
         menuRecords->addAction(actionCrossRecords);
         menuIndices->addAction(actionCreateSimpleIndex);

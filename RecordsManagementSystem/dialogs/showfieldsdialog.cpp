@@ -5,7 +5,6 @@
 
 #include <QTableWidgetItem>
 #include <QMessageBox>
-#include <QDebug>
 
 ShowFieldsDialog::ShowFieldsDialog(QString fileName, bool modifyMode, QWidget *parent) :
     QDialog(parent),
@@ -42,11 +41,13 @@ void ShowFieldsDialog::tableProperties()
 
     ui->tableWidgetFields->setSelectionBehavior(QAbstractItemView::SelectItems); //clicking on a item selects only the item
 
-    ui->tableWidgetFields->setColumnCount(5); //Number of columns
+    ui->tableWidgetFields->setColumnCount(6); //Number of columns
     ui->tableWidgetFields->setRowCount(this->getNumberOfFields()); //Number of rows
 
+    ui->tableWidgetFields->hideColumn(0);
+
     //Columns name
-    ui->tableWidgetFields->setHorizontalHeaderLabels(QString("Name;Type;Length;Decimal;Key").split(";"));
+    ui->tableWidgetFields->setHorizontalHeaderLabels(QString("Hide;Name;Type;Length;Decimal;Key").split(";"));
 }
 
 int ShowFieldsDialog::getNumberOfFields()
@@ -60,7 +61,7 @@ int ShowFieldsDialog::getNumberOfFields()
         return -1;
     }
 
-    const unsigned short int size = 7; //max number of digits of the number of fields
+    const unsigned short int size = 4; //max number of digits of the number of fields (Example: 1000 fields)
     char buffer[size] = {};
 
     //Reading
@@ -102,7 +103,7 @@ int ShowFieldsDialog::getLengthOfTheNumberOfFields()
         return -1;
     }
 
-    const unsigned short int size = 7; //max number of digits of the number of fields
+    const unsigned short int size = 4; //max number of digits of the number of fields(Example: 1000 fields)
     char buffer[size] = {};
 
     //Reading
@@ -132,42 +133,124 @@ int ShowFieldsDialog::getLengthOfTheNumberOfFields()
     return numberOfFields.length();
 }
 
-int ShowFieldsDialog::getTotalLengthOfFieldsProperties()
+int ShowFieldsDialog::getSizeOfTheFieldProperties(int position)
 {
-    //Open file
-    RecordsFile file(this->fileName.toStdString());
+    //Opening file
+    RecordsFile in;
 
-    //Amount of existing fields in the file
-    int numberOfFields = this->getNumberOfFields();
+    //Checks if there is a problem while opening the file
+    if ( !in.open(this->fileName.toStdString()))
+    {
+        return -1;
+    }
 
-    int fieldsPropertiesApproximateSize = numberOfFields * 28;
-    int fieldsPropertiesSize = 0;
+    //max number of digits of the size of the field properties (Example: 18 caracter of properties)
+    const unsigned short int size = 2;
+    char buffer[size] = {};
 
-    char buffer[fieldsPropertiesApproximateSize];
+    //Sets the read start position
+    in.seek(position);
 
-    //put the cursor of the file after the first ' | '
-    file.seek(this->getLengthOfTheNumberOfFields() + 1);
+    //Reading
+    in.read(buffer, size);
 
-    //Read
-    file.read(buffer, fieldsPropertiesApproximateSize);
+    in.close();
 
-    //Close
-    file.close();
+    //Stores the size of the field properties
+    QString sizeOfFieldProperties = "";
 
     //We move through the array of characters (buffer)
-    while ( fieldsPropertiesSize < fieldsPropertiesApproximateSize )
+    for ( int a = 0; a < size; a++ )
     {
-        //if this caracter is found, all the fields properties are already readed
-        if ( buffer[fieldsPropertiesSize] == ':' )
+        //if this caracter is found, the size of the field properties was already readed
+        if ( buffer[a] == ',' )
         {
-            --fieldsPropertiesSize; //Dont need the last ' | '
             break;
         }
 
-        fieldsPropertiesSize++;
+        else
+        {
+            //Concatenate the digit
+            sizeOfFieldProperties += buffer[a];
+        }
     }
 
-    return fieldsPropertiesSize;
+    //zero if the file is empty
+    return sizeOfFieldProperties.toInt();
+}
+
+int ShowFieldsDialog::getLengthOfTheSizeOfTheFieldProperties(int position)
+{
+    //Opening file
+    RecordsFile in;
+
+    //Checks if there is a problem while opening the file
+    if ( !in.open(this->fileName.toStdString()))
+    {
+        return -1;
+    }
+
+    //max number of digits of the size of the field properties (Example: 18 caracter of properties)
+    const unsigned short int size = 2;
+    char buffer[size] = {};
+
+    //Sets the read start position
+    in.seek(position);
+
+    //Reading
+    in.read(buffer, size);
+
+    in.close();
+
+    //Stores the size of the field properties
+    QString sizeOfFieldProperties = "";
+
+    //We move through the array of characters (buffer)
+    for ( int a = 0; a < size; a++ )
+    {
+        //if this caracter is found, the size of the field properties was already readed
+        if ( buffer[a] == ',' )
+        {
+            break;
+        }
+
+        else
+        {
+            //Concatenate the digit
+            sizeOfFieldProperties += buffer[a];
+        }
+    }
+
+    //zero if the file is empty
+    return sizeOfFieldProperties.length();
+}
+
+int ShowFieldsDialog::getTotalLengthOfFieldsProperties()
+{
+    //Opening file
+    RecordsFile file;
+
+    //Checks if there is a problem while opening the file
+    if ( !file.open(this->fileName.toStdString()))
+    {
+        return -1;
+    }
+
+    int numberOfFields = this->getNumberOfFields();
+    int characterCounter = this->getLengthOfTheNumberOfFields() + 1; //The number of fields + the first ' | '
+
+    //All the fields
+    for ( int a = 0; a < numberOfFields; a++ )
+    {
+        int position = characterCounter;
+
+        characterCounter += this->getLengthOfTheSizeOfTheFieldProperties(position) +
+                this->getSizeOfTheFieldProperties(position);
+
+        file.seek(characterCounter);
+    }
+
+    return (characterCounter - this->getLengthOfTheNumberOfFields());
 }
 
 QStringList ShowFieldsDialog::getFieldsProperties()
@@ -175,7 +258,7 @@ QStringList ShowFieldsDialog::getFieldsProperties()
     //Read file
     RecordsFile file(this->fileName.toStdString());
 
-    int size = this->getTotalLengthOfFieldsProperties();
+    int size = this->getTotalLengthOfFieldsProperties() - 1; // -1 because we dont need the last ' | '
     char buffer[size];
 
     file.seek(this->getLengthOfTheNumberOfFields() + 1);//put the cursor of the file after the first ' | '
