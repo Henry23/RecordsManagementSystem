@@ -1,5 +1,5 @@
-#include "showfieldsdialog.h"
-#include "ui_showfieldsdialog.h"
+#include "modifyfielddialog.h"
+#include "ui_modifyfielddialog.h"
 
 #include "classes/recordsfile.h"
 
@@ -8,14 +8,13 @@
 
 #include <qDebug>
 
-ShowFieldsDialog::ShowFieldsDialog(QString fileName, bool modifyMode, QWidget *parent) :
+ModifyFieldDialog::ModifyFieldDialog(QString fileName, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ShowFieldsDialog)
+    ui(new Ui::ModifyFieldDialog)
 {
     ui->setupUi(this);
 
     this->fileName = fileName;
-    this->modifyMode = modifyMode;
 
     this->recordOperations.setFileName(this->fileName);
 
@@ -23,26 +22,13 @@ ShowFieldsDialog::ShowFieldsDialog(QString fileName, bool modifyMode, QWidget *p
     this->showFields();
 }
 
-ShowFieldsDialog::~ShowFieldsDialog()
+ModifyFieldDialog::~ModifyFieldDialog()
 {
     delete ui;
 }
 
-void ShowFieldsDialog::tableProperties()
+void ModifyFieldDialog::tableProperties()
 {
-    //If the dialog was not open in modify mode
-    if ( !this->modifyMode )
-    {
-        ui->tableWidgetFields->setEditTriggers(QAbstractItemView::NoEditTriggers); //The table can not be edited
-        this->setWindowTitle(tr("Show Field"));
-    }
-
-    //If the dialog was open in modify mode
-    else
-    {
-        this->setWindowTitle(tr("Modify Fields"));
-    }
-
     ui->tableWidgetFields->setSelectionBehavior(QAbstractItemView::SelectItems); //clicking on a item selects only the item
 
     ui->tableWidgetFields->setColumnCount(6); //Number of columns
@@ -54,7 +40,7 @@ void ShowFieldsDialog::tableProperties()
     ui->tableWidgetFields->setHorizontalHeaderLabels(QString("Hide;Name;Type;Length;Decimal;Key").split(";"));
 }
 
-void ShowFieldsDialog::showFields()
+void ModifyFieldDialog::showFields()
 {
     QStringList fieldsProperties = this->recordOperations.getFieldsProperties();
 
@@ -72,7 +58,7 @@ void ShowFieldsDialog::showFields()
     }
 }
 
-void ShowFieldsDialog::on_tableWidgetFields_cellChanged(int row, int column)
+void ModifyFieldDialog::on_tableWidgetFields_cellChanged(int row, int column)
 {
     //Checks if there is a row selected (because while adding items, this function is call and there is no row selected)
     if ( ui->tableWidgetFields->currentIndex().row() > -1 )
@@ -85,13 +71,8 @@ void ShowFieldsDialog::on_tableWidgetFields_cellChanged(int row, int column)
             ui->tableWidgetFields->setItem(row, column, new QTableWidgetItem("Unknown"));
         }
 
-        //Henry, los paremetros de esta funcion almacenan la fila y columna del elemento que se modifico
-        //Utilizalos para saber que campo y que propiedad vas a modificar en el archivo
-        //Utiliza la siguiente instruccion para obtener el nombre del elemento modificado:
-        //ui->tableWidgetFields->item(row, column)->text();
-
         //we got the list of slipt it by '|'
-        QStringList fieldsProperties = this->getFieldsProperties();
+        QStringList fieldsProperties = this->recordOperations.getFieldsProperties();
 
         for ( int i = 0; i < fieldsProperties.size(); i++ )
         {
@@ -154,7 +135,7 @@ void ShowFieldsDialog::on_tableWidgetFields_cellChanged(int row, int column)
           }
 
 
-         length1 = ( this->getLengthOfTheNumberOfFields() + 1 ) + (tPositionRow) + tPositionColumn;
+         length1 = ( this->recordOperations.getLengthOfTheNumberOfFields() + 1 ) + (tPositionRow) + tPositionColumn;
 
          length2 = file.fileLength() - length1-1;
 
@@ -206,4 +187,5 @@ void ShowFieldsDialog::on_tableWidgetFields_cellChanged(int row, int column)
          delete [] buffer2;
 
     }
+
 }

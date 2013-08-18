@@ -173,8 +173,6 @@ public:
         menuFile->addAction(actionExit);
         menuFields->addAction(actionCreateField);
         menuFields->addAction(actionModifyField);
-        menuFields->addSeparator();
-        menuFields->addAction(actionShowFields);
         menuRecords->addAction(actionInsertRecord);
         menuRecords->addAction(actionSearchRecord);
         menuRecords->addSeparator();

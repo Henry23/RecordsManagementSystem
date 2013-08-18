@@ -19,18 +19,18 @@ SOURCES += main.cpp\
         classes/recordsfile.cpp \
         classes/recordoperations.cpp \
         dialogs/createfielddialog.cpp \
-        dialogs/showfieldsdialog.cpp
+        dialogs/modifyfielddialog.cpp
 
 HEADERS  += mainwindow.h \
         classes/adtfile.h \
         classes/recordsfile.h \
         classes/recordoperations.h \
         dialogs/createfielddialog.h \
-        dialogs/showfieldsdialog.h
+        dialogs/modifyfielddialog.h
 
 FORMS    += mainwindow.ui \
         dialogs/createfielddialog.ui \
-        dialogs/showfieldsdialog.ui
+        dialogs/modifyfielddialog.ui
 
 RESOURCES += \
     images.qrc

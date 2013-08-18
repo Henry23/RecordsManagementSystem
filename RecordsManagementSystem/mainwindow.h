@@ -34,8 +34,6 @@ private slots:
 
     void on_actionModifyField_triggered();
 
-    void on_actionShowFields_triggered();
-
     void on_actionInsertRecord_triggered();
 
     void on_actionSearchRecord_triggered();

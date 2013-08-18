@@ -210,6 +210,8 @@ int RecordOperations::getTotalLengthOfFieldsProperties()
         file.seek(characterCounter);
     }
 
+    file.close();
+
     return (characterCounter - this->getLengthOfTheNumberOfFields());
 }
 
@@ -227,6 +229,8 @@ QStringList RecordOperations::getFieldsProperties()
     //Store the buffer in a QString (Bescause of the 'split' function)
     QString temp = buffer;
     QStringList fieldsProperties = temp.split("|");
+
+    file.close();
 
     return fieldsProperties;
 }

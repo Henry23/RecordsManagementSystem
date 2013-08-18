@@ -4,10 +4,10 @@ INPUT(
 ./release\recordsfile.o
 ./release\recordoperations.o
 ./release\createfielddialog.o
-./release\showfieldsdialog.o
+./release\modifyfielddialog.o
 ./release\qrc_images.o
 ./release\moc_mainwindow.o
 ./release\moc_recordoperations.o
 ./release\moc_createfielddialog.o
-./release\moc_showfieldsdialog.o
+./release\moc_modifyfielddialog.o
 );

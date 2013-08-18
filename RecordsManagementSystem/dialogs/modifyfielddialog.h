@@ -1,22 +1,22 @@
-#ifndef SHOWFIELDSDIALOG_H
-#define SHOWFIELDSDIALOG_H
+#ifndef MODIFYFIELDDIALOG_H
+#define MODIFYFIELDDIALOG_H
 
 #include <QDialog>
 
 #include "classes/recordoperations.h"
 
 namespace Ui {
-class ShowFieldsDialog;
+class ModifyFieldDialog;
 }
 
-class ShowFieldsDialog : public QDialog
+class ModifyFieldDialog : public QDialog
 {
     Q_OBJECT
     
 public:
-    explicit ShowFieldsDialog(QString, bool = false, QWidget *parent = 0);
-    ~ShowFieldsDialog();
-
+    explicit ModifyFieldDialog(QString, QWidget *parent = 0);
+    ~ModifyFieldDialog();
+    
 private slots:
     void on_tableWidgetFields_cellChanged(int row, int column);
 
@@ -24,10 +24,9 @@ private:
     void tableProperties();
     void showFields();
 
-    Ui::ShowFieldsDialog *ui;
+    Ui::ModifyFieldDialog *ui;
     QString fileName;
     RecordOperations recordOperations;
-    bool modifyMode;
 };
 
-#endif // SHOWFIELDSDIALOG_H
+#endif // MODIFYFIELDDIALOG_H

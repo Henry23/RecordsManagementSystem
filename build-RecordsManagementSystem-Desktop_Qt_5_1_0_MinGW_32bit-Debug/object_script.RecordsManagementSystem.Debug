@@ -4,10 +4,10 @@ INPUT(
 ./debug\recordsfile.o
 ./debug\recordoperations.o
 ./debug\createfielddialog.o
-./debug\showfieldsdialog.o
+./debug\modifyfielddialog.o
 ./debug\qrc_images.o
 ./debug\moc_mainwindow.o
 ./debug\moc_recordoperations.o
 ./debug\moc_createfielddialog.o
-./debug\moc_showfieldsdialog.o
+./debug\moc_modifyfielddialog.o
 );

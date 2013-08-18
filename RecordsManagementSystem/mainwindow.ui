@@ -48,8 +48,6 @@
     </property>
     <addaction name="actionCreateField"/>
     <addaction name="actionModifyField"/>
-    <addaction name="separator"/>
-    <addaction name="actionShowFields"/>
    </widget>
    <widget class="QMenu" name="menuRecords">
     <property name="title">

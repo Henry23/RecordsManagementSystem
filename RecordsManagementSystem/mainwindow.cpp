@@ -3,7 +3,7 @@
 
 #include "classes/recordsfile.h"
 #include "dialogs/createfielddialog.h"
-#include "dialogs/showfieldsdialog.h"
+#include "dialogs/modifyfielddialog.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -50,7 +50,6 @@ void MainWindow::on_actionNewFile_triggered()
         ui->actionCloseFile->setEnabled(true);
         ui->actionCreateField->setEnabled(true);
         ui->actionModifyField->setEnabled(true);
-        ui->actionShowFields->setEnabled(true);
         ui->actionInsertRecord->setEnabled(true);
         ui->actionSearchRecord->setEnabled(true);
     }
@@ -74,7 +73,6 @@ void MainWindow::on_actionOpenFile_triggered()
         ui->actionCloseFile->setEnabled(true);
         ui->actionCreateField->setEnabled(true);
         ui->actionModifyField->setEnabled(true);
-        ui->actionShowFields->setEnabled(true);
         ui->actionInsertRecord->setEnabled(true);
         ui->actionSearchRecord->setEnabled(true);
     }
@@ -106,15 +104,7 @@ void MainWindow::on_actionCreateField_triggered()
 
 void MainWindow::on_actionModifyField_triggered()
 {
-    //Open dialgo in modify mode
-    ShowFieldsDialog *dialog = new ShowFieldsDialog(this->fileName, true);
-    dialog->exec();
-    delete dialog;
-}
-
-void MainWindow::on_actionShowFields_triggered()
-{
-    ShowFieldsDialog *dialog = new ShowFieldsDialog(this->fileName);
+    ModifyFieldDialog *dialog = new ModifyFieldDialog(this->fileName);
     dialog->exec();
     delete dialog;
 }
