@@ -67,6 +67,7 @@ public:
 
         lineEditName = new QLineEdit(layoutWidget);
         lineEditName->setObjectName(QStringLiteral("lineEditName"));
+        lineEditName->setMaxLength(15);
 
         formLayout->setWidget(0, QFormLayout::FieldRole, lineEditName);
 
@@ -88,7 +89,7 @@ public:
         spinBoxLength = new QSpinBox(layoutWidget);
         spinBoxLength->setObjectName(QStringLiteral("spinBoxLength"));
         spinBoxLength->setMinimum(1);
-        spinBoxLength->setMaximum(12);
+        spinBoxLength->setMaximum(64);
 
         formLayout->setWidget(2, QFormLayout::FieldRole, spinBoxLength);
 
@@ -137,6 +138,7 @@ public:
     {
         CreateFieldDialog->setWindowTitle(QApplication::translate("CreateFieldDialog", "Create Field", 0));
         label->setText(QApplication::translate("CreateFieldDialog", "Name:", 0));
+        lineEditName->setInputMask(QString());
         label_2->setText(QApplication::translate("CreateFieldDialog", "Type:", 0));
         comboBoxType->clear();
         comboBoxType->insertItems(0, QStringList()

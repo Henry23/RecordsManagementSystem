@@ -40,6 +40,10 @@ void MainWindow::on_actionNewFile_triggered()
         //Close
         create.close();
 
+        this->recordOperations.setFileName(this->fileName);
+
+        this->updateTableProperties();
+
         //Enable actions
         ui->actionSaveFile->setEnabled(true);
         ui->actionPrintFile->setEnabled(true);
@@ -60,6 +64,10 @@ void MainWindow::on_actionOpenFile_triggered()
     //If the user select a valid file
     if ( !this->fileName.isEmpty() )
     {
+        this->recordOperations.setFileName(this->fileName);
+
+        this->updateTableProperties();
+
         //Enable actions
         ui->actionSaveFile->setEnabled(true);
         ui->actionPrintFile->setEnabled(true);
@@ -153,4 +161,14 @@ void MainWindow::on_actionExportJSON_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
+}
+
+void MainWindow::updateTableProperties()
+{
+    ui->tableWidgetRecords->setSelectionBehavior(QAbstractItemView::SelectRows); //clicking on a item selects all the row
+
+    if ( this->recordOperations.getNumberOfFields() > 0 )
+    {
+        ui->tableWidgetRecords->setColumnCount(this->recordOperations.getNumberOfFields()); //Number of columns
+    }
 }

@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "classes/recordoperations.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -57,8 +59,11 @@ private slots:
     void on_actionAbout_triggered();
 
 private:
+    void updateTableProperties();
+
     Ui::MainWindow *ui;
     QString fileName = "";
+    RecordOperations recordOperations;
 };
 
 #endif // MAINWINDOW_H

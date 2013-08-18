@@ -8,12 +8,18 @@ using std::remove;
 
 #include "QMessageBox"
 
-CreateFieldDialog::CreateFieldDialog(QString file, QWidget *parent) :
+CreateFieldDialog::CreateFieldDialog(QString fileName, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CreateFieldDialog)
 {
     ui->setupUi(this);
-    this->fileName = file;
+    this->fileName = fileName;
+
+    this->recordOperations.setFileName(this->fileName);
+
+    //No spaces are allowed
+    QRegExp noSpaces("^\\S+$");
+    ui->lineEditName->setValidator(new QRegExpValidator(noSpaces,this));
 }
 
 CreateFieldDialog::~CreateFieldDialog()
@@ -26,22 +32,16 @@ void CreateFieldDialog::on_comboBoxType_currentIndexChanged(int index)
     //
     if ( index == 0 )
     {
-        ui->lineEditName->clear();
-        ui->lineEditName->setFocus();
         ui->spinBoxDecimal->setEnabled(false);
     }
 
     else if ( index == 1 )
     {
-        ui->lineEditName->clear();
-        ui->lineEditName->setFocus();
         ui->spinBoxDecimal->setEnabled(false);
     }
 
     else
     {
-        ui->lineEditName->clear();
-        ui->lineEditName->setFocus();
         ui->spinBoxDecimal->setEnabled(true);
     }
 }
@@ -66,7 +66,7 @@ void CreateFieldDialog::on_pushButtonAccept_clicked()
     else
     {
         //If the file is empty, this is the first field.
-        if ( this->getNumberOfFields() == 0 )
+        if ( this->recordOperations.getNumberOfFields() == 0 )
         {
             //Checks if the field was not added
             if ( !this->addFirstField() )
@@ -104,209 +104,6 @@ void CreateFieldDialog::on_pushButtonAccept_clicked()
 void CreateFieldDialog::on_pushButtonCancel_clicked()
 {
     this->close();
-}
-
-int CreateFieldDialog::getNumberOfFields()
-{
-    //Opening file
-    RecordsFile in;
-
-    //Checks if there is a problem while opening the file
-    if ( !in.open(this->fileName.toStdString()))
-    {
-        return -1;
-    }
-
-    const unsigned short int size = 4; //max number of digits of the number of fields (Example: 1000 fields)
-    char buffer[size] = {};
-
-    //Reading
-    in.read(buffer, size);
-
-    in.close();
-
-    //Stores the number of fields
-    QString numberOfFields = "";
-
-    //We move through the array of characters (buffer)
-    for ( int a = 0; a < size; a++ )
-    {
-        //if this caracter is found, the number of fields was already readed
-        if ( buffer[a] == '|' )
-        {
-            break;
-        }
-
-        else
-        {
-            //Concatenate the digit in the number of fields
-            numberOfFields += buffer[a];
-        }
-    }
-
-    //zero if the file is empty
-    return numberOfFields.toInt();
-}
-
-int CreateFieldDialog::getLengthOfTheNumberOfFields()
-{
-    //Opening file
-    RecordsFile in;
-
-    //Checks if there is a problem while opening the file
-    if ( !in.open(this->fileName.toStdString()))
-    {
-        return -1;
-    }
-
-    const unsigned short int size = 4; //max number of digits of the number of fields(Example: 1000 fields)
-    char buffer[size] = {};
-
-    //Reading
-    in.read(buffer, size);
-
-    in.close();
-
-    //Stores the number of fields
-    QString numberOfFields = "";
-
-    //We move through the array of characters (buffer)
-    for ( int a = 0; a < size; a++ )
-    {
-        //if this caracter is found, the number of fields was already readed
-        if ( buffer[a] == '|' )
-        {
-            break;
-        }
-
-        else
-        {
-            //Concatenate the digit in the number of fields
-            numberOfFields += buffer[a];
-        }
-    }
-
-    return numberOfFields.length();
-}
-
-int CreateFieldDialog::getSizeOfTheFieldProperties(int position)
-{
-    //Opening file
-    RecordsFile in;
-
-    //Checks if there is a problem while opening the file
-    if ( !in.open(this->fileName.toStdString()))
-    {
-        return -1;
-    }
-
-    //max number of digits of the size of the field properties (Example: 18 caracter of properties)
-    const unsigned short int size = 2;
-    char buffer[size] = {};
-
-    //Sets the read start position
-    in.seek(position);
-
-    //Reading
-    in.read(buffer, size);
-
-    in.close();
-
-    //Stores the size of the field properties
-    QString sizeOfFieldProperties = "";
-
-    //We move through the array of characters (buffer)
-    for ( int a = 0; a < size; a++ )
-    {
-        //if this caracter is found, the size of the field properties was already readed
-        if ( buffer[a] == ',' )
-        {
-            break;
-        }
-
-        else
-        {
-            //Concatenate the digit
-            sizeOfFieldProperties += buffer[a];
-        }
-    }
-
-    //zero if the file is empty
-    return sizeOfFieldProperties.toInt();
-}
-
-int CreateFieldDialog::getLengthOfTheSizeOfTheFieldProperties(int position)
-{
-    //Opening file
-    RecordsFile in;
-
-    //Checks if there is a problem while opening the file
-    if ( !in.open(this->fileName.toStdString()))
-    {
-        return -1;
-    }
-
-    //max number of digits of the size of the field properties (Example: 18 caracter of properties)
-    const unsigned short int size = 2;
-    char buffer[size] = {};
-
-    //Sets the read start position
-    in.seek(position);
-
-    //Reading
-    in.read(buffer, size);
-
-    in.close();
-
-    //Stores the size of the field properties
-    QString sizeOfFieldProperties = "";
-
-    //We move through the array of characters (buffer)
-    for ( int a = 0; a < size; a++ )
-    {
-        //if this caracter is found, the size of the field properties was already readed
-        if ( buffer[a] == ',' )
-        {
-            break;
-        }
-
-        else
-        {
-            //Concatenate the digit
-            sizeOfFieldProperties += buffer[a];
-        }
-    }
-
-    //zero if the file is empty
-    return sizeOfFieldProperties.length();
-}
-
-int CreateFieldDialog::getTotalLengthOfFieldsProperties()
-{
-    //Opening file
-    RecordsFile file;
-
-    //Checks if there is a problem while opening the file
-    if ( !file.open(this->fileName.toStdString()))
-    {
-        return -1;
-    }
-
-    int numberOfFields = this->getNumberOfFields();
-    int characterCounter = this->getLengthOfTheNumberOfFields() + 1; //The number of fields + the first ' | '
-
-    //All the fields
-    for ( int a = 0; a < numberOfFields; a++ )
-    {
-        int position = characterCounter;
-
-        characterCounter += this->getLengthOfTheSizeOfTheFieldProperties(position) +
-                this->getSizeOfTheFieldProperties(position);
-
-        file.seek(characterCounter);
-    }
-
-    return (characterCounter - this->getLengthOfTheNumberOfFields());
 }
 
 bool CreateFieldDialog::addFirstField()
@@ -358,18 +155,18 @@ bool CreateFieldDialog::addField()
     }
 
     //------------------------- Read fields Properties -----------------------------------
-    int fieldsPropertiesSize = this->getTotalLengthOfFieldsProperties();
+    int fieldsPropertiesSize = this->recordOperations.getTotalLengthOfFieldsProperties();
     char fieldsBuffer[fieldsPropertiesSize];
 
-    currentFile.seek(this->getLengthOfTheNumberOfFields());
+    currentFile.seek(this->recordOperations.getLengthOfTheNumberOfFields());
     currentFile.read(fieldsBuffer, fieldsPropertiesSize);
 
 
     //------------------------- Read records ----------------------------------
-    int recordsSize = currentFile.fileLength() - this->getLengthOfTheNumberOfFields() - fieldsPropertiesSize;
+    int recordsSize = currentFile.fileLength() - this->recordOperations.getLengthOfTheNumberOfFields() - fieldsPropertiesSize;
     char recordsBuffer[recordsSize];
 
-    currentFile.seek(this->getLengthOfTheNumberOfFields() + fieldsPropertiesSize);
+    currentFile.seek(this->recordOperations.getLengthOfTheNumberOfFields() + fieldsPropertiesSize);
     currentFile.read(recordsBuffer, recordsSize);
 
     //Close current file
@@ -393,7 +190,7 @@ bool CreateFieldDialog::addField()
 
     //------------------------- Insert new field ------------------------------
     QString newNumberOfFieldsSize = "";
-    newNumberOfFieldsSize += QString::number(this->getNumberOfFields() + 1);
+    newNumberOfFieldsSize += QString::number(this->recordOperations.getNumberOfFields() + 1);
     const char *newNumberOfFields = newNumberOfFieldsSize.toStdString().c_str();
 
     if ( remove(this->fileName.toStdString().c_str()) != 0 )

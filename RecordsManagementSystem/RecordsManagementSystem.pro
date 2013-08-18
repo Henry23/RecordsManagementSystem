@@ -17,12 +17,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
         classes/recordsfile.cpp \
+        classes/recordoperations.cpp \
         dialogs/createfielddialog.cpp \
         dialogs/showfieldsdialog.cpp
 
 HEADERS  += mainwindow.h \
         classes/adtfile.h \
         classes/recordsfile.h \
+        classes/recordoperations.h \
         dialogs/createfielddialog.h \
         dialogs/showfieldsdialog.h
 
