@@ -60,9 +60,13 @@ private slots:
 
     void deleteRecord();
 
+    void on_tableWidgetRecords_cellChanged(int row, int column);
+
 private:
     void clearTable();
     void updateTable();
+    bool areAllFieldsEdited();
+    bool insertRecord();
 
     Ui::MainWindow *ui;
     QMenu *popupMenu;

@@ -5,6 +5,9 @@
 #include "dialogs/createfielddialog.h"
 #include "dialogs/modifyfielddialog.h"
 
+#include <cstdio>
+using std::remove;
+
 #include <QFileDialog>
 #include <QTableWidgetItem>
 #include <QMessageBox>
@@ -219,6 +222,19 @@ void MainWindow::updateTable()
     }
 }
 
+bool MainWindow::areAllFieldsEdited()
+{
+    for ( int a = 1; a < ui->tableWidgetRecords->columnCount(); a++ )
+    {
+        if ( ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, a) == 0 )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void MainWindow::on_tableWidgetRecords_customContextMenuRequested(const QPoint &pos)
 {
     //check if there are rows
@@ -251,7 +267,7 @@ void MainWindow::on_tableWidgetRecords_customContextMenuRequested(const QPoint &
 void MainWindow::insertRow()
 {
     //If the last row is not empty, the user can insert a new row.
-    if ( ( ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, 0) != 0 ) )
+    if ( this->areAllFieldsEdited() )
     {
         //Insert a new row
         ui->tableWidgetRecords->insertRow(ui->tableWidgetRecords->rowCount());
@@ -263,6 +279,118 @@ void MainWindow::insertRow()
         //Insert a new row
         ui->tableWidgetRecords->insertRow(ui->tableWidgetRecords->rowCount());
     }
+}
+
+void MainWindow::on_tableWidgetRecords_cellChanged(int row, int column)
+{
+    //Checks if there is a row selected (because while adding items, this function is call and there is no row selected)
+    if ( ui->tableWidgetRecords->currentIndex().row() > -1 )
+    {
+        //If the edited row is not the last one
+        if ( row != ui->tableWidgetRecords->rowCount() - 1 )
+        {
+            QMessageBox::critical(this, tr("Error"), tr("Can not modify a record"));
+        }
+
+        //Checks if the column is the last column
+        else if ( column == ui->tableWidgetRecords->columnCount() - 1 )
+        {
+            //Checks if the last row is empty or al single column is empty
+            if ( !this->areAllFieldsEdited() )
+            {
+                QMessageBox::critical(this, tr("Error"), tr("The record is not complete"));
+            }
+
+            //If all fields are edited
+            else
+            {
+                if ( !this->insertRecord() )
+                {
+                    QMessageBox::critical(this, "Error", "An error occurred while trying to add the record");
+                }
+
+                else
+                {
+                    QMessageBox::information(this, "Success", "The record has been added successfully");
+                }
+            }
+        }
+    }
+}
+
+bool MainWindow::insertRecord()
+{
+    RecordsFile file;
+    RecordsFile newFile;
+
+    if ( !file.open(this->fileName.toStdString()) )
+    {
+        return false;
+    }
+
+    //------------------------------------------------------------------------------------------
+
+    //Number of fields length + total length of field information + ' : '
+    int firstPartSize = this->recordOperations.getInitialPositionOfRecordsInformation();
+    char firstPartBuffer[firstPartSize];
+
+    file.read(firstPartBuffer, firstPartSize);
+
+    //------------------------------------------------------------------------------------------
+
+    QString newNumberOfRecordsSize = "";
+    newNumberOfRecordsSize += QString::number(this->recordOperations.getNumberOfRecords() + 1);
+
+    //------------------------------------------------------------------------------------------
+
+    int recordsInformationSize = this->recordOperations.getTotalLengthOfRecordsInformation();
+    char recordsInformationBuffer[recordsInformationSize];
+
+    file.seek(firstPartSize + this->recordOperations.getLengthOfTheNumberOfRecords());
+    file.read(recordsInformationBuffer, recordsInformationSize);
+
+    file.close();
+
+    //------------------------------------------------------------------------------------------
+
+    QString newRecordSize = "";
+
+    for ( int a = 1; a < ui->tableWidgetRecords->columnCount(); a++ )
+    {
+        newRecordSize += ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, a)->text() + ",";
+    }
+
+    newRecordSize.remove(newRecordSize.size() - 1, 1);
+    newRecordSize += "|";
+
+    int temp = newRecordSize.size() + 1;
+
+    newRecordSize = QString::number(temp) + "," + newRecordSize;
+
+    const char *newRecord = newRecordSize.toStdString().c_str();
+
+    //------------------------------------------------------------------------------------------
+
+
+    if ( remove(this->fileName.toStdString().c_str()) != 0 )
+    {
+        return false;
+    }
+
+    if ( !newFile.open(this->fileName.toStdString(), ios::out) )
+    {
+        return false;
+    }
+
+    newFile.write(firstPartBuffer, firstPartSize);
+    newFile.write(newNumberOfRecordsSize.toStdString().c_str(), newNumberOfRecordsSize.size());
+    newFile.write(recordsInformationBuffer, recordsInformationSize);
+    newFile.write(newRecord, newRecordSize.size());
+
+    newFile.close();
+
+    return true;
+
 }
 
 void MainWindow::deleteRecord()
