@@ -117,14 +117,14 @@ bool CreateFieldDialog::addFirstField()
         return false;
     }
 
-    //Field properties size
-    int fieldPropertiesSize = 8; // 5(,)  1(|)  1(Decimal)  1(Key)
-    fieldPropertiesSize += ui->lineEditName->text().size(); //Text size field name
-    fieldPropertiesSize += ui->comboBoxType->currentText().size(); //Text size fiel type
-    fieldPropertiesSize += QString::number(ui->spinBoxLength->value()).size(); //Digits of the field name length
+    //Field information size
+    int fieldInformationSize = 8; // 5(,)  1(|)  1(Decimal)  1(Key)
+    fieldInformationSize += ui->lineEditName->text().size(); //Text size field name
+    fieldInformationSize += ui->comboBoxType->currentText().size(); //Text size fiel type
+    fieldInformationSize += QString::number(ui->spinBoxLength->value()).size(); //Digits of the field name length
 
     //Save field information
-    QString fieldInfo = QString::number(1) + "|" + QString::number(fieldPropertiesSize) + "," +
+    QString fieldInfo = QString::number(1) + "|" + QString::number(fieldInformationSize) + "," +
             ui->lineEditName->text() + "," + ui->comboBoxType->currentText() + "," +
             QString::number(ui->spinBoxLength->value()) + "," + QString::number(ui->spinBoxDecimal->value()) +
             "," + QString::number(ui->checkBoxKey->isChecked()) + "|:";
@@ -154,19 +154,19 @@ bool CreateFieldDialog::addField()
         return false;
     }
 
-    //------------------------- Read fields Properties -----------------------------------
-    int fieldsPropertiesSize = this->recordOperations.getTotalLengthOfFieldsProperties();
-    char fieldsBuffer[fieldsPropertiesSize];
+    //------------------------- Read fields Information -----------------------------------
+    int fieldsInformationSize = this->recordOperations.getTotalLengthOfFieldsInformation();
+    char fieldsBuffer[fieldsInformationSize];
 
     currentFile.seek(this->recordOperations.getLengthOfTheNumberOfFields());
-    currentFile.read(fieldsBuffer, fieldsPropertiesSize);
+    currentFile.read(fieldsBuffer, fieldsInformationSize);
 
 
     //------------------------- Read records ----------------------------------
-    int recordsSize = currentFile.fileLength() - this->recordOperations.getLengthOfTheNumberOfFields() - fieldsPropertiesSize;
+    int recordsSize = currentFile.fileLength() - this->recordOperations.getLengthOfTheNumberOfFields() - fieldsInformationSize;
     char recordsBuffer[recordsSize];
 
-    currentFile.seek(this->recordOperations.getLengthOfTheNumberOfFields() + fieldsPropertiesSize);
+    currentFile.seek(this->recordOperations.getLengthOfTheNumberOfFields() + fieldsInformationSize);
     currentFile.read(recordsBuffer, recordsSize);
 
     //Close current file
@@ -174,13 +174,13 @@ bool CreateFieldDialog::addField()
 
 
     //------------------------- New field -------------------------------------
-    //Field properties size
-    int fieldPropertiesSize = 8; // 5(,)  1(|)  1(Decimal)  1(Key)
-    fieldPropertiesSize += ui->lineEditName->text().size(); //Text size field name
-    fieldPropertiesSize += ui->comboBoxType->currentText().size(); //Text size fiel type
-    fieldPropertiesSize += QString::number(ui->spinBoxLength->value()).size(); //Digits of the field name length
+    //Field information size
+    int fieldInformationSize = 8; // 5(,)  1(|)  1(Decimal)  1(Key)
+    fieldInformationSize += ui->lineEditName->text().size(); //Text size field name
+    fieldInformationSize += ui->comboBoxType->currentText().size(); //Text size fiel type
+    fieldInformationSize += QString::number(ui->spinBoxLength->value()).size(); //Digits of the field name length
 
-    QString fieldInfo = QString::number(fieldPropertiesSize) + "," + ui->lineEditName->text() + "," + ui->comboBoxType->currentText() +
+    QString fieldInfo = QString::number(fieldInformationSize) + "," + ui->lineEditName->text() + "," + ui->comboBoxType->currentText() +
             "," + QString::number(ui->spinBoxLength->value()) + "," + QString::number(ui->spinBoxDecimal->value()) +
             "," + QString::number(ui->checkBoxKey->isChecked()) + "|";
 
@@ -204,7 +204,7 @@ bool CreateFieldDialog::addField()
     }
 
     newFile.write(newNumberOfFields, newNumberOfFieldsSize.size());
-    newFile.write(fieldsBuffer, fieldsPropertiesSize);
+    newFile.write(fieldsBuffer, fieldsInformationSize);
     newFile.write(newField, fieldInfo.size());
     newFile.write(recordsBuffer, recordsSize);
 

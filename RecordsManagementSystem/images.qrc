@@ -1,3 +1,13 @@
 <RCC>
-    <qresource prefix="/images"/>
+    <qresource prefix="/">
+        <file>images/newFile.png</file>
+        <file>images/openFile.png</file>
+        <file>images/close.png</file>
+        <file>images/createField.png</file>
+        <file>images/exit.png</file>
+        <file>images/modifyField.png</file>
+        <file>images/print.png</file>
+        <file>images/save.png</file>
+        <file>images/search.png</file>
+    </qresource>
 </RCC>

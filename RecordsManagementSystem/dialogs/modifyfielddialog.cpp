@@ -29,8 +29,6 @@ ModifyFieldDialog::~ModifyFieldDialog()
 
 void ModifyFieldDialog::tableProperties()
 {
-    ui->tableWidgetFields->setSelectionBehavior(QAbstractItemView::SelectItems); //clicking on a item selects only the item
-
     ui->tableWidgetFields->setColumnCount(6); //Number of columns
     ui->tableWidgetFields->setRowCount(this->recordOperations.getNumberOfFields()); //Number of rows
 
@@ -42,18 +40,18 @@ void ModifyFieldDialog::tableProperties()
 
 void ModifyFieldDialog::showFields()
 {
-    QStringList fieldsProperties = this->recordOperations.getFieldsProperties();
+    QStringList fieldsInformation = this->recordOperations.getFieldsInformation();
 
     //Rows
-    for ( int a = 0; a < fieldsProperties.size(); a++ )
+    for ( int a = 0; a < fieldsInformation.size(); a++ )
     {
-        QStringList fieldProperties = fieldsProperties.at(a).split(",");
+        QStringList fieldInformation = fieldsInformation.at(a).split(",");
 
         //Columns
-        for ( int b = 0; b <fieldProperties.size(); b++ )
+        for ( int b = 0; b < fieldInformation.size(); b++ )
         {
             //Insert a row
-            ui->tableWidgetFields->setItem(a, b, new QTableWidgetItem(fieldProperties.at(b)));
+            ui->tableWidgetFields->setItem(a, b, new QTableWidgetItem(fieldInformation.at(b)));
         }
     }
 }
@@ -72,7 +70,7 @@ void ModifyFieldDialog::on_tableWidgetFields_cellChanged(int row, int column)
         }
 
         //we got the list of slipt it by '|'
-        QStringList fieldsProperties = this->recordOperations.getFieldsProperties();
+        QStringList fieldsProperties = this->recordOperations.getFieldsInformation();
 
         for ( int i = 0; i < fieldsProperties.size(); i++ )
         {

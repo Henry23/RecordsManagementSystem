@@ -34,8 +34,6 @@ private slots:
 
     void on_actionModifyField_triggered();
 
-    void on_actionInsertRecord_triggered();
-
     void on_actionSearchRecord_triggered();
 
     void on_actionCrossRecords_triggered();
@@ -56,10 +54,20 @@ private slots:
 
     void on_actionAbout_triggered();
 
+    void on_tableWidgetRecords_customContextMenuRequested(const QPoint &pos);
+
+    void insertRow();
+
+    void deleteRecord();
+
 private:
-    void updateTableProperties();
+    void clearTable();
+    void updateTable();
 
     Ui::MainWindow *ui;
+    QMenu *popupMenu;
+    QAction *actionInsertRow;
+    QAction *actionDeleteRecord;
     QString fileName = "";
     RecordOperations recordOperations;
 };

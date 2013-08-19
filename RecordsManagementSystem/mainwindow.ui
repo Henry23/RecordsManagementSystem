@@ -11,12 +11,19 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Records Management System - Alpha 1</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QTableWidget" name="tableWidgetRecords"/>
+     <widget class="QTableWidget" name="tableWidgetRecords">
+      <property name="contextMenuPolicy">
+       <enum>Qt::CustomContextMenu</enum>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -53,7 +60,6 @@
     <property name="title">
      <string>Records</string>
     </property>
-    <addaction name="actionInsertRecord"/>
     <addaction name="actionSearchRecord"/>
     <addaction name="separator"/>
     <addaction name="actionCrossRecords"/>
@@ -91,22 +97,48 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="movable">
+    <bool>false</bool>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionNewFile"/>
+   <addaction name="actionOpenFile"/>
+   <addaction name="actionSaveFile"/>
+   <addaction name="actionPrintFile"/>
+   <addaction name="actionCreateField"/>
+   <addaction name="actionModifyField"/>
+   <addaction name="actionSearchRecord"/>
+   <addaction name="actionCloseFile"/>
+   <addaction name="actionExit"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNewFile">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/newFile.png</normaloff>:/images/newFile.png</iconset>
+   </property>
    <property name="text">
     <string>New</string>
+   </property>
+   <property name="iconText">
+    <string>New</string>
+   </property>
+   <property name="toolTip">
+    <string>New File</string>
    </property>
   </action>
   <action name="actionSaveFile">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -116,6 +148,10 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/print.png</normaloff>:/images/print.png</iconset>
+   </property>
    <property name="text">
     <string>Print</string>
    </property>
@@ -124,11 +160,19 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/close.png</normaloff>:/images/close.png</iconset>
+   </property>
    <property name="text">
     <string>Close</string>
    </property>
   </action>
   <action name="actionExit">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
+   </property>
    <property name="text">
     <string>Exit</string>
    </property>
@@ -137,16 +181,30 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/createField.png</normaloff>:/images/createField.png</iconset>
+   </property>
    <property name="text">
     <string>Create</string>
+   </property>
+   <property name="toolTip">
+    <string>Create Field</string>
    </property>
   </action>
   <action name="actionModifyField">
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/modifyField.png</normaloff>:/images/modifyField.png</iconset>
+   </property>
    <property name="text">
     <string>Modify</string>
+   </property>
+   <property name="toolTip">
+    <string>Modify Field</string>
    </property>
   </action>
   <action name="actionCreateSimpleIndex">
@@ -174,8 +232,15 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
+   </property>
    <property name="text">
     <string>Search</string>
+   </property>
+   <property name="toolTip">
+    <string>Search Record</string>
    </property>
   </action>
   <action name="actionEraseRecord">
@@ -235,12 +300,21 @@
    </property>
   </action>
   <action name="actionOpenFile">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/openFile.png</normaloff>:/images/openFile.png</iconset>
+   </property>
    <property name="text">
     <string>Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open File</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="images.qrc"/>
+ </resources>
  <connections/>
 </ui>
