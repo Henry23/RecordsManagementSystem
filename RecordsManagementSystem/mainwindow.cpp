@@ -267,6 +267,86 @@ void MainWindow::insertRow()
 
 void MainWindow::deleteRecord()
 {
-    //Henry: Los indices de la tabla empiezan en cero, asi que le podes sumar uno para que se te sea mas facil
-    int index = ui->tableWidgetRecords->currentRow() + 1;
+    //index of the record im trying to delete
+    int index = ui->tableWidgetRecords->currentRow();
+
+    // opening the record's file
+    RecordsFile file ( this->fileName.toStdString() );
+
+    //we open the record's clase center control
+    RecordOperations a;
+        a.setFileName ( this->fileName );
+
+    // counting the length of the records we dont need to delete
+    int positonIndex = 0;
+    for (int i = 0; i < index; i++)
+    {
+        positonIndex += a.getRecordsInformation()[i].length() + 1;
+    }
+
+     //we get the length of the position we need to be
+     int length1 = a.getInitialPositionOfRecordsInformation() + a.getLengthOfTheNumberOfRecords() + 1 + positonIndex;
+     int length2 = 0;
+     if( a.getNumberOfRecords() == index + 1)
+     {
+         length2 = 1;
+     }else
+     {
+        length2 = a.getTotalLengthOfRecordsInformation() - ( a.getRecordsInformation()[index].length() +  a.getLengthOfTheNumberOfRecords() + 1 );
+     }
+     //buffers
+     char * buffer1 = new char[length1];
+     char * buffer2 = new char[length2];
+
+     //we read the file
+     file.read ( buffer1 ,length1 );
+     file.seek ( length1 + a.getRecordsInformation()[index].length() );
+     file.read ( buffer2 , length2 );
+     file.close();
+
+     //delete the old file
+     const char *path = this->fileName.toStdString().c_str();
+
+     //we get the first position of the actul record
+     QStringList recordList =   a.getRecordsInformation().at(index).split(',');
+
+     //the length of the empty record
+     int length3 = recordList.at(0).toInt()-2;
+
+     //buffer is empty
+     char * buffer3 = new char[length3];
+
+
+     for ( int i = 0; i < length3; i++)
+     {
+         buffer3[i] = '-';
+     }
+     remove( path );
+
+     //creating the new file
+     RecordsFile create;
+     //Check if there is a problem while creating the file
+     if ( !create.open(this->fileName.toStdString(),  ios::out) )
+     {
+         QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
+    }
+
+     const char* lenghtOfrecord = recordList.at(0).toStdString().c_str();
+
+     //writing new information on the new file
+     create.write ( buffer1, length1);
+
+     create.write ( lenghtOfrecord, 2);
+     create.write ( ",", 1);
+     create.write ( buffer3, length3);
+     create.write ( buffer2, length2) ;
+     create.close();
+
+     //delete the buffer
+     delete [] buffer1;
+     delete [] buffer2;
+     delete [] buffer3;
+
+     //updating the table
+     updateTable();
 }
