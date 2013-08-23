@@ -6,13 +6,15 @@
 #include <cstdio>
 using std::remove;
 
-#include "QMessageBox"
+#include <QMessageBox>
+#include <QDebug>
 
 CreateFieldDialog::CreateFieldDialog(QString fileName, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CreateFieldDialog)
 {
     ui->setupUi(this);
+
     this->fileName = fileName;
 
     this->recordOperations.setFileName(this->fileName);
@@ -29,7 +31,6 @@ CreateFieldDialog::~CreateFieldDialog()
 
 void CreateFieldDialog::on_comboBoxType_currentIndexChanged(int index)
 {
-    //
     if ( index == 0 )
     {
         ui->spinBoxDecimal->setEnabled(false);
@@ -55,13 +56,6 @@ void CreateFieldDialog::on_pushButtonAccept_clicked()
         ui->lineEditName->setFocus();
     }
 
-    //Validate if the user has specified a length
-    else if ( ui->spinBoxLength->value() == 0 )
-    {
-        QMessageBox::critical(this, tr("Error"), tr("Specify a length value"));
-        ui->spinBoxLength->setFocus();
-    }
-
     //If everything is ok
     else
     {
@@ -80,7 +74,7 @@ void CreateFieldDialog::on_pushButtonAccept_clicked()
             }
         }
 
-        //There is one or more fields in the file
+        //There is one or more fields/records in the file
         else
         {
             //Checks if the field was not added
@@ -129,11 +123,9 @@ bool CreateFieldDialog::addFirstField()
             QString::number(ui->spinBoxLength->value()) + "," + QString::number(ui->spinBoxDecimal->value()) +
             "," + QString::number(ui->checkBoxKey->isChecked()) + "|:";
 
-    //convert field information into a const char*
-    const char *field = fieldInfo.toStdString().c_str();
 
     //Checks if there is no problem writing in the file
-    if ( out.write(field, fieldInfo.size()) == -1 )
+    if ( out.write(fieldInfo.toStdString().c_str(), fieldInfo.size()) == -1 )
     {
         return false;
     }
@@ -154,44 +146,53 @@ bool CreateFieldDialog::addField()
         return false;
     }
 
+    //------------------------ New number of fields ---------------------------------------
+
+    //Current number of fields + 1
+    QString newNumberOfFields = "";
+    newNumberOfFields += QString::number(this->recordOperations.getNumberOfFields() + 1);
+
+
     //------------------------- Read fields Information -----------------------------------
-    int fieldsInformationSize = this->recordOperations.getTotalLengthOfFieldsInformation();
-    char fieldsBuffer[fieldsInformationSize];
 
+    //start at ' | ' end at ' | '
+    int currentFieldsInformationSize = this->recordOperations.getLengthOfFieldsInformation();
+    char currentFieldsInformationBuffer[currentFieldsInformationSize];
+
+    //Set the cursor of the file after the number of fields
     currentFile.seek(this->recordOperations.getLengthOfTheNumberOfFields());
-    currentFile.read(fieldsBuffer, fieldsInformationSize);
-
-
-    //------------------------- Read records ----------------------------------
-    int recordsSize = currentFile.fileLength() - this->recordOperations.getLengthOfTheNumberOfFields() - fieldsInformationSize;
-    char recordsBuffer[recordsSize];
-
-    currentFile.seek(this->recordOperations.getLengthOfTheNumberOfFields() + fieldsInformationSize);
-    currentFile.read(recordsBuffer, recordsSize);
-
-    //Close current file
-    currentFile.close();
+    currentFile.read(currentFieldsInformationBuffer, currentFieldsInformationSize);
 
 
     //------------------------- New field -------------------------------------
+
     //Field information size
     int fieldInformationSize = 8; // 5(,)  1(|)  1(Decimal)  1(Key)
     fieldInformationSize += ui->lineEditName->text().size(); //Text size field name
     fieldInformationSize += ui->comboBoxType->currentText().size(); //Text size fiel type
     fieldInformationSize += QString::number(ui->spinBoxLength->value()).size(); //Digits of the field name length
 
-    QString fieldInfo = QString::number(fieldInformationSize) + "," + ui->lineEditName->text() + "," + ui->comboBoxType->currentText() +
+    QString newField = QString::number(fieldInformationSize) + "," + ui->lineEditName->text() + "," + ui->comboBoxType->currentText() +
             "," + QString::number(ui->spinBoxLength->value()) + "," + QString::number(ui->spinBoxDecimal->value()) +
-            "," + QString::number(ui->checkBoxKey->isChecked()) + "|";
+            "," + QString::number(ui->checkBoxKey->isChecked()) + "|:";
 
-    //convert field information into a const char*
-    const char *newField = fieldInfo.toStdString().c_str();
+
+
+    //------------------------- Read records ----------------------------------
+
+    int recordsSize = this->recordOperations.getLengthOfTheNumberOfRecords() + this->recordOperations.getLengthOfRecordsInformation();
+    char recordsBuffer[recordsSize];
+
+    currentFile.seek(this->recordOperations.getInitialPositionOfRecordsInformation());
+    currentFile.read(recordsBuffer, recordsSize);
+
+    //Close current file
+    currentFile.close();
+
 
 
     //------------------------- Insert new field ------------------------------
-    QString newNumberOfFieldsSize = "";
-    newNumberOfFieldsSize += QString::number(this->recordOperations.getNumberOfFields() + 1);
-    const char *newNumberOfFields = newNumberOfFieldsSize.toStdString().c_str();
+
 
     if ( remove(this->fileName.toStdString().c_str()) != 0 )
     {
@@ -203,9 +204,9 @@ bool CreateFieldDialog::addField()
         return false;
     }
 
-    newFile.write(newNumberOfFields, newNumberOfFieldsSize.size());
-    newFile.write(fieldsBuffer, fieldsInformationSize);
-    newFile.write(newField, fieldInfo.size());
+    newFile.write(newNumberOfFields.toStdString().c_str(), newNumberOfFields.size());
+    newFile.write(currentFieldsInformationBuffer, currentFieldsInformationSize);
+    newFile.write(newField.toStdString().c_str(), newField.size());
     newFile.write(recordsBuffer, recordsSize);
 
     newFile.close();

@@ -1,5 +1,7 @@
 #include "recordoperations.h"
 
+#include <QDebug>
+
 RecordOperations::RecordOperations(QObject *parent) :
     QObject(parent)
 {
@@ -25,6 +27,13 @@ int RecordOperations::getNumberOfFields()
     if ( !in.open(this->fileName.toStdString()))
     {
         return -1;
+    }
+
+    //If the file is empty
+    if ( in.fileLength() == 0 )
+    {
+        in.close();
+        return 0;
     }
 
     const unsigned short int size = 4; //max number of digits of the number of fields (Example: 1000 fields)
@@ -54,7 +63,6 @@ int RecordOperations::getNumberOfFields()
         }
     }
 
-    //zero if the file is empty
     return numberOfFields.toInt();
 }
 
@@ -67,6 +75,13 @@ int RecordOperations::getLengthOfTheNumberOfFields()
     if ( !in.open(this->fileName.toStdString()))
     {
         return -1;
+    }
+
+    //If the number of field is zero (the file is empty)
+    if ( this->getNumberOfFields() == 0 )
+    {
+        in.close();
+        return 0;
     }
 
     const unsigned short int size = 4; //max number of digits of the number of fields(Example: 1000 fields)
@@ -110,7 +125,7 @@ int RecordOperations::getSizeOfAFieldInformation(int position)
         return -1;
     }
 
-    //max number of digits of the size of the field properties (Example: 31 caracter of information)
+    //max number of digits of the size of the field information (Example: 31 caracter of information)
     const unsigned short int size = 2;
     char buffer[size] = {};
 
@@ -168,7 +183,7 @@ int RecordOperations::getLengthOfTheSizeOfAFieldInformation(int position)
 
     in.close();
 
-    //Stores the size of the field properties
+    //Stores the size of the field information
     QString sizeOfFieldInformation = "";
 
     //We move through the array of characters (buffer)
@@ -191,7 +206,7 @@ int RecordOperations::getLengthOfTheSizeOfAFieldInformation(int position)
     return sizeOfFieldInformation.length();
 }
 
-int RecordOperations::getTotalLengthOfFieldsInformation()
+int RecordOperations::getLengthOfFieldsInformation()
 {
     //Opening file
     RecordsFile file;
@@ -200,6 +215,13 @@ int RecordOperations::getTotalLengthOfFieldsInformation()
     if ( !file.open(this->fileName.toStdString()))
     {
         return -1;
+    }
+
+    //If the number of fields is zero (the file is empty)
+    if ( this->getNumberOfFields() == 0 )
+    {
+        file.close();
+        return 0;
     }
 
     int numberOfFields = this->getNumberOfFields();
@@ -218,6 +240,7 @@ int RecordOperations::getTotalLengthOfFieldsInformation()
 
     file.close();
 
+    //Return the length of the fields information
     return (characterCounter - this->getLengthOfTheNumberOfFields());
 }
 
@@ -226,19 +249,18 @@ QStringList RecordOperations::getFieldsInformation()
     //Read file
     RecordsFile file(this->fileName.toStdString());
 
-    int size = this->getTotalLengthOfFieldsInformation() - 1; // -1 because we dont need the last ' | '
+    int size = this->getLengthOfFieldsInformation() - 2; // -2 because we dont need the first and last ' | '
     char buffer[size];
 
     file.seek(this->getLengthOfTheNumberOfFields() + 1);//put the cursor of the file after the first ' | '
     file.read(buffer, size);
 
-    //Store the buffer in a QString (Bescause of the 'split' function)
-    QString temp = buffer;
-    QStringList fieldsInformation = temp.split("|");
-
     file.close();
 
-    return fieldsInformation;
+    //Store the buffer in a QString (Bescause of the 'split' function)
+    QString fieldsInformation = buffer;
+
+    return fieldsInformation.split("|");
 }
 
 
@@ -250,7 +272,7 @@ QStringList RecordOperations::getFieldsInformation()
 int RecordOperations::getInitialPositionOfRecordsInformation()
 {
     //La longitud del numero de campos + la informacion de los campos + los dos puntos ' : '
-    return this->getLengthOfTheNumberOfFields() + this->getTotalLengthOfFieldsInformation() + 1;
+    return this->getLengthOfTheNumberOfFields() + this->getLengthOfFieldsInformation() + 1;
 }
 
 int RecordOperations::getNumberOfRecords()
@@ -262,6 +284,13 @@ int RecordOperations::getNumberOfRecords()
     if ( !in.open(this->fileName.toStdString()))
     {
         return -1;
+    }
+
+    //If the length of the file is equals to the initial position of records informations, no records
+    if ( in.fileLength() == this->getInitialPositionOfRecordsInformation() )
+    {
+        in.close();
+        return 0;
     }
 
     const unsigned short int size = 4; //max number of digits of the number of records (Example: 1000 records)
@@ -294,7 +323,6 @@ int RecordOperations::getNumberOfRecords()
         }
     }
 
-    //zero if the file is empty
     return numberOfRecords.toInt();
 }
 
@@ -309,6 +337,13 @@ int RecordOperations::getLengthOfTheNumberOfRecords()
         return -1;
     }
 
+    //If there are no records
+    if ( this->getNumberOfRecords() == 0 )
+    {
+        in.close();
+        return 0;
+    }
+
     const unsigned short int size = 4; //max number of digits of the number of records (Example: 1000 records)
     char buffer[size] = {};
 
@@ -339,7 +374,6 @@ int RecordOperations::getLengthOfTheNumberOfRecords()
         }
     }
 
-    //zero if the file is empty
     return numberOfRecords.length();
 }
 
@@ -435,7 +469,7 @@ int RecordOperations::getLengthOfTheSizeOfARecordInformation(int position)
     return sizeOfRecordInformation.size();
 }
 
-int RecordOperations::getTotalLengthOfRecordsInformation()
+int RecordOperations::getLengthOfRecordsInformation()
 {
     //Opening file
     RecordsFile file;
@@ -444,6 +478,13 @@ int RecordOperations::getTotalLengthOfRecordsInformation()
     if ( !file.open(this->fileName.toStdString()))
     {
         return -1;
+    }
+
+    //If there are no records
+    if ( this->getNumberOfRecords() == 0 )
+    {
+        file.close();
+        return 0;
     }
 
     int numberOfRecords = this->getNumberOfRecords();
@@ -464,8 +505,62 @@ int RecordOperations::getTotalLengthOfRecordsInformation()
 
     file.close();
 
-    //Total length of the file - the numerber of records - the length to the begining of the file
+    //Total length of the file - the number of records - the length to the begining of the file
     return (characterCounter - this->getLengthOfTheNumberOfRecords() - this->getInitialPositionOfRecordsInformation());
+}
+
+int RecordOperations::getRecordPositionAt(int index)
+{
+    //Opening file
+    RecordsFile file;
+
+    //Checks if there is a problem while opening the file
+    if ( !file.open(this->fileName.toStdString()))
+    {
+        return -1;
+    }
+
+    //The length to ' : ' + The number of records + the first ' | '
+    int position = this->getInitialPositionOfRecordsInformation() + this->getLengthOfTheNumberOfRecords() + 1;
+
+    for ( int a = 0; a < index; a++ )
+    {
+        int tempPosition = position;
+
+        position += this->getLengthOfTheSizeOfARecordInformation(tempPosition) +
+                this->getSizeOfARecordInformation(tempPosition);
+
+        file.seek(position);
+    }
+
+    file.close();
+
+    //Return the position of the record of the file ( after the first ' | ' )
+    return position;
+}
+
+QStringList RecordOperations::getRecordInformationAt(int index)
+{
+    //Read file
+    RecordsFile file(this->fileName.toStdString());
+
+    //Store the initial record position (After the first ' | ' of the record)
+    int position = this->getRecordPositionAt(index);
+
+    int size = this->getLengthOfTheSizeOfARecordInformation(position) +
+            this->getSizeOfARecordInformation(position) - 1;
+
+    char buffer[size];
+
+    file.seek(position);
+    file.read(buffer, size);
+
+    file.close();
+
+    //Store the buffer in a Qstring because of the split function
+    QString recordInformation = buffer;
+
+    return recordInformation.split(",");
 }
 
 QStringList RecordOperations::getRecordsInformation()
@@ -473,18 +568,17 @@ QStringList RecordOperations::getRecordsInformation()
     //Read file
     RecordsFile file(this->fileName.toStdString());
 
-    int size = this->getTotalLengthOfRecordsInformation() - 1; // -1 because we dont need the last ' | '
+    int size = this->getLengthOfRecordsInformation() - 2; // -2 because we dont need first and last ' | '
     char buffer[size];
 
     //put the cursor of the file after the first ' | '
     file.seek(this->getInitialPositionOfRecordsInformation() + this->getLengthOfTheNumberOfRecords() + 1);
     file.read(buffer, size);
 
-    //Store the buffer in a QString (Bescause of the 'split' function)
-    QString temp = buffer;
-    QStringList recordsInformation = temp.split("|");
-
     file.close();
 
-    return recordsInformation;
+    //Store the buffer in a QString (Bescause of the 'split' function)
+    QString recordsInformation = buffer;
+
+    return recordsInformation.split("|");
 }

@@ -10,6 +10,8 @@ using std::remove;
 
 #include <QFileDialog>
 #include <QTableWidgetItem>
+#include <QtPrintSupport/QPrinter>
+#include <QPainter>
 #include <QMessageBox>
 #include <QDebug>
 
@@ -102,6 +104,49 @@ void MainWindow::on_actionSaveFile_triggered()
 
 void MainWindow::on_actionPrintFile_triggered()
 {
+    QString outputFileName = QFileDialog::getSaveFileName(this, tr("Save"), QDir::homePath(), tr("PDF (*.pdf)"));
+
+    if ( !outputFileName.isEmpty() )
+    {
+        QPrinter printer;
+        printer.setOutputFormat(QPrinter::PdfFormat);
+        printer.setOutputFileName(outputFileName);
+
+        QPainter painter;
+
+        if ( !painter.begin(&printer) )
+        {
+            // failed to open file
+            QMessageBox::critical(this, tr("Error"), tr("Failed to open file"));
+        }
+
+        else
+        {
+            /*int x = 0, y = 0;
+
+            for ( int row = 0; row < ui->tableWidgetRecords->rowCount(); row++ )
+            {
+                for (int column = 1; column < ui->tableWidgetRecords->colorCount(); column++)
+                {
+                    painter.drawText(x, y, ui->tableWidgetRecords->item(row, column)->text());
+
+                    x += 100;
+                }
+
+                y += 30;
+            }
+
+            painter.drawText(0, 0, "Test1");
+            painter.drawText(100, 0, "Test2");
+            painter.drawText(200, 0, "Test3");
+
+            painter.drawText(0, 30, "Test4");
+            painter.drawText(100, 30, "Test5");
+            painter.drawText(200, 30, "Test6");*/
+
+            painter.end();
+        }
+    }
 }
 
 void MainWindow::on_actionCloseFile_triggered()
@@ -203,6 +248,27 @@ void MainWindow::updateTable()
         ui->tableWidgetRecords->setRowCount(this->recordOperations.getNumberOfRecords()); //Number of rows
 
         ui->tableWidgetRecords->hideColumn(0);
+
+        //---------------------------------------- Load fields ------------------------------------------------
+
+        QStringList fieldsInformation = this->recordOperations.getFieldsInformation();
+        QString fields = "Hide,";
+
+        for ( int a = 0; a < fieldsInformation.size(); a++ )
+        {
+            QStringList fieldInformation = fieldsInformation.at(a).split(",");
+
+            fields += fieldInformation.at(1) + ",";
+        }
+
+        //Remove the last comma
+        fields.remove(fields.size() - 1, 1);
+
+        //Columns name
+        ui->tableWidgetRecords->setHorizontalHeaderLabels(fields.split(","));
+
+
+        //---------------------------------------- Load records ------------------------------------------------
 
         //List of records
         QStringList recordsInformation = this->recordOperations.getRecordsInformation();
@@ -336,14 +402,14 @@ bool MainWindow::insertRecord()
 
     file.read(firstPartBuffer, firstPartSize);
 
-    //------------------------------------------------------------------------------------------
+    //------------------------------------New number of record------------------------------------
 
-    QString newNumberOfRecordsSize = "";
-    newNumberOfRecordsSize += QString::number(this->recordOperations.getNumberOfRecords() + 1);
+    QString newNumberOfRecords = "";
+    newNumberOfRecords += QString::number(this->recordOperations.getNumberOfRecords() + 1);
 
-    //------------------------------------------------------------------------------------------
+    //-----------------------------------Current record--------------------------------------------
 
-    int recordsInformationSize = this->recordOperations.getTotalLengthOfRecordsInformation();
+    int recordsInformationSize = this->recordOperations.getLengthOfRecordsInformation();
     char recordsInformationBuffer[recordsInformationSize];
 
     file.seek(firstPartSize + this->recordOperations.getLengthOfTheNumberOfRecords());
@@ -351,25 +417,27 @@ bool MainWindow::insertRecord()
 
     file.close();
 
-    //------------------------------------------------------------------------------------------
+    //------------------------------------------New Record------------------------------------------
 
-    QString newRecordSize = "";
+    QString newRecord = "";
 
     for ( int a = 1; a < ui->tableWidgetRecords->columnCount(); a++ )
     {
-        newRecordSize += ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, a)->text() + ",";
+        newRecord += ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, a)->text() + ",";
     }
 
-    newRecordSize.remove(newRecordSize.size() - 1, 1);
-    newRecordSize += "|";
+    newRecord.remove(newRecord.size() - 1, 1); //Remove last ' , '
+    newRecord += "|"; //Add the last ' | '
 
-    int temp = newRecordSize.size() + 1;
+    newRecord.prepend(QString::number(newRecord.size() + 1) + ",");
 
-    newRecordSize = QString::number(temp) + "," + newRecordSize;
+    //If this is the first record
+    if ( this->recordOperations.getNumberOfRecords() == 0 )
+    {
+        newRecord.prepend("|");
+    }
 
-    const char *newRecord = newRecordSize.toStdString().c_str();
-
-    //------------------------------------------------------------------------------------------
+    //----------------------------------------Add Record-------------------------------------------
 
 
     if ( remove(this->fileName.toStdString().c_str()) != 0 )
@@ -383,11 +451,12 @@ bool MainWindow::insertRecord()
     }
 
     newFile.write(firstPartBuffer, firstPartSize);
-    newFile.write(newNumberOfRecordsSize.toStdString().c_str(), newNumberOfRecordsSize.size());
-    newFile.write(recordsInformationBuffer, recordsInformationSize);
-    newFile.write(newRecord, newRecordSize.size());
+    newFile.write(newNumberOfRecords.toStdString().c_str(), newNumberOfRecords.size());
+    newFile.write(recordsInformationBuffer, recordsInformationSize);newFile.write(newRecord.toStdString().c_str(), newRecord.size());
 
     newFile.close();
+
+    this->updateTable();
 
     return true;
 
@@ -420,7 +489,7 @@ void MainWindow::deleteRecord()
          length2 = 1;
      }else
      {
-        length2 = a.getTotalLengthOfRecordsInformation() - ( a.getRecordsInformation()[index].length() +  a.getLengthOfTheNumberOfRecords() + 1 );
+        length2 = a.getLengthOfRecordsInformation() - ( a.getRecordsInformation()[index].length() +  a.getLengthOfTheNumberOfRecords() + 1 );
      }
      //buffers
      char * buffer1 = new char[length1];

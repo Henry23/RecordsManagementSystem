@@ -4,7 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT += core gui
+
+QT += printsupport
 
 CONFIG += c++11
 
