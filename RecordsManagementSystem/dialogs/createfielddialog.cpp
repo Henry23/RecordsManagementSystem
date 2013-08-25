@@ -15,13 +15,10 @@ CreateFieldDialog::CreateFieldDialog(QString fileName, QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //Set the fileName
     this->fileName = fileName;
 
     this->recordOperations.setFileName(this->fileName);
-
-    //No spaces are allowed
-    QRegExp noSpaces("^\\S+$");
-    ui->lineEditName->setValidator(new QRegExpValidator(noSpaces,this));
 }
 
 CreateFieldDialog::~CreateFieldDialog()
@@ -56,37 +53,31 @@ void CreateFieldDialog::on_pushButtonAccept_clicked()
         ui->lineEditName->setFocus();
     }
 
+    else if ( this->fieldAlreadyExist() )
+    {
+        QMessageBox::critical(this, tr("Error"), tr("The field already exist"));
+        ui->lineEditName->setFocus();
+    }
+
+    else if ( ui->checkBoxKey->isChecked() && this->keyAlreadyExist() )
+    {
+        QMessageBox::critical(this, tr("Error"), tr("A key already exist"));
+        ui->checkBoxKey->setChecked(false);
+    }
+
+
     //If everything is ok
     else
     {
-        //If the file is empty, this is the first field.
-        if ( this->recordOperations.getNumberOfFields() == 0 )
+        //Checks if the field was not added
+        if ( !this->addField() )
         {
-            //Checks if the field was not added
-            if ( !this->addFirstField() )
-            {
-                QMessageBox::critical(this, "Error", "An error occurred while trying to add the field");
-            }
-
-            else
-            {
-                QMessageBox::information(this, "Success", "The field has been added successfully");
-            }
+            QMessageBox::critical(this, "Error", "An error occurred while trying to add the field");
         }
 
-        //There is one or more fields/records in the file
         else
         {
-            //Checks if the field was not added
-            if ( !this->addField() )
-            {
-                QMessageBox::critical(this, "Error", "An error occurred while trying to add the field");
-            }
-
-            else
-            {
-                QMessageBox::information(this, "Success", "The field has been added successfully");
-            }
+            QMessageBox::information(this, "Success", "The field has been added successfully");
         }
 
         ui->lineEditName->clear();
@@ -100,40 +91,51 @@ void CreateFieldDialog::on_pushButtonCancel_clicked()
     this->close();
 }
 
-bool CreateFieldDialog::addFirstField()
+bool CreateFieldDialog::fieldAlreadyExist()
 {
-    //Opening file
-    RecordsFile out;
-
-    //Checks if there is a problem while opening the file
-    if ( !out.open(this->fileName.toStdString()) )
+    //If there are fields (the file is not empty)
+    if ( recordOperations.getNumberOfFields() > 0 )
     {
-        return false;
+        //All the fields information
+        QStringList fieldsInformation = this->recordOperations.getFieldsInformation();
+
+        for ( int a = 0; a < fieldsInformation.size(); a++ )
+        {
+            //A single field information
+            QStringList fieldInformation = fieldsInformation.at(a).split(",");
+
+            //Compare if they are equals
+            if ( fieldInformation.at(1) == ui->lineEditName->text() )
+            {
+                return true;
+            }
+        }
     }
 
-    //Field information size
-    int fieldInformationSize = 8; // 5(,)  1(|)  1(Decimal)  1(Key)
-    fieldInformationSize += ui->lineEditName->text().size(); //Text size field name
-    fieldInformationSize += ui->comboBoxType->currentText().size(); //Text size fiel type
-    fieldInformationSize += QString::number(ui->spinBoxLength->value()).size(); //Digits of the field name length
+    return false;
+}
 
-    //Save field information
-    QString fieldInfo = QString::number(1) + "|" + QString::number(fieldInformationSize) + "," +
-            ui->lineEditName->text() + "," + ui->comboBoxType->currentText() + "," +
-            QString::number(ui->spinBoxLength->value()) + "," + QString::number(ui->spinBoxDecimal->value()) +
-            "," + QString::number(ui->checkBoxKey->isChecked()) + "|:";
-
-
-    //Checks if there is no problem writing in the file
-    if ( out.write(fieldInfo.toStdString().c_str(), fieldInfo.size()) == -1 )
+bool CreateFieldDialog::keyAlreadyExist()
+{
+    //If there are fields (the file is not empty)
+    if ( recordOperations.getNumberOfFields() > 0 )
     {
-        return false;
+        //All the fields information
+        QStringList fieldsInformation = this->recordOperations.getFieldsInformation();
+
+        for (int a = 0; a < fieldsInformation.size(); a++)
+        {
+            QStringList fieldInformation = fieldsInformation.at(a).split(",");
+
+            //If a field already has a key
+            if ( fieldInformation.at(fieldInformation.size() - 1) == "1" )
+            {
+                return true;
+            }
+        }
     }
 
-    //Close the file
-    out.close();
-
-    return true;
+    return false;
 }
 
 bool CreateFieldDialog::addField()
@@ -151,6 +153,12 @@ bool CreateFieldDialog::addField()
     //Current number of fields + 1
     QString newNumberOfFields = "";
     newNumberOfFields += QString::number(this->recordOperations.getNumberOfFields() + 1);
+
+    //If this is the first field (the file is empty)
+    if ( this->recordOperations.getNumberOfFields() == 0 )
+    {
+        newNumberOfFields.append("|");
+    }
 
 
     //------------------------- Read fields Information -----------------------------------

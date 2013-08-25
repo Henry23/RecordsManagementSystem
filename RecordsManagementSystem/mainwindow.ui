@@ -113,6 +113,7 @@
    <addaction name="actionCreateField"/>
    <addaction name="actionModifyField"/>
    <addaction name="actionSearchRecord"/>
+   <addaction name="separator"/>
    <addaction name="actionCloseFile"/>
    <addaction name="actionExit"/>
   </widget>

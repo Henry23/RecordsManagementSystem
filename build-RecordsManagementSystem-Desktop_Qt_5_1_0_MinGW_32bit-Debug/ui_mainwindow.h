@@ -223,6 +223,7 @@ public:
         mainToolBar->addAction(actionCreateField);
         mainToolBar->addAction(actionModifyField);
         mainToolBar->addAction(actionSearchRecord);
+        mainToolBar->addSeparator();
         mainToolBar->addAction(actionCloseFile);
         mainToolBar->addAction(actionExit);
 

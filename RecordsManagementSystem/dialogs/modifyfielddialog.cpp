@@ -3,6 +3,9 @@
 
 #include "classes/recordsfile.h"
 
+#include <QComboBox>
+#include <QSpinBox>
+#include <QCheckBox>
 #include <QTableWidgetItem>
 #include <QMessageBox>
 
@@ -29,13 +32,11 @@ ModifyFieldDialog::~ModifyFieldDialog()
 
 void ModifyFieldDialog::tableProperties()
 {
-    ui->tableWidgetFields->setColumnCount(6); //Number of columns
+    ui->tableWidgetFields->setColumnCount(5); //Number of columns
     ui->tableWidgetFields->setRowCount(this->recordOperations.getNumberOfFields()); //Number of rows
 
-    ui->tableWidgetFields->hideColumn(0);
-
     //Columns name
-    ui->tableWidgetFields->setHorizontalHeaderLabels(QString("Hide;Name;Type;Length;Decimal;Key").split(";"));
+    ui->tableWidgetFields->setHorizontalHeaderLabels(QString("Name;Type;Length;Decimal;Key").split(";"));
 }
 
 void ModifyFieldDialog::showFields()
@@ -48,16 +49,111 @@ void ModifyFieldDialog::showFields()
         QStringList fieldInformation = fieldsInformation.at(a).split(",");
 
         //Columns
-        for ( int b = 0; b < fieldInformation.size(); b++ )
+        for ( int b = 1; b < fieldInformation.size(); b++ )
         {
-            //Insert a row
-            ui->tableWidgetFields->setItem(a, b, new QTableWidgetItem(fieldInformation.at(b)));
+            //Column "Name"
+            if ( b == 1 )
+            {
+                ui->tableWidgetFields->setItem(a, b - 1, new QTableWidgetItem(fieldInformation.at(b)));
+
+                //Jump to the next column
+                continue;
+            }
+
+            //Column "Type"
+            else if ( b == 2 )
+            {
+                //Create a combo box
+                QComboBox *comboBox = new QComboBox;
+                comboBox->addItems(QString("Text,Integer,Double").split(",")); //Set the items
+
+                //Checks the -type- field and set that combobox item
+                if ( fieldInformation.at(b) == "Text" )
+                {
+                    comboBox->setCurrentIndex(0);
+                }
+
+                else if ( fieldInformation.at(b) == "Integer" )
+                {
+                    comboBox->setCurrentIndex(1);
+                }
+
+                else
+                {
+                    comboBox->setCurrentIndex(2);
+                }
+
+                //Set the combobox
+                ui->tableWidgetFields->setCellWidget(a, b - 1, comboBox);
+
+                //Jump to the next column
+                continue;
+            }
+
+            //Column "Length"
+            else if ( b == 3 )
+            {
+                //Create a Spin Box
+                QSpinBox *spinBox = new QSpinBox;
+                spinBox->setMinimum(1);
+                spinBox->setMaximum(64);
+
+                //Set the value
+                spinBox->setValue(fieldInformation.at(b).toInt());
+
+                //Set the spinner
+                ui->tableWidgetFields->setCellWidget(a, b - 1, spinBox);
+
+                //Jump to the next column
+                continue;
+            }
+
+            else if ( b == 4 )
+            {
+                //Create a spin box
+                QSpinBox *spinBox = new QSpinBox;
+                spinBox->setMinimum(0);
+                spinBox->setMaximum(6);
+
+                //Set the value
+                spinBox->setValue(fieldInformation.at(b).toInt());
+
+                //Set the spinner
+                ui->tableWidgetFields->setCellWidget(a, b - 1, spinBox);
+
+                //Jump to the next column
+                continue;
+            }
+
+            //Column "Key"
+            else if ( b == 5 )
+            {
+                //Create a check box
+                QCheckBox *checkBox = new QCheckBox;
+
+                //If the field has a key
+                if ( fieldInformation.at(b) == "1" )
+                {
+                    checkBox->setChecked(true);
+                }
+
+                else
+                {
+                    checkBox->setChecked(false);
+                }
+
+                //Set the checkBox
+                ui->tableWidgetFields->setCellWidget(a, b - 1, checkBox);
+
+                //Jump to the next column
+                continue;
+            }
         }
     }
 }
 
 void ModifyFieldDialog::on_tableWidgetFields_cellChanged(int row, int column)
-{
+{\
     //Checks if there is a row selected (because while adding items, this function is call and there is no row selected)
     if ( ui->tableWidgetFields->currentIndex().row() > -1 )
     {

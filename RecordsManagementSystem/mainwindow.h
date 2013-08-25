@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QLabel>
 
 #include "classes/recordoperations.h"
 
@@ -72,6 +73,7 @@ private:
     QMenu *popupMenu;
     QAction *actionInsertRow;
     QAction *actionDeleteRecord;
+    QLabel *labelFileName;
     QString fileName = "";
     RecordOperations recordOperations;
 };

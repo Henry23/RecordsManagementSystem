@@ -35,7 +35,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(actionDeleteRecord, SIGNAL(triggered()),
             this, SLOT(deleteRecord()));
 
-    this->statusBar()->showMessage(tr("Welcome"), 2000);
+    this->labelFileName = new QLabel;
+    this->statusBar()->addPermanentWidget(this->labelFileName);
+
+    this->statusBar()->showMessage(tr("Welcome"), 2500);
 }
 
 MainWindow::~MainWindow()
@@ -62,8 +65,8 @@ void MainWindow::on_actionNewFile_triggered()
         //Close
         create.close();
 
+        this->labelFileName->setText(tr("File: ") + this->fileName);
         this->recordOperations.setFileName(this->fileName);
-
         this->clearTable();
 
         //Enable actions
@@ -84,8 +87,8 @@ void MainWindow::on_actionOpenFile_triggered()
     //If the user select a valid file
     if ( !this->fileName.isEmpty() )
     {
+        this->labelFileName->setText(tr("File: ") + this->fileName);
         this->recordOperations.setFileName(this->fileName);
-
         this->updateTable();
 
         //Enable actions
@@ -222,41 +225,32 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::clearTable()
 {
-    //If there are rows
-    if ( ui->tableWidgetRecords->rowCount() > 0 )
-    {
-        //Remove all rows
-        ui->tableWidgetRecords->setRowCount(0);
-    }
+    //Remove all rows
+    ui->tableWidgetRecords->setRowCount(0);
 
-    //If there are columns
-    if ( ui->tableWidgetRecords->columnCount() > 0 )
-    {
-        //Remove all columns
-        ui->tableWidgetRecords->setColumnCount(0);
-    }
+    //Remove all columns
+    ui->tableWidgetRecords->setColumnCount(0);
 }
 
 void MainWindow::updateTable()
 {
-    //If there is at least one field in the file (then the user can add a record)
+    //If there is at least one field in the file (we show the information)
     if ( this->recordOperations.getNumberOfFields() > 0 )
     {
+        //Clear the table in case that contains previos information
         this->clearTable();
 
-        ui->tableWidgetRecords->setColumnCount(this->recordOperations.getNumberOfFields() + 1); //Number of columns
+        ui->tableWidgetRecords->setColumnCount(this->recordOperations.getNumberOfFields()); //Number of columns
         ui->tableWidgetRecords->setRowCount(this->recordOperations.getNumberOfRecords()); //Number of rows
-
-        ui->tableWidgetRecords->hideColumn(0);
 
         //---------------------------------------- Load fields ------------------------------------------------
 
-        QStringList fieldsInformation = this->recordOperations.getFieldsInformation();
-        QString fields = "Hide,";
+        QStringList fieldsInformation = this->recordOperations.getFieldsInformation(); //All the fields
+        QString fields = "";
 
         for ( int a = 0; a < fieldsInformation.size(); a++ )
         {
-            QStringList fieldInformation = fieldsInformation.at(a).split(",");
+            QStringList fieldInformation = fieldsInformation.at(a).split(","); //A field information
 
             fields += fieldInformation.at(1) + ",";
         }
@@ -271,18 +265,18 @@ void MainWindow::updateTable()
         //---------------------------------------- Load records ------------------------------------------------
 
         //List of records
-        QStringList recordsInformation = this->recordOperations.getRecordsInformation();
+        QStringList recordsInformation = this->recordOperations.getRecordsInformation(); //All the records
 
         //Rows
         for ( int a = 0; a < recordsInformation.size(); a++ )
         {
-            QStringList recordInformation = recordsInformation.at(a).split(",");
+            QStringList recordInformation = recordsInformation.at(a).split(","); //A record information
 
             //Columns
-            for ( int b = 0; b < recordInformation.size(); b++ )
+            for ( int b = 1; b < recordInformation.size(); b++ )
             {
                 //Insert a row
-                ui->tableWidgetRecords->setItem(a, b, new QTableWidgetItem(recordInformation.at(b)));
+                ui->tableWidgetRecords->setItem(a, b - 1, new QTableWidgetItem(recordInformation.at(b)));
             }
         }
     }
@@ -290,7 +284,7 @@ void MainWindow::updateTable()
 
 bool MainWindow::areAllFieldsEdited()
 {
-    for ( int a = 1; a < ui->tableWidgetRecords->columnCount(); a++ )
+    for ( int a = 0; a < ui->tableWidgetRecords->columnCount(); a++ )
     {
         if ( ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, a) == 0 )
         {
@@ -421,7 +415,7 @@ bool MainWindow::insertRecord()
 
     QString newRecord = "";
 
-    for ( int a = 1; a < ui->tableWidgetRecords->columnCount(); a++ )
+    for ( int a = 0; a < ui->tableWidgetRecords->columnCount(); a++ )
     {
         newRecord += ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, a)->text() + ",";
     }
