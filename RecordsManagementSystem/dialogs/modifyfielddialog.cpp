@@ -3,6 +3,8 @@
 
 #include "classes/recordsfile.h"
 
+#include <QApplication>
+#include <QLineEdit>
 #include <QComboBox>
 #include <QSpinBox>
 #include <QCheckBox>
@@ -54,7 +56,15 @@ void ModifyFieldDialog::showFields()
             //Column "Name"
             if ( b == 1 )
             {
-                ui->tableWidgetFields->setItem(a, b - 1, new QTableWidgetItem(fieldInformation.at(b)));
+                //Create a comboBox
+                QLineEdit *lineEdit = new QLineEdit;
+                lineEdit->setText(fieldInformation.at(b)); //Set the text
+
+                connect(lineEdit, SIGNAL(returnPressed()),
+                        this, SLOT(modifyName()));
+
+                //Set the lineEdit
+                ui->tableWidgetFields->setCellWidget(a, b - 1, lineEdit);
 
                 //Jump to the next column
                 continue;
@@ -83,6 +93,9 @@ void ModifyFieldDialog::showFields()
                     comboBox->setCurrentIndex(2);
                 }
 
+                connect(comboBox, SIGNAL(currentIndexChanged(QString)),
+                        this, SLOT(modifyType()));
+
                 //Set the combobox
                 ui->tableWidgetFields->setCellWidget(a, b - 1, comboBox);
 
@@ -101,6 +114,9 @@ void ModifyFieldDialog::showFields()
                 //Set the value
                 spinBox->setValue(fieldInformation.at(b).toInt());
 
+                connect(spinBox, SIGNAL(valueChanged(int)),
+                        this, SLOT(modifyLength()));
+
                 //Set the spinner
                 ui->tableWidgetFields->setCellWidget(a, b - 1, spinBox);
 
@@ -108,6 +124,7 @@ void ModifyFieldDialog::showFields()
                 continue;
             }
 
+            //Column "Decimal"
             else if ( b == 4 )
             {
                 //Create a spin box
@@ -117,6 +134,9 @@ void ModifyFieldDialog::showFields()
 
                 //Set the value
                 spinBox->setValue(fieldInformation.at(b).toInt());
+
+                connect(spinBox, SIGNAL(valueChanged(int)),
+                        this, SLOT(modifyDecimal()));
 
                 //Set the spinner
                 ui->tableWidgetFields->setCellWidget(a, b - 1, spinBox);
@@ -130,6 +150,7 @@ void ModifyFieldDialog::showFields()
             {
                 //Create a check box
                 QCheckBox *checkBox = new QCheckBox;
+                checkBox->setEnabled(false);
 
                 //If the field has a key
                 if ( fieldInformation.at(b) == "1" )
@@ -141,6 +162,9 @@ void ModifyFieldDialog::showFields()
                 {
                     checkBox->setChecked(false);
                 }
+
+                connect(checkBox, SIGNAL(clicked()),
+                        this, SLOT(modifyKey()));
 
                 //Set the checkBox
                 ui->tableWidgetFields->setCellWidget(a, b - 1, checkBox);
@@ -282,4 +306,59 @@ void ModifyFieldDialog::on_tableWidgetFields_cellChanged(int row, int column)
 
     }
 
+}
+
+void ModifyFieldDialog::modifyName()
+{
+    QWidget *widget = QApplication::focusWidget();
+    QModelIndex index = ui->tableWidgetFields->indexAt(widget->pos());
+
+    QString name = ((QLineEdit*)ui->tableWidgetFields->cellWidget(index.row(), index.column()))->text();
+
+    modifyField(index.row(), index.column(), name);
+}
+
+void ModifyFieldDialog::modifyType()
+{
+    QWidget *widget = QApplication::focusWidget();
+    QModelIndex index = ui->tableWidgetFields->indexAt(widget->pos());
+
+    QString type = ((QComboBox*)ui->tableWidgetFields->cellWidget(index.row(), index.column()))->currentText();
+
+    modifyField(index.row(), index.column(), type);
+}
+
+void ModifyFieldDialog::modifyLength()
+{
+    QWidget *widget = QApplication::focusWidget();
+    QModelIndex index = ui->tableWidgetFields->indexAt(widget->pos());
+
+    QString length = QString::number(((QSpinBox*)ui->tableWidgetFields->cellWidget(index.row(), index.column()))->value());
+
+    modifyField(index.row(), index.column(), length);
+}
+
+void ModifyFieldDialog::modifyDecimal()
+{
+    QWidget *widget = QApplication::focusWidget();
+    QModelIndex index = ui->tableWidgetFields->indexAt(widget->pos());
+
+    QString decimal = QString::number(((QSpinBox*)ui->tableWidgetFields->cellWidget(index.row(), index.column()))->value());
+
+    modifyField(index.row(), index.column(), decimal);
+}
+
+void ModifyFieldDialog::modifyKey()
+{
+    QWidget *widget = QApplication::focusWidget();
+    QModelIndex index = ui->tableWidgetFields->indexAt(widget->pos());
+
+    QString key = QString::number(((QCheckBox*)ui->tableWidgetFields->cellWidget(index.row(), index.column()))->isChecked());
+
+    modifyField(index.row(), index.column(), key);
+}
+
+void ModifyFieldDialog::modifyField(int row, int column, QString data)
+{
+    qDebug() << "Row: " << row << "Column: " << column << "Data:" << data;
 }

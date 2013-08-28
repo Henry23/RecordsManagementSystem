@@ -23,6 +23,23 @@ CreateFieldDialog::CreateFieldDialog(QString fileName, QWidget *parent) :
 
 CreateFieldDialog::~CreateFieldDialog()
 {
+    if ( !this->keyAlreadyExist() )
+    {
+        QMessageBox m;
+        m.setWindowTitle(tr("Primary Key"));
+        m.setText(tr("You have not set a primary key"));
+        m.setInformativeText(tr("Do you want to set it now?"));
+        m.setIcon(QMessageBox::Question);
+        m.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        m.setDefaultButton(QMessageBox::Yes);
+        int option = m.exec();
+
+        if ( option == QMessageBox::Yes )
+        {
+            //Code
+        }
+    }
+
     delete ui;
 }
 
@@ -53,12 +70,14 @@ void CreateFieldDialog::on_pushButtonAccept_clicked()
         ui->lineEditName->setFocus();
     }
 
+    //Checks if the field already exist
     else if ( this->fieldAlreadyExist() )
     {
         QMessageBox::critical(this, tr("Error"), tr("The field already exist"));
         ui->lineEditName->setFocus();
     }
 
+    //Checks if there is already a key
     else if ( ui->checkBoxKey->isChecked() && this->keyAlreadyExist() )
     {
         QMessageBox::critical(this, tr("Error"), tr("A key already exist"));
@@ -180,7 +199,7 @@ bool CreateFieldDialog::addField()
     fieldInformationSize += ui->comboBoxType->currentText().size(); //Text size fiel type
     fieldInformationSize += QString::number(ui->spinBoxLength->value()).size(); //Digits of the field name length
 
-    QString newField = QString::number(fieldInformationSize) + "," + ui->lineEditName->text() + "," + ui->comboBoxType->currentText() +
+    QString newField = QString::number(fieldInformationSize) + "," + ui->lineEditName->text().toUpper() + "," + ui->comboBoxType->currentText() +
             "," + QString::number(ui->spinBoxLength->value()) + "," + QString::number(ui->spinBoxDecimal->value()) +
             "," + QString::number(ui->checkBoxKey->isChecked()) + "|:";
 

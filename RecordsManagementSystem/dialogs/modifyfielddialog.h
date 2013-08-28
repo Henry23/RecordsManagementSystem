@@ -19,6 +19,12 @@ public:
     
 private slots:
     void on_tableWidgetFields_cellChanged(int row, int column);
+    void modifyName();
+    void modifyType();
+    void modifyLength();
+    void modifyDecimal();
+    void modifyKey();
+    void modifyField(int, int, QString);
 
 private:
     void tableProperties();
