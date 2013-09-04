@@ -10,8 +10,15 @@
 #include <QCheckBox>
 #include <QTableWidgetItem>
 #include <QMessageBox>
-
+#include <sstream>
+#include <string.h>
 #include <qDebug>
+
+#include <fstream>
+
+using namespace std;
+
+using std::stringstream;
 
 ModifyFieldDialog::ModifyFieldDialog(QString fileName, QWidget *parent) :
     QDialog(parent),
@@ -177,7 +184,7 @@ void ModifyFieldDialog::showFields()
 }
 
 void ModifyFieldDialog::on_tableWidgetFields_cellChanged(int row, int column)
-{\
+{
     //Checks if there is a row selected (because while adding items, this function is call and there is no row selected)
     if ( ui->tableWidgetFields->currentIndex().row() > -1 )
     {
@@ -187,125 +194,9 @@ void ModifyFieldDialog::on_tableWidgetFields_cellChanged(int row, int column)
             QMessageBox::critical(this, tr("Error"), tr("The information can not be empty"));
 
             ui->tableWidgetFields->setItem(row, column, new QTableWidgetItem("Unknown"));
-        }
+        }     
 
-        //we got the list of slipt it by '|'
-        QStringList fieldsProperties = this->recordOperations.getFieldsInformation();
-
-        for ( int i = 0; i < fieldsProperties.size(); i++ )
-        {
-            qDebug() << fieldsProperties.at(i).length();
-        }
-
-
-        //list slipt it by ','
-        QStringList fieldProperties;
-        //list of all the length of all the fields
-       // QStringList index;
-        //for each field that has been slipt by parts
-        QStringList field;
-        for ( int a = 0; a < fieldsProperties.size(); a++ )
-        {
-            fieldProperties = fieldsProperties.at(a).split(",");
-
-            for ( int b = 0; b <fieldProperties.size(); b++ )
-            {
-               /* if ( b == 0 )
-                {
-                    index << fieldProperties.at(b);
-                }
-            */
-                if ( a == row)
-                {
-                    field << fieldProperties.at(b);
-                }
-             }
-         }
-
-         RecordsFile file(this->fileName.toStdString());
-
-         unsigned int length1 = 0;
-
-         unsigned int length2 = 0;
-
-         int tPositionRow = 0;
-
-         int tPositionColumn = 0;
-
-         //fixed
-         for ( int i = 0; i < row; i++ )
-         {
-              tPositionRow +=  fieldsProperties.at(i).length() + 1;
-
-            /* if ( index.at(i).toInt() > 9)
-             {
-                 tPositionRow +=  index.at(i).toInt() + 2;
-             } else if ( index.at(i).toInt() < 9)
-             {
-                   tPositionRow +=  index.at(i).toInt() + 1;
-             }*/
-         }
-
-            //fixed
-         for ( int i = 0; i < column; i++ )
-         {
-             tPositionColumn +=  field.at(i).length()+1;
-          }
-
-
-         length1 = ( this->recordOperations.getLengthOfTheNumberOfFields() + 1 ) + (tPositionRow) + tPositionColumn;
-
-         length2 = file.fileLength() - length1-1;
-
-         qDebug() << " length1 " <<length1;
-
-         qDebug() << " length2 " <<length2;
-
-         char *buffer1 = new char[length1];
-
-         char *buffer2 = new char[length2];
-
-         file.read( buffer1 ,length1 );
-
-         file.seek( length1 + field.at(column).length() );
-
-         file.read( buffer2 , length2 );
-
-         file.close();
-
-         qDebug() << buffer1;
-
-         qDebug() << buffer2;
-
-         const char *path = this->fileName.toStdString().c_str();
-
-         remove( path );
-
-
-         RecordsFile create;
-
-         //Check if there is a problem while creating the file
-
-         if ( !create.open(this->fileName.toStdString(),  ios::out) )
-         {
-             QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
-         }
-
-         const char * changeField = ui->tableWidgetFields->item(row, column)->text().toStdString().c_str();
-
-         create.write( buffer1, length1);
-
-         create.write( changeField,  ui->tableWidgetFields->item(row, column)->text().length());
-
-         create.write( buffer2 ,length2);
-
-         create.close();
-
-         delete [] buffer1;
-         delete [] buffer2;
-
-    }
-
+     }
 }
 
 void ModifyFieldDialog::modifyName()
@@ -360,5 +251,141 @@ void ModifyFieldDialog::modifyKey()
 
 void ModifyFieldDialog::modifyField(int row, int column, QString data)
 {
-    qDebug() << "Row: " << row << "Column: " << column << "Data:" << data;
+    //qDebug() << "Row: " << row << "Column: " << column << "Data:" << data;
+    //-----------------------------------------------Modifiy---------------------------------------------
+    //we got the list of slipt it by '|'
+    QStringList fieldsProperties = this->recordOperations.getFieldsInformation();
+
+    //list slipt it by ','
+    QStringList fieldProperties;
+
+    //for each field that has been slipt by parts
+    QStringList field;
+    for ( int a = 0; a < fieldsProperties.size(); a++ )
+    {
+        fieldProperties = fieldsProperties.at(a).split(",");
+
+        for ( int b = 0; b < fieldProperties.size(); b++ )
+        {
+            if ( a == row )
+            {
+                field << fieldProperties[b];
+            }
+         }
+     }
+
+     RecordsFile file(this->fileName.toStdString());
+
+     int length1 = 0;
+
+     int length2 = 0;
+
+     int length3 = 0;
+
+     int tPositionRow = 0;
+
+     int tPositionColumn = 0;
+
+     for ( int i = 0; i < row; i++ )
+     {
+          tPositionRow +=  fieldsProperties.at(i).length() + 1;
+     }
+
+     for ( int i = 0; i <= ( column + 1 ); i++ )
+     {
+         tPositionColumn +=  field[i].length() + 1;
+     }
+
+     length1 = ( this->recordOperations.getLengthOfTheNumberOfFields() + 1 ) + (tPositionRow);
+
+     length2 = tPositionColumn - field[0].length() - field[0].length() - 1;
+
+     length3 = file.fileLength() - length1 - 3;
+/*
+     int mylength = file.fileLength();
+     ifstream myfile (fileName.toStdString());
+     char *mychar = new char[mylength];
+     myfile.read(mychar,mylength);
+     qDebug() << mychar;
+     */
+
+
+     char *buffer1 = new char[length1];
+
+     char *buffer2 = new char[length2];
+
+     char *buffer3 = new char[length3];
+
+     file.read( buffer1 , length1);
+
+     file.seek( length1 + field[0].length() );
+
+     file.read( buffer2 ,  length2 );
+
+     file.seek(  length1 + tPositionColumn  );
+
+     file.read( buffer3 , length3 );
+
+     file.close();
+
+     qDebug() << buffer1;
+     qDebug() << buffer2;
+     qDebug() << buffer3;
+     int newLength = 0;
+
+     for( int i = 1; i < field.size(); i++ )
+     {
+         if( ( column + 1 ) != i )
+         {
+            newLength += field[i].length();
+         }
+     }
+
+/*
+     newLength += field.size() + data.length();
+
+     const char *path = this->fileName.toStdString().c_str();
+
+     remove( path );
+
+     RecordsFile create;
+
+     //Check if there is a problem while creating the file
+
+     if ( !create.open(this->fileName.toStdString(),  ios::out) )
+     {
+         QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
+     }
+
+     const char * changeField = data.toStdString().c_str();
+
+     stringstream strs;
+
+     strs << newLength;
+
+     string temp_str = strs.str();
+
+     char* char_type = (char*) temp_str.c_str();
+
+     create.write( buffer1, strlen(buffer1)) ;
+
+     create.write( char_type ,strlen(char_type));
+
+     create.write( buffer2, strlen(buffer2) );
+
+     create.write( changeField, strlen(changeField) );
+
+     create.write( ",", 1);
+
+     create.write( buffer3 ,strlen(buffer3));
+
+     create.close();
+*/
+     delete [] buffer1;
+     delete [] buffer3;
+     delete [] buffer2;
+
+
 }
+
+
