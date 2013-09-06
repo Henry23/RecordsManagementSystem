@@ -157,6 +157,7 @@ public:
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         tableWidgetRecords = new QTableWidget(centralWidget);
         tableWidgetRecords->setObjectName(QStringLiteral("tableWidgetRecords"));
+        tableWidgetRecords->setEnabled(false);
         tableWidgetRecords->setContextMenuPolicy(Qt::CustomContextMenu);
         tableWidgetRecords->setSelectionBehavior(QAbstractItemView::SelectRows);
 

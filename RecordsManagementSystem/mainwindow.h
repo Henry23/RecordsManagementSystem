@@ -64,9 +64,9 @@ private slots:
     void on_tableWidgetRecords_cellChanged(int row, int column);
 
 private:
+    bool validFile();
     void clearTable();
     void updateTable();
-    bool areAllFieldsEdited();
     bool insertRecord();
 
     Ui::MainWindow *ui;

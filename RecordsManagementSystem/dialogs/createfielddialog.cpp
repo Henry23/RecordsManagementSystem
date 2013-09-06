@@ -123,7 +123,7 @@ bool CreateFieldDialog::fieldAlreadyExist()
             //A single field information
             QStringList fieldInformation = fieldsInformation.at(a).split(",");
 
-            //Compare if they are equals
+            //Compare if they are equals. 1 equals to <Name> field
             if ( fieldInformation.at(1) == ui->lineEditName->text() )
             {
                 return true;

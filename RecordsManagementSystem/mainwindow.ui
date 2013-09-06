@@ -17,6 +17,9 @@
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QTableWidget" name="tableWidgetRecords">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="contextMenuPolicy">
        <enum>Qt::CustomContextMenu</enum>
       </property>

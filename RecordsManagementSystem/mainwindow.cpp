@@ -85,7 +85,7 @@ void MainWindow::on_actionOpenFile_triggered()
     this->fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::homePath(), tr("Text File (*.txt)"));
 
     //If the user select a valid file
-    if ( !this->fileName.isEmpty() )
+    if ( !this->fileName.isEmpty() && this->validFile())
     {
         this->labelFileName->setText(tr("File: ") + this->fileName);
         this->recordOperations.setFileName(this->fileName);
@@ -98,6 +98,9 @@ void MainWindow::on_actionOpenFile_triggered()
         ui->actionCreateField->setEnabled(true);
         ui->actionModifyField->setEnabled(true);
         ui->actionSearchRecord->setEnabled(true);
+
+        //Enable the table
+        ui->tableWidgetRecords->setEnabled(true);
     }
 }
 
@@ -168,7 +171,7 @@ void MainWindow::on_actionCreateField_triggered()
     delete dialog;
 
     //If there is a new field, update the table
-    if ( recordOperations.getNumberOfFields() >  ( ui->tableWidgetRecords->columnCount() - 1 ) )
+    if ( recordOperations.getNumberOfFields() >  ( ui->tableWidgetRecords->columnCount() ) )
     {
         this->updateTable();
     }
@@ -223,6 +226,11 @@ void MainWindow::on_actionAbout_triggered()
 {
 }
 
+bool MainWindow::validFile()
+{
+    return true;
+}
+
 void MainWindow::clearTable()
 {
     //Remove all rows
@@ -275,49 +283,38 @@ void MainWindow::updateTable()
             //Columns
             for ( int b = 1; b < recordInformation.size(); b++ )
             {
+                //Create a item
+                QTableWidgetItem *item = new QTableWidgetItem(recordInformation.at(b));
+                item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled); //item not editable
+
                 //Insert a row
-                ui->tableWidgetRecords->setItem(a, b - 1, new QTableWidgetItem(recordInformation.at(b)));
+                ui->tableWidgetRecords->setItem(a, b - 1, item);
             }
         }
     }
 }
 
-bool MainWindow::areAllFieldsEdited()
-{
-    for ( int a = 0; a < ui->tableWidgetRecords->columnCount(); a++ )
-    {
-        if ( ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, a) == 0 )
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 void MainWindow::on_tableWidgetRecords_customContextMenuRequested(const QPoint &pos)
 {
-    //check if there are rows
-    if ( ui->tableWidgetRecords->rowCount() > 0  )
+    //If there is at least one column(field) in the file (then the user can add a row)
+    if ( ui->tableWidgetRecords->columnCount() > 0 )
     {
         //If the user select a row
-        if ( ui->tableWidgetRecords->currentRow() > -1 )
+        if ( ui->tableWidgetRecords->currentRow() >= -1 )
         {
             //Select the current row
             ui->tableWidgetRecords->selectRow(ui->tableWidgetRecords->currentRow());
 
+            //Can delete a record
             this->actionDeleteRecord->setEnabled(true);
-
-            QPoint globalPos = ui->tableWidgetRecords->mapToGlobal(pos);
-            popupMenu->exec(globalPos); //Execute the popupMenu
         }
-    }
 
-    //If there is at least one column in the file (then the user can add a row)
-    else if ( ui->tableWidgetRecords->columnCount() > 0 )
-    {
-        //Cannot delete row/records
-        this->actionDeleteRecord->setEnabled(false);
+        //There are no rows or the user does not select a row
+        else
+        {
+            //Can not delete a record
+            this->actionDeleteRecord->setEnabled(false);
+        }
 
         QPoint globalPos = ui->tableWidgetRecords->mapToGlobal(pos);
         popupMenu->exec(globalPos); //Execute the popupMenu
@@ -326,19 +323,10 @@ void MainWindow::on_tableWidgetRecords_customContextMenuRequested(const QPoint &
 
 void MainWindow::insertRow()
 {
-    //If the last row is not empty, the user can insert a new row.
-    if ( this->areAllFieldsEdited() )
-    {
-        //Insert a new row
-        ui->tableWidgetRecords->insertRow(ui->tableWidgetRecords->rowCount());
-    }
+    //Fix(rigth click menu) -> validate if the last row is not empty by comparing the indexFile(tree) with the number of rows
 
-    //If there are columns and no rows, the user can insert a new row.
-    else if ( ( ui->tableWidgetRecords->columnCount() > 0 ) && ( ui->tableWidgetRecords->rowCount() == 0 ) )
-    {
-        //Insert a new row
-        ui->tableWidgetRecords->insertRow(ui->tableWidgetRecords->rowCount());
-    }
+    //Insert a new row
+    ui->tableWidgetRecords->insertRow(ui->tableWidgetRecords->rowCount());
 }
 
 void MainWindow::on_tableWidgetRecords_cellChanged(int row, int column)
@@ -346,33 +334,23 @@ void MainWindow::on_tableWidgetRecords_cellChanged(int row, int column)
     //Checks if there is a row selected (because while adding items, this function is call and there is no row selected)
     if ( ui->tableWidgetRecords->currentIndex().row() > -1 )
     {
-        //If the edited row is not the last one
-        if ( row != ui->tableWidgetRecords->rowCount() - 1 )
-        {
-            QMessageBox::critical(this, tr("Error"), tr("Can not modify a record"));
-        }
+        //item not editable
+        //ui->tableWidgetRecords->itemAt(row, column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
         //Checks if the column is the last column
-        else if ( column == ui->tableWidgetRecords->columnCount() - 1 )
+        if ( column == ui->tableWidgetRecords->columnCount() - 1 )
         {
-            //Checks if the last row is empty or al single column is empty
-            if ( !this->areAllFieldsEdited() )
+            if ( !this->insertRecord() )
             {
-                QMessageBox::critical(this, tr("Error"), tr("The record is not complete"));
+                //Remove the current row
+                ui->tableWidgetRecords->removeRow(row);
+
+                QMessageBox::critical(this, "Error", "An error occurred while trying to add the record");
             }
 
-            //If all fields are edited
             else
             {
-                if ( !this->insertRecord() )
-                {
-                    QMessageBox::critical(this, "Error", "An error occurred while trying to add the record");
-                }
-
-                else
-                {
-                    QMessageBox::information(this, "Success", "The record has been added successfully");
-                }
+                QMessageBox::information(this, "Success", "The record has been added successfully");
             }
         }
     }
