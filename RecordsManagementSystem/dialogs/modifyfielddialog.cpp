@@ -252,18 +252,17 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
 {
     //qDebug() << "Row: " << row << "Column: " << column << "Data:" << data;
     //-----------------------------------------------Modifiy---------------------------------------------
+
     //we got the list of slipt it by '|'
     QStringList fieldsProperties = this->recordOperations.getFieldsInformation();
-
     //list slipt it by ','
     QStringList fieldProperties;
-
     //for each field that has been slipt by parts
     QStringList field;
+
     for ( int a = 0; a < fieldsProperties.size(); a++ )
     {
         fieldProperties = fieldsProperties.at(a).split(",");
-
         for ( int b = 0; b < fieldProperties.size(); b++ )
         {
             if ( a == row )
@@ -276,13 +275,9 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
      RecordsFile file(this->fileName.toStdString());
 
      int length1 = 0;
-
      int length2 = 0;
-
      int length3 = 0;
-
      int tPositionRow = 0;
-
      int tPositionColumn = 0;
 
      for ( int i = 0; i < row; i++ )
@@ -295,23 +290,18 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
          tPositionColumn +=  field[i].length() + 1;
      }
 
-     length1 = ( this->recordOperations.getLengthOfTheNumberOfFields() + 1 ) + (tPositionRow);
-
-     //somthing it's bad here
+     length1 = ( this->recordOperations.getLengthOfTheNumberOfFields() + 1 ) + (tPositionRow);   
      length2 = tPositionColumn - ( ( field[0].length() + 1 ) + ( field[column + 1].length() ) );
-
      length3 = file.fileLength() - length1 - 3;
 
      char *buffer1 = new char[length1];
-
      char *buffer2 = new char[length2];
-
      char *buffer3 = new char[length3];
 
      file.read( buffer1 , length1);
      file.seek( length1 + field[0].length());
      file.read( buffer2 ,  length2 );
-     file.seek(  length1 + tPositionColumn  );
+     file.seek( length1 + tPositionColumn  );
      file.read( buffer3 , length3 );
      file.close();
 
@@ -326,11 +316,8 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
      }
 
      newLength += field.size() + data.length();
-
      const char *path = this->fileName.toStdString().c_str();
-
      remove( path );
-
      RecordsFile create;
 
      //Check if there is a problem while creating the file
@@ -341,21 +328,13 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
      }
 
      stringstream strs , sst;
-
      sst << data.toStdString();
-
      strs << newLength;
-
      string temp_field = sst.str();
-
      string temp_str = strs.str();
-
      const char * changeField = (char*)temp_field.c_str();
-
      char * char_type = (char*) temp_str.c_str();
-
      qDebug() << "data" << data;
-
      qDebug() << changeField;
 
      create.write( buffer1, length1 ) ;
@@ -363,7 +342,7 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
      create.write( buffer2, length2 );
      create.write( changeField, strlen(changeField) );
      create.write( ",", 1);
-     create.write( buffer3 ,length3 );
+     create.write( buffer3 ,strlen(buffer3) );
      create.close();
 
      delete [] buffer1;
