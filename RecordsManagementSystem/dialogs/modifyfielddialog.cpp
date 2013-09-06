@@ -6,7 +6,6 @@
 #include <QApplication>
 #include <QLineEdit>
 #include <QComboBox>
-#include <QSpinBox>
 #include <QCheckBox>
 #include <QTableWidgetItem>
 #include <QMessageBox>
@@ -101,7 +100,7 @@ void ModifyFieldDialog::showFields()
                 }
 
                 connect(comboBox, SIGNAL(currentIndexChanged(QString)),
-                        this, SLOT(modifyType()));
+                        this, SLOT(modifyTypeLengthDecimal()));
 
                 //Set the combobox
                 ui->tableWidgetFields->setCellWidget(a, b - 1, comboBox);
@@ -113,19 +112,29 @@ void ModifyFieldDialog::showFields()
             //Column "Length"
             else if ( b == 3 )
             {
-                //Create a Spin Box
-                QSpinBox *spinBox = new QSpinBox;
-                spinBox->setMinimum(1);
-                spinBox->setMaximum(64);
+                //Create a Combo box
+                QComboBox *comboBox = new QComboBox;
 
-                //Set the value
-                spinBox->setValue(fieldInformation.at(b).toInt());
+                //Add 64 numbers
+                for (int a = 1; a <= 64; a++)
+                {
+                    comboBox->addItem(QString::number(a));
+                }
 
-                connect(spinBox, SIGNAL(valueChanged(int)),
-                        this, SLOT(modifyLength()));
+                //Get and set the index
+                for (int a = 0; a < 64; a++)
+                {
+                    if ( comboBox->itemText(a).toInt() == fieldInformation.at(b).toInt() )
+                    {
+                        comboBox->setCurrentIndex(a);
+                    }
+                }
 
-                //Set the spinner
-                ui->tableWidgetFields->setCellWidget(a, b - 1, spinBox);
+                connect(comboBox, SIGNAL(currentIndexChanged(int)),
+                        this, SLOT(modifyTypeLengthDecimal()));
+
+                //Set the comboBox
+                ui->tableWidgetFields->setCellWidget(a, b - 1, comboBox);
 
                 //Jump to the next column
                 continue;
@@ -134,19 +143,29 @@ void ModifyFieldDialog::showFields()
             //Column "Decimal"
             else if ( b == 4 )
             {
-                //Create a spin box
-                QSpinBox *spinBox = new QSpinBox;
-                spinBox->setMinimum(0);
-                spinBox->setMaximum(6);
+                //Create a combo box
+                QComboBox *comboBox = new QComboBox;
 
-                //Set the value
-                spinBox->setValue(fieldInformation.at(b).toInt());
+                //Add 6 numbers
+                for (int a = 0; a <= 6; a++)
+                {
+                    comboBox->addItem(QString::number(a));
+                }
 
-                connect(spinBox, SIGNAL(valueChanged(int)),
-                        this, SLOT(modifyDecimal()));
+                //Get and set the index
+                for (int a = 0; a < 6; a++)
+                {
+                    if ( comboBox->itemText(a).toInt() == fieldInformation.at(b).toInt() )
+                    {
+                        comboBox->setCurrentIndex(a);
+                    }
+                }
 
-                //Set the spinner
-                ui->tableWidgetFields->setCellWidget(a, b - 1, spinBox);
+                connect(comboBox, SIGNAL(currentIndexChanged(int)),
+                        this, SLOT(modifyTypeLengthDecimal()));
+
+                //Set the comboBox
+                ui->tableWidgetFields->setCellWidget(a, b - 1, comboBox);
 
                 //Jump to the next column
                 continue;
@@ -209,7 +228,7 @@ void ModifyFieldDialog::modifyName()
     modifyField(index.row(), index.column(), name);
 }
 
-void ModifyFieldDialog::modifyType()
+void ModifyFieldDialog::modifyTypeLengthDecimal()
 {
     QWidget *widget = QApplication::focusWidget();
     QModelIndex index = ui->tableWidgetFields->indexAt(widget->pos());
@@ -217,26 +236,6 @@ void ModifyFieldDialog::modifyType()
     QString type = ((QComboBox*)ui->tableWidgetFields->cellWidget(index.row(), index.column()))->currentText();
 
     modifyField(index.row(), index.column(), type);
-}
-
-void ModifyFieldDialog::modifyLength()
-{
-    QWidget *widget = QApplication::focusWidget();
-    QModelIndex index = ui->tableWidgetFields->indexAt(widget->pos());
-
-    QString length = QString::number(((QSpinBox*)ui->tableWidgetFields->cellWidget(index.row(), index.column()))->value());
-
-    modifyField(index.row(), index.column(), length);
-}
-
-void ModifyFieldDialog::modifyDecimal()
-{
-    QWidget *widget = QApplication::focusWidget();
-    QModelIndex index = ui->tableWidgetFields->indexAt(widget->pos());
-
-    QString decimal = QString::number(((QSpinBox*)ui->tableWidgetFields->cellWidget(index.row(), index.column()))->value());
-
-    modifyField(index.row(), index.column(), decimal);
 }
 
 void ModifyFieldDialog::modifyKey()
