@@ -54,16 +54,24 @@ void MainWindow::on_actionNewFile_triggered()
     //If the user select a directory and name file
     if ( !this->fileName.isEmpty() )
     {
-        RecordsFile create;
+        RecordsFile createRecordFile;
+        RecordsFile createIndexFile;
+
+        //index file name
+        QString indexFileName = this->fileName; //same filename
+        indexFileName.remove(this->fileName.length() - 4, 4); //remove last 4 characters(.txt)
+        indexFileName += "Index.txt"; //Append
 
         //Check if there is a problem while creating the file
-        if ( !create.open(this->fileName.toStdString(), ios::out) )
+        if ( !createRecordFile.open(this->fileName.toStdString(), ios::out) ||
+             !createIndexFile.open(indexFileName.toStdString(), ios::out) )
         {
             QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
         }
 
         //Close
-        create.close();
+        createRecordFile.close();
+        createIndexFile.close();
 
         this->labelFileName->setText(tr("File: ") + this->fileName);
         this->recordOperations.setFileName(this->fileName);

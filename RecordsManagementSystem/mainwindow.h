@@ -1,10 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "classes/recordoperations.h"
+
 #include <QMainWindow>
 #include <QLabel>
-
-#include "classes/recordoperations.h"
+#include <QMap>
 
 namespace Ui {
 class MainWindow;
@@ -76,6 +77,7 @@ private:
     QLabel *labelFileName;
     QString fileName = "";
     RecordOperations recordOperations;
+    QMap<int, int> availList;
 };
 
 #endif // MAINWINDOW_H
