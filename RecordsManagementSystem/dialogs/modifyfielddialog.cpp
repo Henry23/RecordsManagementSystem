@@ -315,9 +315,6 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
      file.read( buffer3 , length3 );
      file.close();
 
-     qDebug() << buffer1;
-     qDebug() << buffer2;
-     qDebug() << buffer3;
      int newLength = 0;
 
      for( int i = 1; i < field.size(); i++ )
@@ -343,18 +340,23 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
          QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
      }
 
-     const char * changeField = data.toStdString().c_str();
+     stringstream strs , sst;
 
-     stringstream strs;
+     sst << data.toStdString();
 
      strs << newLength;
 
+     string temp_field = sst.str();
+
      string temp_str = strs.str();
+
+     const char * changeField = (char*)temp_field.c_str();
 
      char * char_type = (char*) temp_str.c_str();
 
-     //qDebug() << data;
-    // qDebug() << changeField;
+     qDebug() << "data" << data;
+
+     qDebug() << changeField;
 
      create.write( buffer1, length1 ) ;
      create.write( char_type ,strlen(char_type));
