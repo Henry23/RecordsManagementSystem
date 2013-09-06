@@ -514,6 +514,7 @@ void MainWindow::deleteRecord()
      }
      remove( path );
 
+
      //creating the new file
      RecordsFile create;
      //Check if there is a problem while creating the file
@@ -526,7 +527,6 @@ void MainWindow::deleteRecord()
 
      //writing new information on the new file
      create.write ( buffer1, length1);
-
      create.write ( lenghtOfrecord, 2);
      create.write ( ",", 1);
      create.write ( buffer3, length3);

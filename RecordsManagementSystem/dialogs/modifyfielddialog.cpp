@@ -298,17 +298,10 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
 
      length1 = ( this->recordOperations.getLengthOfTheNumberOfFields() + 1 ) + (tPositionRow);
 
-     length2 = tPositionColumn - field[0].length() - field[0].length() - 1;
+     //somthing it's bad here
+     length2 = tPositionColumn - ( ( field[0].length() + 1 ) + ( field[column + 1].length() ) );
 
      length3 = file.fileLength() - length1 - 3;
-/*
-     int mylength = file.fileLength();
-     ifstream myfile (fileName.toStdString());
-     char *mychar = new char[mylength];
-     myfile.read(mychar,mylength);
-     qDebug() << mychar;
-     */
-
 
      char *buffer1 = new char[length1];
 
@@ -317,15 +310,10 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
      char *buffer3 = new char[length3];
 
      file.read( buffer1 , length1);
-
-     file.seek( length1 + field[0].length() );
-
+     file.seek( length1 + field[0].length());
      file.read( buffer2 ,  length2 );
-
      file.seek(  length1 + tPositionColumn  );
-
      file.read( buffer3 , length3 );
-
      file.close();
 
      qDebug() << buffer1;
@@ -341,7 +329,6 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
          }
      }
 
-/*
      newLength += field.size() + data.length();
 
      const char *path = this->fileName.toStdString().c_str();
@@ -365,22 +352,19 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
 
      string temp_str = strs.str();
 
-     char* char_type = (char*) temp_str.c_str();
+     char * char_type = (char*) temp_str.c_str();
 
-     create.write( buffer1, strlen(buffer1)) ;
+     //qDebug() << data;
+    // qDebug() << changeField;
 
+     create.write( buffer1, length1 ) ;
      create.write( char_type ,strlen(char_type));
-
-     create.write( buffer2, strlen(buffer2) );
-
+     create.write( buffer2, length2 );
      create.write( changeField, strlen(changeField) );
-
      create.write( ",", 1);
-
-     create.write( buffer3 ,strlen(buffer3));
-
+     create.write( buffer3 ,length3 );
      create.close();
-*/
+
      delete [] buffer1;
      delete [] buffer3;
      delete [] buffer2;
