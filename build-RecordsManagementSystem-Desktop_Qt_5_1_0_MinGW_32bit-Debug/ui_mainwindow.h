@@ -213,6 +213,7 @@ public:
 
         lineEdit = new QLineEdit(groupBox);
         lineEdit->setObjectName(QStringLiteral("lineEdit"));
+        lineEdit->setEnabled(false);
         lineEdit->setMaximumSize(QSize(100, 16777215));
 
         horizontalLayout->addWidget(lineEdit);
@@ -224,6 +225,7 @@ public:
 
         pushButton = new QPushButton(groupBox);
         pushButton->setObjectName(QStringLiteral("pushButton"));
+        pushButton->setEnabled(false);
         pushButton->setMaximumSize(QSize(60, 16777215));
 
         horizontalLayout->addWidget(pushButton);
@@ -237,6 +239,7 @@ public:
 
         tableWidget = new QTableWidget(groupBox);
         tableWidget->setObjectName(QStringLiteral("tableWidget"));
+        tableWidget->setEnabled(false);
 
         verticalLayout_2->addWidget(tableWidget);
 

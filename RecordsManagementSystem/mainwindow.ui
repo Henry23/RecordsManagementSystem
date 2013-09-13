@@ -80,6 +80,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximumSize">
              <size>
               <width>100</width>
@@ -104,6 +107,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="pushButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximumSize">
              <size>
               <width>60</width>
@@ -131,7 +137,11 @@
          </layout>
         </item>
         <item>
-         <widget class="QTableWidget" name="tableWidget"/>
+         <widget class="QTableWidget" name="tableWidget">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

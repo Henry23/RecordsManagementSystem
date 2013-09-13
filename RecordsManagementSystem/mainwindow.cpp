@@ -724,7 +724,6 @@ void MainWindow::deleteRecord()
      }
      remove( path );
 
-
      //creating the new file
      RecordsFile create;
      //Check if there is a problem while creating the file
@@ -749,8 +748,8 @@ void MainWindow::deleteRecord()
      delete [] buffer3;
 
      //using availList
-     availList.insert(length1,lenghtOfrecord);
+     availList.insert(length1,recordList.at(0).toInt());
 
      //updating the table
-     //ui->tableWidgetRecords->removeRow(index);
+     ui->tableWidgetRecords->removeRow(index);
 }
