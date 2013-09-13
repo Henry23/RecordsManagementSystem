@@ -1,4 +1,5 @@
 #include "btree.h"
+#include <qDebug>
 
 // Constructor for BTreeNode class
 BTreeNode::BTreeNode( int t1, bool leaf1 )
@@ -164,4 +165,29 @@ void BTreeNode::splitChild(int i, BTreeNode *y)
     // Increment count of keys in this node
     n = n + 1;
 }
+
+// Function to traverse all nodes in a subtree rooted with this node
+void BTreeNode::traverse()
+{
+
+    // stringstream s;
+    // There are n keys and n+1 children, travers through n keys
+    // and first n children
+    int i;
+    for (i = 0; i < n; i++)
+    {
+        // If this is not leaf, then before printing key[i],
+        // traverse the subtree rooted with child C[i].
+        if (leaf == false)
+            C[i]->traverse();
+        qDebug() << " " << keys[i];
+    }
+
+    // Print the subtree rooted with last child
+    if (leaf == false)
+        C[i]->traverse();
+
+   // return s.str();
+}
+
 

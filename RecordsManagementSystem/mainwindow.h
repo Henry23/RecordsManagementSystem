@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "classes/recordoperations.h"
+#include "classes/btree.h"
 
 #include <QMainWindow>
 #include <QLabel>
@@ -90,6 +91,7 @@ private:
     RecordOperations recordOperations;
     QList<QString> indexList; //( key, position, length )
     QMap<int, int> availList; //position, length
+    BTree *btree; // btree
 };
 
 #endif // MAINWINDOW_H

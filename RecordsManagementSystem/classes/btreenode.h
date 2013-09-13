@@ -1,6 +1,13 @@
 #ifndef BTREENODE_H
 #define BTREENODE_H
+
 #include <iostream>
+#include <string>
+#include <sstream>
+
+using std::string;
+using std::stringstream;
+
 
 class BTreeNode
 {
