@@ -4,6 +4,7 @@
 #include "classes/recordsfile.h"
 #include "dialogs/createfielddialog.h"
 #include "dialogs/modifyfielddialog.h"
+#include "classes/btree.h"
 
 #include <cstdio>
 using std::remove;
@@ -14,6 +15,8 @@ using std::remove;
 #include <QPainter>
 #include <QMessageBox>
 #include <QDebug>
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -344,6 +347,17 @@ void MainWindow::on_actionCreateSimpleIndex_triggered()
 
 void MainWindow::on_actionCreateBTreeIndex_triggered()
 {
+    btree =  new BTree(4);//B-Tree with minium degree 4
+     for ( int i = 0 ; i < indexList.size(); i++){
+
+         //slipting and getting all the posicion
+         QStringList a = indexList.at(i).split(',');
+
+         //inserting the posicion on the btree
+         btree->insert( a[1].toInt() );
+     }
+
+     btree->traverse();
 }
 
 void MainWindow::on_actionReindexing_triggered()
@@ -397,7 +411,8 @@ void MainWindow::loadIndexFile(int structure)
 
         else
         {
-            //B-Tree
+
+
         }
     }
 }
