@@ -79,7 +79,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit">
+           <widget class="QLineEdit" name="lineEditKey">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -92,7 +92,10 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="comboBox">
+           <widget class="QComboBox" name="comboBoxIndex">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <item>
              <property name="text">
               <string>Simple Index</string>
@@ -106,7 +109,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="pushButtonSearch">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -137,7 +140,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QTableWidget" name="tableWidget">
+         <widget class="QTableWidget" name="tableWidgetSearch">
           <property name="enabled">
            <bool>false</bool>
           </property>

@@ -65,6 +65,8 @@ private slots:
 
     void on_tableWidgetRecords_cellChanged(int row, int column);
 
+    void on_pushButtonSearch_clicked();
+
 private:
     void init();
     bool validFile(); //Checks if the selected file is compatible with the application
@@ -72,6 +74,8 @@ private:
     void showFields();
     void showRecords();
     bool insertRecord();
+    bool indexListSearch(QString);
+    bool bTreeSearch(QString);
     bool compact();
     bool saveIndexList();
 

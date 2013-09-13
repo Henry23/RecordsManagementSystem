@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[27];
-    char stringdata[671];
+    QByteArrayData data[28];
+    char stringdata[699];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -55,7 +55,8 @@ QT_MOC_LITERAL(22, 602, 9),
 QT_MOC_LITERAL(23, 612, 12),
 QT_MOC_LITERAL(24, 625, 33),
 QT_MOC_LITERAL(25, 659, 3),
-QT_MOC_LITERAL(26, 663, 6)
+QT_MOC_LITERAL(26, 663, 6),
+QT_MOC_LITERAL(27, 670, 27)
     },
     "MainWindow\0on_actionNewFile_triggered\0"
     "\0on_actionOpenFile_triggered\0"
@@ -78,7 +79,7 @@ QT_MOC_LITERAL(26, 663, 6)
     "on_tableWidgetRecords_customContextMenuRequested\0"
     "pos\0insertRow\0deleteRecord\0"
     "on_tableWidgetRecords_cellChanged\0row\0"
-    "column\0"
+    "column\0on_pushButtonSearch_clicked\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -88,7 +89,7 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      22,   14, // methods
+      23,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -96,28 +97,29 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,  124,    2, 0x08,
-       3,    0,  125,    2, 0x08,
-       4,    0,  126,    2, 0x08,
-       5,    0,  127,    2, 0x08,
-       6,    0,  128,    2, 0x08,
-       7,    0,  129,    2, 0x08,
-       8,    0,  130,    2, 0x08,
-       9,    0,  131,    2, 0x08,
-      10,    0,  132,    2, 0x08,
-      11,    0,  133,    2, 0x08,
-      12,    0,  134,    2, 0x08,
-      13,    0,  135,    2, 0x08,
-      14,    0,  136,    2, 0x08,
-      15,    0,  137,    2, 0x08,
-      16,    0,  138,    2, 0x08,
-      17,    0,  139,    2, 0x08,
-      18,    0,  140,    2, 0x08,
-      19,    0,  141,    2, 0x08,
-      20,    1,  142,    2, 0x08,
-      22,    0,  145,    2, 0x08,
-      23,    0,  146,    2, 0x08,
-      24,    2,  147,    2, 0x08,
+       1,    0,  129,    2, 0x08,
+       3,    0,  130,    2, 0x08,
+       4,    0,  131,    2, 0x08,
+       5,    0,  132,    2, 0x08,
+       6,    0,  133,    2, 0x08,
+       7,    0,  134,    2, 0x08,
+       8,    0,  135,    2, 0x08,
+       9,    0,  136,    2, 0x08,
+      10,    0,  137,    2, 0x08,
+      11,    0,  138,    2, 0x08,
+      12,    0,  139,    2, 0x08,
+      13,    0,  140,    2, 0x08,
+      14,    0,  141,    2, 0x08,
+      15,    0,  142,    2, 0x08,
+      16,    0,  143,    2, 0x08,
+      17,    0,  144,    2, 0x08,
+      18,    0,  145,    2, 0x08,
+      19,    0,  146,    2, 0x08,
+      20,    1,  147,    2, 0x08,
+      22,    0,  150,    2, 0x08,
+      23,    0,  151,    2, 0x08,
+      24,    2,  152,    2, 0x08,
+      27,    0,  157,    2, 0x08,
 
  // slots: parameters
     QMetaType::Void,
@@ -142,6 +144,7 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::Int, QMetaType::Int,   25,   26,
+    QMetaType::Void,
 
        0        // eod
 };
@@ -173,6 +176,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 19: _t->insertRow(); break;
         case 20: _t->deleteRecord(); break;
         case 21: _t->on_tableWidgetRecords_cellChanged((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 22: _t->on_pushButtonSearch_clicked(); break;
         default: ;
         }
     }
@@ -203,13 +207,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 22)
+        if (_id < 23)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 22;
+        _id -= 23;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 22)
+        if (_id < 23)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 22;
+        _id -= 23;
     }
     return _id;
 }

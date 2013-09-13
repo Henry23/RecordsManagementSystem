@@ -66,11 +66,11 @@ public:
     QVBoxLayout *verticalLayout_2;
     QHBoxLayout *horizontalLayout;
     QLabel *label;
-    QLineEdit *lineEdit;
-    QComboBox *comboBox;
-    QPushButton *pushButton;
+    QLineEdit *lineEditKey;
+    QComboBox *comboBoxIndex;
+    QPushButton *pushButtonSearch;
     QSpacerItem *horizontalSpacer;
-    QTableWidget *tableWidget;
+    QTableWidget *tableWidgetSearch;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuFields;
@@ -211,24 +211,25 @@ public:
 
         horizontalLayout->addWidget(label);
 
-        lineEdit = new QLineEdit(groupBox);
-        lineEdit->setObjectName(QStringLiteral("lineEdit"));
-        lineEdit->setEnabled(false);
-        lineEdit->setMaximumSize(QSize(100, 16777215));
+        lineEditKey = new QLineEdit(groupBox);
+        lineEditKey->setObjectName(QStringLiteral("lineEditKey"));
+        lineEditKey->setEnabled(false);
+        lineEditKey->setMaximumSize(QSize(100, 16777215));
 
-        horizontalLayout->addWidget(lineEdit);
+        horizontalLayout->addWidget(lineEditKey);
 
-        comboBox = new QComboBox(groupBox);
-        comboBox->setObjectName(QStringLiteral("comboBox"));
+        comboBoxIndex = new QComboBox(groupBox);
+        comboBoxIndex->setObjectName(QStringLiteral("comboBoxIndex"));
+        comboBoxIndex->setEnabled(false);
 
-        horizontalLayout->addWidget(comboBox);
+        horizontalLayout->addWidget(comboBoxIndex);
 
-        pushButton = new QPushButton(groupBox);
-        pushButton->setObjectName(QStringLiteral("pushButton"));
-        pushButton->setEnabled(false);
-        pushButton->setMaximumSize(QSize(60, 16777215));
+        pushButtonSearch = new QPushButton(groupBox);
+        pushButtonSearch->setObjectName(QStringLiteral("pushButtonSearch"));
+        pushButtonSearch->setEnabled(false);
+        pushButtonSearch->setMaximumSize(QSize(60, 16777215));
 
-        horizontalLayout->addWidget(pushButton);
+        horizontalLayout->addWidget(pushButtonSearch);
 
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -237,11 +238,11 @@ public:
 
         verticalLayout_2->addLayout(horizontalLayout);
 
-        tableWidget = new QTableWidget(groupBox);
-        tableWidget->setObjectName(QStringLiteral("tableWidget"));
-        tableWidget->setEnabled(false);
+        tableWidgetSearch = new QTableWidget(groupBox);
+        tableWidgetSearch->setObjectName(QStringLiteral("tableWidgetSearch"));
+        tableWidgetSearch->setEnabled(false);
 
-        verticalLayout_2->addWidget(tableWidget);
+        verticalLayout_2->addWidget(tableWidgetSearch);
 
         splitter->addWidget(groupBox);
 
@@ -360,12 +361,12 @@ public:
 #endif // QT_NO_TOOLTIP
         groupBox->setTitle(QApplication::translate("MainWindow", "Search", 0));
         label->setText(QApplication::translate("MainWindow", "Key:", 0));
-        comboBox->clear();
-        comboBox->insertItems(0, QStringList()
+        comboBoxIndex->clear();
+        comboBoxIndex->insertItems(0, QStringList()
          << QApplication::translate("MainWindow", "Simple Index", 0)
          << QApplication::translate("MainWindow", "B-Tree index", 0)
         );
-        pushButton->setText(QApplication::translate("MainWindow", "Ok", 0));
+        pushButtonSearch->setText(QApplication::translate("MainWindow", "Ok", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
         menuFields->setTitle(QApplication::translate("MainWindow", "Fields", 0));
         menuRecords->setTitle(QApplication::translate("MainWindow", "Records", 0));

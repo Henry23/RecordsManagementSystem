@@ -56,6 +56,8 @@ void MainWindow::init()
     this->labelRecordFileName = new QLabel;
     this->statusBar()->addPermanentWidget(this->labelRecordFileName); //Add the label to the status bar
 
+    ui->tableWidgetSearch->setRowCount(1);
+
     //Show a message in the status bar
     this->statusBar()->showMessage(tr("Welcome"), 2500);
 }
@@ -112,6 +114,12 @@ void MainWindow::on_actionNewFile_triggered()
 
         //Enable the table
         ui->tableWidgetRecords->setEnabled(true);
+
+        //Enable search widgets
+        ui->lineEditKey->setEnabled(true);
+        ui->comboBoxIndex->setEnabled(true);
+        ui->pushButtonSearch->setEnabled(true);
+        ui->tableWidgetSearch->setEnabled(true);
     }
 }
 
@@ -157,6 +165,12 @@ void MainWindow::on_actionOpenFile_triggered()
 
         //Enable the table
         ui->tableWidgetRecords->setEnabled(true);
+
+        //Enable search widgets
+        ui->lineEditKey->setEnabled(true);
+        ui->comboBoxIndex->setEnabled(true);
+        ui->pushButtonSearch->setEnabled(true);
+        ui->tableWidgetSearch->setEnabled(true);
     }
 }
 
@@ -253,8 +267,18 @@ void MainWindow::on_actionCloseFile_triggered()
 
     //Clear table
     ui->tableWidgetRecords->clear();
+    ui->tableWidgetSearch->clear();
     ui->tableWidgetRecords->setColumnCount(0);
+    ui->tableWidgetSearch->setColumnCount(0);
     ui->tableWidgetRecords->setRowCount(0);
+
+    //Disable search widgets
+    ui->lineEditKey->setEnabled(false);
+    ui->comboBoxIndex->setEnabled(false);
+    ui->pushButtonSearch->setEnabled(false);
+    ui->tableWidgetSearch->setEnabled(false);
+
+    ui->lineEditKey->clear();
 
     //Clear paths
     this->recordFileName.clear();
@@ -385,6 +409,7 @@ void MainWindow::showFields()
     {
         //Number of columns
         ui->tableWidgetRecords->setColumnCount(this->recordOperations.getNumberOfFields());
+        ui->tableWidgetSearch->setColumnCount(ui->tableWidgetRecords->columnCount());
 
         QStringList fieldsInformation = this->recordOperations.getFieldsInformation(); //All the fields
         QString fields = "";
@@ -402,6 +427,7 @@ void MainWindow::showFields()
 
         //Columns name
         ui->tableWidgetRecords->setHorizontalHeaderLabels(fields.split(","));
+        ui->tableWidgetSearch->setHorizontalHeaderLabels(fields.split(","));
     }
 }
 
@@ -622,6 +648,24 @@ bool MainWindow::insertRecord()
 
 }
 
+bool MainWindow::indexListSearch(QString key)
+{
+    for (int a = 0; a < this->indexList.size(); a++)
+    {
+        if ( this->indexList.at(a).split(",").at(0) == key )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool MainWindow::bTreeSearch(QString key)
+{
+    return false;
+}
+
 bool MainWindow::compact()
 {
     return true;
@@ -752,4 +796,27 @@ void MainWindow::deleteRecord()
 
      //updating the table
      ui->tableWidgetRecords->removeRow(index);
+}
+
+void MainWindow::on_pushButtonSearch_clicked()
+{
+    //Checks if there are records
+    if ( !this->indexList.isEmpty() )
+    {
+        if ( ui->comboBoxIndex->currentIndex() == 0 )
+        {
+            if ( !this->indexListSearch(ui->lineEditKey->text()) )
+            {
+                QMessageBox::critical(this, tr("Error"), tr("Record not found"));
+            }
+        }
+
+        else
+        {
+            if ( !this->bTreeSearch(ui->lineEditKey->text()) )
+            {
+                QMessageBox::critical(this, tr("Error"), tr("Record not found"));
+            }
+        }
+    }
 }
