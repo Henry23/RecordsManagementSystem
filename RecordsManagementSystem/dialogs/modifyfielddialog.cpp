@@ -260,9 +260,10 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
     //for each field that has been slipt by parts
     QStringList field;
 
+    //in this we get the field selected
     for ( int a = 0; a < fieldsProperties.size(); a++ )
     {
-        fieldProperties = fieldsProperties.at(a).split(",");
+        fieldProperties = fieldsProperties.at( a ).split( "," );
         for ( int b = 0; b < fieldProperties.size(); b++ )
         {
             if ( a == row )
@@ -271,14 +272,13 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
             }
          }
      }
-
+     //we open the file of field
      RecordsFile file(this->fileName.toStdString());
-
-     int length1 = 0;
-     int length2 = 0;
-     int length3 = 0;
-     int tPositionRow = 0;
-     int tPositionColumn = 0;
+     int length1 = 0;   //length of the first posicion after | of the field selected
+     int length2 = 0;   //length of the second posicion
+     int length3 = 0;   //length of the third posicion at the end of the field selected
+     int tPositionRow = 0; // the posicion at the all field no - selected
+     int tPositionColumn = 0; //plus of all field length except the one we selected
 
      for ( int i = 0; i < row; i++ )
      {
@@ -294,18 +294,19 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
      length2 = tPositionColumn - ( ( field[0].length() + 1 ) + ( field[column + 1].length() ) );
      length3 = file.fileLength() - length1 - 3;
 
-     char *buffer1 = new char[length1];
-     char *buffer2 = new char[length2];
-     char *buffer3 = new char[length3];
+     char *buffer1 = new char[length1];//first buffer
+     char *buffer2 = new char[length2];//second buffer
+     char *buffer3 = new char[length3];//thrird buffer
 
+     //we read the record's field to get the information we need
      file.read( buffer1 , length1);
      file.seek( length1 + field[0].length());
      file.read( buffer2 ,  length2 );
      file.seek( length1 + tPositionColumn  );
      file.read( buffer3 , length3 );
-     file.close();
+     file.close();//we closed the file
 
-     int newLength = 0;
+     int newLength = 0;//this will be the new length of the field
 
      for( int i = 1; i < field.size(); i++ )
      {
@@ -327,6 +328,7 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
          QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
      }
 
+     //casting
      stringstream strs , sst;
      sst << data.toStdString();
      strs << newLength;
@@ -334,9 +336,12 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
      string temp_str = strs.str();
      const char * changeField = (char*)temp_field.c_str();
      char * char_type = (char*) temp_str.c_str();
+    /*
      qDebug() << "data" << data;
      qDebug() << changeField;
+    */
 
+     //we create the new file
      create.write( buffer1, length1 ) ;
      create.write( char_type ,strlen(char_type));
      create.write( buffer2, length2 );
@@ -345,6 +350,7 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
      create.write( buffer3 ,strlen(buffer3) );
      create.close();
 
+     //delete the pointer
      delete [] buffer1;
      delete [] buffer3;
      delete [] buffer2;

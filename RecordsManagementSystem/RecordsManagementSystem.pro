@@ -30,7 +30,8 @@ HEADERS  += mainwindow.h \
         classes/recordoperations.h \
         dialogs/createfielddialog.h \
         dialogs/modifyfielddialog.h \
-    classes/btree.h
+    classes/btree.h \
+    classes/btreenode.h
 
 FORMS    += mainwindow.ui \
         dialogs/createfielddialog.ui \
