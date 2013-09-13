@@ -748,6 +748,9 @@ void MainWindow::deleteRecord()
      delete [] buffer2;
      delete [] buffer3;
 
+     //using availList
+     availList.insert(length1,lenghtOfrecord);
+
      //updating the table
      //ui->tableWidgetRecords->removeRow(index);
 }
