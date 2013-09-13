@@ -650,10 +650,45 @@ bool MainWindow::insertRecord()
 
 bool MainWindow::indexListSearch(QString key)
 {
-    for (int a = 0; a < this->indexList.size(); a++)
+    for (int row = 0; row < this->indexList.size(); row++)
     {
-        if ( this->indexList.at(a).split(",").at(0) == key )
+        if ( this->indexList.at(row).split(",").at(0) == key )
         {
+            QFile file(this->recordFileName);
+
+            if ( !file.open(QIODevice::ReadOnly | QIODevice::Text) )
+            {
+                return false;
+            }
+
+            //set the initial position of the record
+            file.seek(indexList.at(row).split(",").at(1).toInt());
+
+            //buffer
+            char buffer[indexList.at(row).split(",").at(2).toInt()];
+
+            //Read
+            file.read(buffer, indexList.at(row).split(",").at(2).toInt());
+
+            QString record = buffer;
+
+            //Separate the record
+            QStringList columnsList = record.split(",");
+
+            //All the columns
+            for (int column = 0; column < columnsList.size(); column++)
+            {
+                //Create a item
+                QTableWidgetItem *item = new QTableWidgetItem(columnsList.at(column));
+                item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled); //item not editable
+
+                //Insert a row
+                ui->tableWidgetSearch->setItem(0, column, item);
+            }
+
+            //Close
+            file.close();
+
             return true;
         }
     }

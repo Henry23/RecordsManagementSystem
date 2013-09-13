@@ -22,7 +22,7 @@ SOURCES += main.cpp\
         classes/recordoperations.cpp \
         dialogs/createfielddialog.cpp \
         dialogs/modifyfielddialog.cpp \
-    classes/btree.cpp
+        classes/btree.cpp
 
 HEADERS  += mainwindow.h \
         classes/adtfile.h \
@@ -30,8 +30,8 @@ HEADERS  += mainwindow.h \
         classes/recordoperations.h \
         dialogs/createfielddialog.h \
         dialogs/modifyfielddialog.h \
-    classes/btree.h \
-    classes/btreenode.h
+        classes/btree.h \
+        classes/btreenode.h
 
 FORMS    += mainwindow.ui \
         dialogs/createfielddialog.ui \

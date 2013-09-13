@@ -366,7 +366,7 @@ public:
          << QApplication::translate("MainWindow", "Simple Index", 0)
          << QApplication::translate("MainWindow", "B-Tree index", 0)
         );
-        pushButtonSearch->setText(QApplication::translate("MainWindow", "Ok", 0));
+        pushButtonSearch->setText(QApplication::translate("MainWindow", "Search", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
         menuFields->setTitle(QApplication::translate("MainWindow", "Fields", 0));
         menuRecords->setTitle(QApplication::translate("MainWindow", "Records", 0));
