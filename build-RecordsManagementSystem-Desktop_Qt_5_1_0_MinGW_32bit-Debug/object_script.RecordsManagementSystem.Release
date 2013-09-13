@@ -5,6 +5,7 @@ INPUT(
 ./release\recordoperations.o
 ./release\createfielddialog.o
 ./release\modifyfielddialog.o
+./release\btree.o
 ./release\qrc_images.o
 ./release\moc_mainwindow.o
 ./release\moc_recordoperations.o

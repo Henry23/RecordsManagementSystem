@@ -5,6 +5,7 @@ INPUT(
 ./debug\recordoperations.o
 ./debug\createfielddialog.o
 ./debug\modifyfielddialog.o
+./debug\btree.o
 ./debug\qrc_images.o
 ./debug\moc_mainwindow.o
 ./debug\moc_recordoperations.o

@@ -21,14 +21,16 @@ SOURCES += main.cpp\
         classes/recordsfile.cpp \
         classes/recordoperations.cpp \
         dialogs/createfielddialog.cpp \
-        dialogs/modifyfielddialog.cpp
+        dialogs/modifyfielddialog.cpp \
+    classes/btree.cpp
 
 HEADERS  += mainwindow.h \
         classes/adtfile.h \
         classes/recordsfile.h \
         classes/recordoperations.h \
         dialogs/createfielddialog.h \
-        dialogs/modifyfielddialog.h
+        dialogs/modifyfielddialog.h \
+    classes/btree.h
 
 FORMS    += mainwindow.ui \
         dialogs/createfielddialog.ui \

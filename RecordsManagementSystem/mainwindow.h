@@ -5,6 +5,7 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QList>
 #include <QMap>
 
 namespace Ui {
@@ -65,19 +66,26 @@ private slots:
     void on_tableWidgetRecords_cellChanged(int row, int column);
 
 private:
-    bool validFile();
-    void clearTable();
-    void updateTable();
+    void init();
+    bool validFile(); //Checks if the selected file is compatible with the application
+    void loadIndexFile(int = 0); //(0) QList - (1) B-Tree
+    void showFields();
+    void showRecords();
     bool insertRecord();
+    bool compact();
+    bool saveIndexList();
 
     Ui::MainWindow *ui;
     QMenu *popupMenu;
     QAction *actionInsertRow;
     QAction *actionDeleteRecord;
-    QLabel *labelFileName;
-    QString fileName = "";
+    QLabel *labelRecordFileName;
+
+    QString recordFileName = "";
+    QString indexFileName = "";
     RecordOperations recordOperations;
-    QMap<int, int> availList;
+    QList<QString> indexList; //( key, position, length )
+    QMap<int, int> availList; //position, length
 };
 
 #endif // MAINWINDOW_H

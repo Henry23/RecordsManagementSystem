@@ -13,14 +13,22 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QSplitter>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QToolBar>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -51,8 +59,18 @@ public:
     QAction *actionReindexing;
     QAction *actionOpenFile;
     QWidget *centralWidget;
-    QHBoxLayout *horizontalLayout;
+    QVBoxLayout *verticalLayout;
+    QSplitter *splitter;
     QTableWidget *tableWidgetRecords;
+    QGroupBox *groupBox;
+    QVBoxLayout *verticalLayout_2;
+    QHBoxLayout *horizontalLayout;
+    QLabel *label;
+    QLineEdit *lineEdit;
+    QComboBox *comboBox;
+    QPushButton *pushButton;
+    QSpacerItem *horizontalSpacer;
+    QTableWidget *tableWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuFields;
@@ -67,7 +85,8 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(666, 359);
+        MainWindow->resize(671, 500);
+        MainWindow->setMinimumSize(QSize(0, 500));
         actionNewFile = new QAction(MainWindow);
         actionNewFile->setObjectName(QStringLiteral("actionNewFile"));
         QIcon icon;
@@ -110,6 +129,7 @@ public:
         actionModifyField->setIcon(icon6);
         actionCreateSimpleIndex = new QAction(MainWindow);
         actionCreateSimpleIndex->setObjectName(QStringLiteral("actionCreateSimpleIndex"));
+        actionCreateSimpleIndex->setEnabled(false);
         actionShowFields = new QAction(MainWindow);
         actionShowFields->setObjectName(QStringLiteral("actionShowFields"));
         actionShowFields->setEnabled(false);
@@ -130,20 +150,27 @@ public:
         actionShowRecords->setEnabled(false);
         actionCrossRecords = new QAction(MainWindow);
         actionCrossRecords->setObjectName(QStringLiteral("actionCrossRecords"));
+        actionCrossRecords->setEnabled(false);
         actionCreateBTreeIndex = new QAction(MainWindow);
         actionCreateBTreeIndex->setObjectName(QStringLiteral("actionCreateBTreeIndex"));
+        actionCreateBTreeIndex->setEnabled(false);
         actionAbout = new QAction(MainWindow);
         actionAbout->setObjectName(QStringLiteral("actionAbout"));
         actionImportXML = new QAction(MainWindow);
         actionImportXML->setObjectName(QStringLiteral("actionImportXML"));
+        actionImportXML->setEnabled(false);
         actionExportXML = new QAction(MainWindow);
         actionExportXML->setObjectName(QStringLiteral("actionExportXML"));
+        actionExportXML->setEnabled(false);
         actionImportJSON = new QAction(MainWindow);
         actionImportJSON->setObjectName(QStringLiteral("actionImportJSON"));
+        actionImportJSON->setEnabled(false);
         actionExportJSON = new QAction(MainWindow);
         actionExportJSON->setObjectName(QStringLiteral("actionExportJSON"));
+        actionExportJSON->setEnabled(false);
         actionReindexing = new QAction(MainWindow);
         actionReindexing->setObjectName(QStringLiteral("actionReindexing"));
+        actionReindexing->setEnabled(false);
         actionOpenFile = new QAction(MainWindow);
         actionOpenFile->setObjectName(QStringLiteral("actionOpenFile"));
         QIcon icon8;
@@ -151,22 +178,76 @@ public:
         actionOpenFile->setIcon(icon8);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
-        horizontalLayout = new QHBoxLayout(centralWidget);
-        horizontalLayout->setSpacing(6);
-        horizontalLayout->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
-        tableWidgetRecords = new QTableWidget(centralWidget);
+        verticalLayout = new QVBoxLayout(centralWidget);
+        verticalLayout->setSpacing(6);
+        verticalLayout->setContentsMargins(11, 11, 11, 11);
+        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+        splitter = new QSplitter(centralWidget);
+        splitter->setObjectName(QStringLiteral("splitter"));
+        splitter->setLineWidth(1);
+        splitter->setOrientation(Qt::Vertical);
+        splitter->setHandleWidth(5);
+        tableWidgetRecords = new QTableWidget(splitter);
         tableWidgetRecords->setObjectName(QStringLiteral("tableWidgetRecords"));
         tableWidgetRecords->setEnabled(false);
         tableWidgetRecords->setContextMenuPolicy(Qt::CustomContextMenu);
         tableWidgetRecords->setSelectionBehavior(QAbstractItemView::SelectRows);
+        splitter->addWidget(tableWidgetRecords);
+        groupBox = new QGroupBox(splitter);
+        groupBox->setObjectName(QStringLiteral("groupBox"));
+        groupBox->setMaximumSize(QSize(16777215, 150));
+        verticalLayout_2 = new QVBoxLayout(groupBox);
+        verticalLayout_2->setSpacing(6);
+        verticalLayout_2->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
+        verticalLayout_2->setSizeConstraint(QLayout::SetDefaultConstraint);
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setSpacing(6);
+        horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
+        horizontalLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
+        horizontalLayout->setContentsMargins(-1, -1, 0, 0);
+        label = new QLabel(groupBox);
+        label->setObjectName(QStringLiteral("label"));
 
-        horizontalLayout->addWidget(tableWidgetRecords);
+        horizontalLayout->addWidget(label);
+
+        lineEdit = new QLineEdit(groupBox);
+        lineEdit->setObjectName(QStringLiteral("lineEdit"));
+        lineEdit->setMaximumSize(QSize(100, 16777215));
+
+        horizontalLayout->addWidget(lineEdit);
+
+        comboBox = new QComboBox(groupBox);
+        comboBox->setObjectName(QStringLiteral("comboBox"));
+
+        horizontalLayout->addWidget(comboBox);
+
+        pushButton = new QPushButton(groupBox);
+        pushButton->setObjectName(QStringLiteral("pushButton"));
+        pushButton->setMaximumSize(QSize(60, 16777215));
+
+        horizontalLayout->addWidget(pushButton);
+
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout->addItem(horizontalSpacer);
+
+
+        verticalLayout_2->addLayout(horizontalLayout);
+
+        tableWidget = new QTableWidget(groupBox);
+        tableWidget->setObjectName(QStringLiteral("tableWidget"));
+
+        verticalLayout_2->addWidget(tableWidget);
+
+        splitter->addWidget(groupBox);
+
+        verticalLayout->addWidget(splitter);
 
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 666, 21));
+        menuBar->setGeometry(QRect(0, 0, 671, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
         menuFields = new QMenu(menuBar);
@@ -274,6 +355,14 @@ public:
 #ifndef QT_NO_TOOLTIP
         actionOpenFile->setToolTip(QApplication::translate("MainWindow", "Open File", 0));
 #endif // QT_NO_TOOLTIP
+        groupBox->setTitle(QApplication::translate("MainWindow", "Search", 0));
+        label->setText(QApplication::translate("MainWindow", "Key:", 0));
+        comboBox->clear();
+        comboBox->insertItems(0, QStringList()
+         << QApplication::translate("MainWindow", "Simple Index", 0)
+         << QApplication::translate("MainWindow", "B-Tree index", 0)
+        );
+        pushButton->setText(QApplication::translate("MainWindow", "Ok", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
         menuFields->setTitle(QApplication::translate("MainWindow", "Fields", 0));
         menuRecords->setTitle(QApplication::translate("MainWindow", "Records", 0));

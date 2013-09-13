@@ -21,49 +21,63 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    this->init();
+}
+
+MainWindow::~MainWindow()
+{
+    //Save and exit
+    this->on_actionExit_triggered();
+
+    delete ui;
+}
+
+void MainWindow::init()
+{
+    //Create a menu
     this->popupMenu = new QMenu;
 
+    //Create actions
     this->actionInsertRow = new QAction(tr("Insert Row"), this);
     this->actionDeleteRecord = new QAction(tr("Delete Record"), this);
 
+    //Add action to the menu
     this->popupMenu->addAction(this->actionInsertRow);
     this->popupMenu->addAction(this->actionDeleteRecord);
 
+    //Connections
     connect(actionInsertRow, SIGNAL(triggered()),
             this, SLOT(insertRow()));
 
     connect(actionDeleteRecord, SIGNAL(triggered()),
             this, SLOT(deleteRecord()));
 
-    this->labelFileName = new QLabel;
-    this->statusBar()->addPermanentWidget(this->labelFileName);
+    //Create a label
+    this->labelRecordFileName = new QLabel;
+    this->statusBar()->addPermanentWidget(this->labelRecordFileName); //Add the label to the status bar
 
+    //Show a message in the status bar
     this->statusBar()->showMessage(tr("Welcome"), 2500);
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 void MainWindow::on_actionNewFile_triggered()
 {
     //Open a dialog and save the file path
-    this->fileName = QFileDialog::getSaveFileName(this, tr("New File"), QDir::homePath(), tr("Text File (*.txt)"));
+    this->recordFileName = QFileDialog::getSaveFileName(this, tr("New File"), QDir::homePath(), tr("Text File (*.txt)"));
 
     //If the user select a directory and name file
-    if ( !this->fileName.isEmpty() )
+    if ( !this->recordFileName.isEmpty() )
     {
         RecordsFile createRecordFile;
         RecordsFile createIndexFile;
 
         //index file name
-        QString indexFileName = this->fileName; //same filename
-        indexFileName.remove(this->fileName.length() - 4, 4); //remove last 4 characters(.txt)
+        indexFileName = this->recordFileName; //same filename
+        indexFileName.remove(this->recordFileName.length() - 4, 4); //remove last 4 characters(.txt)
         indexFileName += "Index.txt"; //Append
 
-        //Check if there is a problem while creating the file
-        if ( !createRecordFile.open(this->fileName.toStdString(), ios::out) ||
+        //Check if there is a problem while creating the files
+        if ( !createRecordFile.open(this->recordFileName.toStdString(), ios::out) ||
              !createIndexFile.open(indexFileName.toStdString(), ios::out) )
         {
             QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
@@ -73,9 +87,8 @@ void MainWindow::on_actionNewFile_triggered()
         createRecordFile.close();
         createIndexFile.close();
 
-        this->labelFileName->setText(tr("File: ") + this->fileName);
-        this->recordOperations.setFileName(this->fileName);
-        this->clearTable();
+        this->labelRecordFileName->setText(tr("File: ") + this->recordFileName);
+        this->recordOperations.setFileName(this->recordFileName);
 
         //Enable actions
         ui->actionSaveFile->setEnabled(true);
@@ -84,20 +97,43 @@ void MainWindow::on_actionNewFile_triggered()
         ui->actionCreateField->setEnabled(true);
         ui->actionModifyField->setEnabled(true);
         ui->actionSearchRecord->setEnabled(true);
+        ui->actionCrossRecords->setEnabled(true);
+        ui->actionCreateSimpleIndex->setEnabled(true);
+        ui->actionCreateBTreeIndex->setEnabled(true);
+        ui->actionReindexing->setEnabled(true);
+        ui->actionImportXML->setEnabled(true);
+        ui->actionExportXML->setEnabled(true);
+        ui->actionImportJSON->setEnabled(true);
+        ui->actionExportJSON->setEnabled(true);
+
+        //Disable actions
+        ui->actionOpenFile->setEnabled(false);
+        ui->actionNewFile->setEnabled(false);
+
+        //Enable the table
+        ui->tableWidgetRecords->setEnabled(true);
     }
 }
 
 void MainWindow::on_actionOpenFile_triggered()
 {
     //Open a dialog and save the file path
-    this->fileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::homePath(), tr("Text File (*.txt)"));
+    this->recordFileName = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::homePath(), tr("Text File (*.txt)"));
 
     //If the user select a valid file
-    if ( !this->fileName.isEmpty() && this->validFile())
+    if ( !this->recordFileName.isEmpty() && this->validFile())
     {
-        this->labelFileName->setText(tr("File: ") + this->fileName);
-        this->recordOperations.setFileName(this->fileName);
-        this->updateTable();
+        //index file name
+        indexFileName = this->recordFileName; //same filename
+        indexFileName.remove(this->recordFileName.length() - 4, 4); //remove last 4 characters(.txt)
+        indexFileName += "Index.txt"; //Append
+
+        this->labelRecordFileName->setText(tr("File: ") + this->recordFileName);
+        this->recordOperations.setFileName(this->recordFileName);
+
+        this->loadIndexFile();
+        this->showFields();
+        this->showRecords();
 
         //Enable actions
         ui->actionSaveFile->setEnabled(true);
@@ -106,6 +142,18 @@ void MainWindow::on_actionOpenFile_triggered()
         ui->actionCreateField->setEnabled(true);
         ui->actionModifyField->setEnabled(true);
         ui->actionSearchRecord->setEnabled(true);
+        ui->actionCrossRecords->setEnabled(true);
+        ui->actionCreateSimpleIndex->setEnabled(true);
+        ui->actionCreateBTreeIndex->setEnabled(true);
+        ui->actionReindexing->setEnabled(true);
+        ui->actionImportXML->setEnabled(true);
+        ui->actionExportXML->setEnabled(true);
+        ui->actionImportJSON->setEnabled(true);
+        ui->actionExportJSON->setEnabled(true);
+
+        //Disable actions
+        ui->actionOpenFile->setEnabled(false);
+        ui->actionNewFile->setEnabled(false);
 
         //Enable the table
         ui->tableWidgetRecords->setEnabled(true);
@@ -114,6 +162,22 @@ void MainWindow::on_actionOpenFile_triggered()
 
 void MainWindow::on_actionSaveFile_triggered()
 {
+    //If the record file could compact
+    if ( this->compact() )
+    {
+        //Save the list of indexes in the index file
+        if ( !this->saveIndexList() )
+        {
+            QMessageBox::critical(this, tr("Error"), tr("A problem occurred when trying to save the index file"));
+        }
+
+        this->statusBar()->showMessage(tr("Saved!"), 2500);
+    }
+
+    else
+    {
+        QMessageBox::critical(this, tr("Error"), tr("A problem occurred when trying to compact the file"));
+    }
 }
 
 void MainWindow::on_actionPrintFile_triggered()
@@ -165,33 +229,81 @@ void MainWindow::on_actionPrintFile_triggered()
 
 void MainWindow::on_actionCloseFile_triggered()
 {
+    //save
+    this->on_actionSaveFile_triggered();
+
+    //Disable actions
+    ui->actionSaveFile->setEnabled(false);
+    ui->actionPrintFile->setEnabled(false);
+    ui->actionCloseFile->setEnabled(false);
+    ui->actionCreateField->setEnabled(false);
+    ui->actionModifyField->setEnabled(false);
+    ui->actionSearchRecord->setEnabled(false);
+    ui->actionCrossRecords->setEnabled(false);
+    ui->actionCreateSimpleIndex->setEnabled(false);
+    ui->actionCreateBTreeIndex->setEnabled(false);
+    ui->actionReindexing->setEnabled(false);
+    ui->actionImportXML->setEnabled(false);
+    ui->actionExportXML->setEnabled(false);
+    ui->actionImportJSON->setEnabled(false);
+    ui->actionExportJSON->setEnabled(false);
+
+    //Disable the table
+    ui->tableWidgetRecords->setEnabled(false);
+
+    //Clear table
+    ui->tableWidgetRecords->clear();
+    ui->tableWidgetRecords->setColumnCount(0);
+    ui->tableWidgetRecords->setRowCount(0);
+
+    //Clear paths
+    this->recordFileName.clear();
+    this->indexFileName.clear();
+    this->labelRecordFileName->clear();
+
+    //Clear structures
+    this->indexList.clear();
+    this->availList.clear();
+
+    //Enable actions
+    ui->actionOpenFile->setEnabled(true);
+    ui->actionNewFile->setEnabled(true);
 }
 
 void MainWindow::on_actionExit_triggered()
 {
+    //Checks if the user create/open a record file
+    if ( !this->recordFileName.isEmpty() )
+    {
+        //Save
+        this->on_actionSaveFile_triggered();
+    }
+
     exit(0);
 }
 
 void MainWindow::on_actionCreateField_triggered()
 {
-    CreateFieldDialog *dialog = new CreateFieldDialog(this->fileName);
+    CreateFieldDialog *dialog = new CreateFieldDialog(this->recordFileName);
     dialog->exec();
     delete dialog;
 
-    //If there is a new field, update the table
-    if ( recordOperations.getNumberOfFields() >  ( ui->tableWidgetRecords->columnCount() ) )
+    //If there is a new field, update the columns(fields)
+    if ( recordOperations.getNumberOfFields() > ui->tableWidgetRecords->columnCount() )
     {
-        this->updateTable();
+        //Load and show the fields
+        this->showFields();
     }
 }
 
 void MainWindow::on_actionModifyField_triggered()
 {
-    ModifyFieldDialog *dialog = new ModifyFieldDialog(this->fileName);
+    ModifyFieldDialog *dialog = new ModifyFieldDialog(this->recordFileName);
     dialog->exec();
     delete dialog;
 
-    this->updateTable();
+    //Load and show the fields
+    this->showFields();
 }
 
 void MainWindow::on_actionSearchRecord_triggered()
@@ -239,34 +351,48 @@ bool MainWindow::validFile()
     return true;
 }
 
-void MainWindow::clearTable()
+void MainWindow::loadIndexFile(int structure)
 {
-    //Remove all rows
-    ui->tableWidgetRecords->setRowCount(0);
+    QFile file(this->indexFileName);
 
-    //Remove all columns
-    ui->tableWidgetRecords->setColumnCount(0);
+    if ( !file.open(QIODevice::ReadOnly | QIODevice::Text) )
+        return;
+
+    QTextStream in(&file);
+
+    //Read all lines
+    while ( !in.atEnd() )
+    {
+        QString line = in.readLine(); //Read a line
+
+        //If the structure is a QList
+        if ( structure == 0 )
+        {
+            this->indexList.append(line);
+        }
+
+        else
+        {
+            //B-Tree
+        }
+    }
 }
 
-void MainWindow::updateTable()
+void MainWindow::showFields()
 {
     //If there is at least one field in the file (we show the information)
     if ( this->recordOperations.getNumberOfFields() > 0 )
     {
-        //Clear the table in case that contains previos information
-        this->clearTable();
-
-        ui->tableWidgetRecords->setColumnCount(this->recordOperations.getNumberOfFields()); //Number of columns
-        ui->tableWidgetRecords->setRowCount(this->recordOperations.getNumberOfRecords()); //Number of rows
-
-        //---------------------------------------- Load fields ------------------------------------------------
+        //Number of columns
+        ui->tableWidgetRecords->setColumnCount(this->recordOperations.getNumberOfFields());
 
         QStringList fieldsInformation = this->recordOperations.getFieldsInformation(); //All the fields
         QString fields = "";
 
         for ( int a = 0; a < fieldsInformation.size(); a++ )
         {
-            QStringList fieldInformation = fieldsInformation.at(a).split(","); //A field information
+            //A field information
+            QStringList fieldInformation = fieldsInformation.at(a).split(",");
 
             fields += fieldInformation.at(1) + ",";
         }
@@ -276,29 +402,54 @@ void MainWindow::updateTable()
 
         //Columns name
         ui->tableWidgetRecords->setHorizontalHeaderLabels(fields.split(","));
+    }
+}
 
+void MainWindow::showRecords()
+{
+    //If there are records
+    if ( !this->indexList.isEmpty() )
+    {
+        //Number of rows
+        ui->tableWidgetRecords->setRowCount(this->indexList.size());
 
-        //---------------------------------------- Load records ------------------------------------------------
+        //Open the record file
+        QFile file(this->recordFileName);
 
-        //List of records
-        QStringList recordsInformation = this->recordOperations.getRecordsInformation(); //All the records
-
-        //Rows
-        for ( int a = 0; a < recordsInformation.size(); a++ )
+        if ( !file.open(QIODevice::ReadOnly | QIODevice::Text) )
         {
-            QStringList recordInformation = recordsInformation.at(a).split(","); //A record information
+            return;
+        }
 
-            //Columns
-            for ( int b = 1; b < recordInformation.size(); b++ )
+        for ( int row = 0; row < indexList.size(); row++ )
+        {
+            //set the initial position of the record
+            file.seek(indexList.at(row).split(",").at(1).toInt());
+
+            //buffer
+            char buffer[indexList.at(row).split(",").at(2).toInt()];
+
+            //Read
+            file.read(buffer, indexList.at(row).split(",").at(2).toInt());
+
+            QString record = buffer;
+
+            //Separate the record
+            QStringList columnsList = record.split(",");
+
+            //All the columns
+            for (int column = 0; column < columnsList.size(); column++)
             {
                 //Create a item
-                QTableWidgetItem *item = new QTableWidgetItem(recordInformation.at(b));
+                QTableWidgetItem *item = new QTableWidgetItem(columnsList.at(column));
                 item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled); //item not editable
 
                 //Insert a row
-                ui->tableWidgetRecords->setItem(a, b - 1, item);
+                ui->tableWidgetRecords->setItem(row, column, item);
             }
         }
+
+        file.close();
     }
 }
 
@@ -308,18 +459,31 @@ void MainWindow::on_tableWidgetRecords_customContextMenuRequested(const QPoint &
     if ( ui->tableWidgetRecords->columnCount() > 0 )
     {
         //If the user select a row
-        if ( ui->tableWidgetRecords->currentRow() >= -1 )
+        if ( ui->tableWidgetRecords->currentRow() > -1 )
         {
             //Select the current row
             ui->tableWidgetRecords->selectRow(ui->tableWidgetRecords->currentRow());
 
             //Can delete a record
             this->actionDeleteRecord->setEnabled(true);
+
+            //Can add a row
+            this->actionInsertRow->setEnabled(true);
         }
 
         //There are no rows or the user does not select a row
         else
         {
+            //Can not delete a record
+            this->actionDeleteRecord->setEnabled(false);
+        }
+
+        //If the number of records in the file is not equals to the number of rows, the user has not save the last row
+        if ( this->recordOperations.getNumberOfRecords() != ui->tableWidgetRecords->rowCount() )
+        {
+            //Can not insert a row
+            this->actionInsertRow->setEnabled(false);
+
             //Can not delete a record
             this->actionDeleteRecord->setEnabled(false);
         }
@@ -331,10 +495,11 @@ void MainWindow::on_tableWidgetRecords_customContextMenuRequested(const QPoint &
 
 void MainWindow::insertRow()
 {
-    //Fix(rigth click menu) -> validate if the last row is not empty by comparing the indexFile(tree) with the number of rows
-
     //Insert a new row
     ui->tableWidgetRecords->insertRow(ui->tableWidgetRecords->rowCount());
+
+    //Select the new row
+    ui->tableWidgetRecords->selectRow(ui->tableWidgetRecords->rowCount() - 1);
 }
 
 void MainWindow::on_tableWidgetRecords_cellChanged(int row, int column)
@@ -345,7 +510,7 @@ void MainWindow::on_tableWidgetRecords_cellChanged(int row, int column)
         //item not editable
         //ui->tableWidgetRecords->itemAt(row, column)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
-        //Checks if the column is the last column
+        //Checks if the column is the last one
         if ( column == ui->tableWidgetRecords->columnCount() - 1 )
         {
             if ( !this->insertRecord() )
@@ -358,7 +523,7 @@ void MainWindow::on_tableWidgetRecords_cellChanged(int row, int column)
 
             else
             {
-                QMessageBox::information(this, "Success", "The record has been added successfully");
+                this->statusBar()->showMessage(tr("The record has been added successfully"), 2500);
             }
         }
     }
@@ -369,7 +534,7 @@ bool MainWindow::insertRecord()
     RecordsFile file;
     RecordsFile newFile;
 
-    if ( !file.open(this->fileName.toStdString()) )
+    if ( !file.open(this->recordFileName.toStdString()) )
     {
         return false;
     }
@@ -400,6 +565,8 @@ bool MainWindow::insertRecord()
     //------------------------------------------New Record------------------------------------------
 
     QString newRecord = "";
+    int indexLength = 0;
+    int recordLength = 0;
 
     for ( int a = 0; a < ui->tableWidgetRecords->columnCount(); a++ )
     {
@@ -407,9 +574,15 @@ bool MainWindow::insertRecord()
     }
 
     newRecord.remove(newRecord.size() - 1, 1); //Remove last ' , '
+
+    //Record length for the index
+    indexLength = newRecord.length();
+
     newRecord += "|"; //Add the last ' | '
 
-    newRecord.prepend(QString::number(newRecord.size() + 1) + ",");
+    recordLength = newRecord.size() + 1;
+
+    newRecord.prepend(QString::number(recordLength) + ",");
 
     //If this is the first record
     if ( this->recordOperations.getNumberOfRecords() == 0 )
@@ -420,12 +593,12 @@ bool MainWindow::insertRecord()
     //----------------------------------------Add Record-------------------------------------------
 
 
-    if ( remove(this->fileName.toStdString().c_str()) != 0 )
+    if ( remove(this->recordFileName.toStdString().c_str()) != 0 )
     {
         return false;
     }
 
-    if ( !newFile.open(this->fileName.toStdString(), ios::out) )
+    if ( !newFile.open(this->recordFileName.toStdString(), ios::out) )
     {
         return false;
     }
@@ -436,10 +609,61 @@ bool MainWindow::insertRecord()
 
     newFile.close();
 
-    this->updateTable();
+    int currentRow = ui->tableWidgetRecords->rowCount() - 1;
+    QString temp1 = ui->tableWidgetRecords->item(currentRow, 0)->text() + ",";
+    QString temp2 =  QString::number(this->recordOperations.getRecordPositionAt(currentRow) + QString::number(recordLength).length() + 1) + ",";
+    QString temp3 = QString::number(indexLength);
+
+    QString index = temp1 + temp2 + temp3;
+
+    this->indexList.append(index);
 
     return true;
 
+}
+
+bool MainWindow::compact()
+{
+    return true;
+}
+
+bool MainWindow::saveIndexList()
+{
+    QFile currentIndexFile(this->indexFileName);
+
+    //Delete the index file
+    if ( !currentIndexFile.remove() )
+    {
+        return false;
+    }
+
+    QFile newIndexFile(this->indexFileName);
+
+    //Open the new index file
+    if ( !newIndexFile.open(QIODevice::WriteOnly | QIODevice::Text) )
+        return false;
+
+    QTextStream out(&newIndexFile);
+
+    //All the indexes
+    for ( int a = 0; a < this->indexList.size(); a++ )
+    {
+        //the last index of the list
+        if ( a == this->indexList.size() - 1 )
+        {
+            //Write without adding a "new line"
+            out << indexList.at(a);
+            break;
+        }
+
+        //write and add a new "line"
+        out << indexList.at(a) << '\n';
+    }
+
+    //close the file
+    newIndexFile.close();
+
+    return true;
 }
 
 void MainWindow::deleteRecord()
@@ -448,11 +672,11 @@ void MainWindow::deleteRecord()
     int index = ui->tableWidgetRecords->currentRow();
 
     // opening the record's file
-    RecordsFile file ( this->fileName.toStdString() );
+    RecordsFile file ( this->recordFileName.toStdString() );
 
     //we open the record's clase center control
     RecordOperations a;
-        a.setFileName ( this->fileName );
+        a.setFileName ( this->recordFileName );
 
     // counting the length of the records we dont need to delete
     int positonIndex = 0;
@@ -482,7 +706,7 @@ void MainWindow::deleteRecord()
      file.close();
 
      //delete the old file
-     const char *path = this->fileName.toStdString().c_str();
+     const char *path = this->recordFileName.toStdString().c_str();
 
      //we get the first position of the actul record
      QStringList recordList =   a.getRecordsInformation().at(index).split(',');
@@ -504,7 +728,7 @@ void MainWindow::deleteRecord()
      //creating the new file
      RecordsFile create;
      //Check if there is a problem while creating the file
-     if ( !create.open(this->fileName.toStdString(),  ios::out) )
+     if ( !create.open(this->recordFileName.toStdString(),  ios::out) )
      {
          QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
     }
@@ -525,5 +749,5 @@ void MainWindow::deleteRecord()
      delete [] buffer3;
 
      //updating the table
-     updateTable();
+     //ui->tableWidgetRecords->removeRow(index);
 }
