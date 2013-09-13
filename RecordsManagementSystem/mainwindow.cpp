@@ -493,7 +493,6 @@ void MainWindow::deleteRecord()
      //buffer is empty
      char * buffer3 = new char[length3];
 
-
      for ( int i = 0; i < length3; i++)
      {
          buffer3[i] = '-';
@@ -516,7 +515,8 @@ void MainWindow::deleteRecord()
      create.write ( lenghtOfrecord, 2);
      create.write ( ",", 1);
      create.write ( buffer3, length3);
-     create.write ( buffer2, length2) ;
+    // create.write ( buffer2, length2) ;
+     create.write( buffer2, strlen( buffer2 ) );
      create.close();
 
      //delete the buffer
@@ -524,6 +524,10 @@ void MainWindow::deleteRecord()
      delete [] buffer2;
      delete [] buffer3;
 
+     //using availList
+     // availList.insert(length1,lenghtOfrecord);
+
      //updating the table
      updateTable();
+
 }
