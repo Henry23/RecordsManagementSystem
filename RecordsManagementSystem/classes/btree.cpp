@@ -12,6 +12,8 @@ BTreeNode::BTreeNode( int t1, bool leaf1 )
     // and child pointers
     keys = new int[2 * t - 1];
     C = new BTreeNode * [2 * t];
+    posicion = new int[2*t-1];
+    length = new int[2*t-1];
 
     // Initialize the number of keys as 0
     n = 0;
@@ -27,8 +29,10 @@ BTreeNode *BTreeNode::search( int k )
 
     // If the found key is equal to k, return this node
     if ( keys[i] == k )
+    {
+        this->x = i;
         return this;
-
+    }
     // If key is not found here and this is a leaf node
     if ( leaf == true )
         return NULL;
@@ -38,7 +42,7 @@ BTreeNode *BTreeNode::search( int k )
 }
 
 // The main function that inserts a new key in this B-Tree
-void BTree::insert( int k )
+void BTree::insert( int k, int p, int l )
 {
     // If tree is empty
     if ( root == NULL )
@@ -46,6 +50,8 @@ void BTree::insert( int k )
         // Allocate memory for root
         root = new BTreeNode( t, true );
         root->keys[0] = k;  // Insert key
+        root->posicion[0] = p; // Insert posicion
+        root->length[0] = l; // Insert length
         root->n = 1;  // Update number of keys in root
     }
     else // If tree is not empty
@@ -67,20 +73,20 @@ void BTree::insert( int k )
             int i = 0;
             if ( s->keys[0] < k )
                 i++;
-            s->C[i]->insertNonFull( k );
+            s->C[i]->insertNonFull( k, p, l );
 
             // Change root
             root = s;
         }
         else  // If root is not full, call insertNonFull for root
-            root->insertNonFull( k );
+            root->insertNonFull( k, p, l );
     }
 }
 
 // A utility function to insert a new key in this node
 // The assumption is, the node must be non-full when this
 // function is called
-void BTreeNode::insertNonFull( int k )
+void BTreeNode::insertNonFull( int k, int p, int l )
 {
     // Initialize index as index of rightmost element
     int i = n - 1;
@@ -94,11 +100,15 @@ void BTreeNode::insertNonFull( int k )
         while ( i >= 0 && keys[i] > k )
         {
             keys[i + 1] = keys[i];
+            posicion[i + 1] = posicion[i];
+            length[i + 1] = length[i];
             i--;
         }
 
         // Insert the new key at found location
         keys[i + 1] = k;
+        posicion[i + 1] = p;
+        length[i + 1] = l;
         n = n + 1;
     }
     else // If this node is not leaf
@@ -119,7 +129,7 @@ void BTreeNode::insertNonFull( int k )
             if ( keys[i + 1] < k )
                 i++;
         }
-        C[i + 1]->insertNonFull( k );
+        C[i + 1]->insertNonFull( k, p, l );
     }
 }
 
@@ -134,13 +144,16 @@ void BTreeNode::splitChild(int i, BTreeNode *y)
 
     // Copy the last (t-1) keys of y to z
     for (int j = 0; j < t - 1; j++)
-        z->keys[j] = y->keys[j + t];
-
+    {    z->keys[j] = y->keys[j + t];
+         z->posicion[j] = y->posicion[j + t];
+         z->length[j] = y->length[j + t];
+    }
     // Copy the last t children of y to z
     if (y->leaf == false)
     {
         for (int j = 0; j < t; j++)
             z->C[j] = y->C[j + t];
+
     }
 
     // Reduce the number of keys in y
@@ -157,10 +170,16 @@ void BTreeNode::splitChild(int i, BTreeNode *y)
     // A key of y will move to this node. Find location of
     // new key and move all greater keys one space ahead
     for (int j = n - 1; j >= i; j--)
+    {
         keys[j + 1] = keys[j];
+        posicion[j + 1] = posicion[j];
+        length[j + 1] = length[j];
+    }
 
     // Copy the middle key of y to this node
     keys[i] = y->keys[t - 1];
+    posicion[i] = y->posicion[t - 1];
+    length[i] = y->length[t - 1];
 
     // Increment count of keys in this node
     n = n + 1;
@@ -170,7 +189,6 @@ void BTreeNode::splitChild(int i, BTreeNode *y)
 void BTreeNode::traverse()
 {
 
-    // stringstream s;
     // There are n keys and n+1 children, travers through n keys
     // and first n children
     int i;
@@ -186,8 +204,6 @@ void BTreeNode::traverse()
     // Print the subtree rooted with last child
     if (leaf == false)
         C[i]->traverse();
-
-   // return s.str();
 }
 
 

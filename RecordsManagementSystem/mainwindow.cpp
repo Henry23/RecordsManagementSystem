@@ -354,11 +354,27 @@ void MainWindow::on_actionCreateBTreeIndex_triggered()
          QStringList a = indexList.at(i).split(',');
 
          //inserting the posicion on the btree
-         btree->insert( a[1].toInt() );
+         btree->insert( /*key_ToInt( a[0] )*/ a[0].toInt(), a[1].toInt(), a[2].toInt() );
+
+         qDebug() << btree->search(a[0].toInt())->getPosicion();
      }
 
      btree->traverse();
 }
+
+//changing key to int
+int MainWindow::key_ToInt(QString key){
+
+  stringstream str;
+  str << key.toStdString();
+  string temp_str = str.str();
+  char *newKey = (char*)temp_str.c_str();
+
+///more code here;
+  return 9;
+}
+
+
 
 void MainWindow::on_actionReindexing_triggered()
 {

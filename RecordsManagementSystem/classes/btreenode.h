@@ -17,6 +17,10 @@ class BTreeNode
         BTreeNode **C; // An array of child pointers
         int n;     // Current number of keys
         bool leaf; // Is true when node is leaf. Otherwise false
+        int x; // number of searching
+
+        int *posicion; //posicion on the file
+        int *length; //lenght of the record
 
     public:
         BTreeNode( int _t, bool _leaf );   // Constructor
@@ -24,7 +28,7 @@ class BTreeNode
         // A utility function to insert a new key in the subtree rooted with
         // this node. The assumption is, the node must be non-full when this
         // function is called
-        void insertNonFull( int k );
+        void insertNonFull( int k, int p, int l );
 
         // A utility function to split the child y of this node. i is index of y in
         // child array C[].  The Child y must be full when this function is called
@@ -32,6 +36,14 @@ class BTreeNode
 
         // A function to traverse all nodes in a subtree rooted with this node
         void traverse();
+
+         // A function to get the posicion of the searched key
+        int getPosicion()
+        { return ( x != -1 )? posicion[x] : -1; }
+
+        // A function to get the length of the searched key
+        int getLength()
+        { return ( x != -1 )? length[x] : -1; }
 
         // A function to search a key in subtree rooted with this node.
         BTreeNode *search( int k );   // returns NULL if k is not present.

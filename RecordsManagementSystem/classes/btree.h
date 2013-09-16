@@ -21,7 +21,15 @@ class BTree
      BTreeNode* search( int k )
      {  return ( root == NULL )? NULL : root->search( k ); }
 
+     //function to get the posicion
+     int getPosicion()
+     { return (root == NULL)? : root->getPosicion(); }
+
+     //fuction to get the length of the record
+     int getLength()
+     { return (root == NULL)? : root->getLength(); }
+
      // The main function that inserts a new key in this B-Tree
-     void insert( int k) ;
+     void insert( int k, int p, int l ) ;
 };
 #endif
