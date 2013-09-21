@@ -310,7 +310,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Records Management System - Alpha 1", 0));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Records Management System - Alpha 2", 0));
         actionNewFile->setText(QApplication::translate("MainWindow", "New", 0));
         actionNewFile->setIconText(QApplication::translate("MainWindow", "New", 0));
 #ifndef QT_NO_TOOLTIP
