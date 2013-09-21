@@ -12,11 +12,7 @@ void RecordOperations::setFileName(QString fileName)
     this->fileName = fileName;
 }
 
-
-
 //---------------------------------------------Fields Information--------------------------------------------------------
-
-
 
 int RecordOperations::getNumberOfFields()
 {

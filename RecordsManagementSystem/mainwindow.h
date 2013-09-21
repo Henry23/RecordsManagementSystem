@@ -95,6 +95,7 @@ private:
     QList<QString> indexList; //( key, position, length )
     QMap<int, int> availList; //position, length
     BTree *btree; // btree
+
 };
 
 #endif // MAINWINDOW_H

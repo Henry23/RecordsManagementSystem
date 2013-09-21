@@ -8,10 +8,15 @@ class BTree
     private:
         BTreeNode *root; // Pointer to root node
         int t;  // Minimum degree
+
     public:
      // Constructor (Initializes tree as empty)
      BTree( int _t )
      {  root = NULL;  t = _t; }
+
+     //Destructor
+     ~BTree()
+     { delete [] root;}
 
      // function to traverse the tree
      void traverse()
@@ -19,9 +24,9 @@ class BTree
 
      // function to search a key in this tree
      BTreeNode* search( int k )
-     {  return ( root == NULL )? NULL : root->search( k ); }
+     { return ( root != NULL )? root->search( k ) : NULL; }
 
      // The main function that inserts a new key in this B-Tree
-     void insert( int k) ;
+     void insert( int k, int p, int l ) ;
 };
 #endif
