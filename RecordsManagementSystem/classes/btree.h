@@ -6,8 +6,8 @@
 class BTree
 {
     private:
-        BTreeNode *root; // Pointer to root node
-        int t;  // Minimum degree
+      BTreeNode *root; // Pointer to root node
+      int t;  // Minimum degree
 
     public:
      // Constructor (Initializes tree as empty)
@@ -24,9 +24,10 @@ class BTree
 
      // function to search a key in this tree
      BTreeNode* search( int k )
-     { return ( root != NULL )? root->search( k ) : NULL; }
+     { return ( root == NULL )? NULL : root->search( k ); }
 
      // The main function that inserts a new key in this B-Tree
      void insert( int k, int p, int l ) ;
+
 };
 #endif

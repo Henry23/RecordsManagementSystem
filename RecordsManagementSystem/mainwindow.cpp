@@ -371,7 +371,6 @@ void MainWindow::on_actionCreateBTreeIndex_triggered()
 {
     if( !indexList.isEmpty() )
     {
-        btree =  new BTree(4);//B-Tree with minium degree 4
         for ( int i = 0 ; i < indexList.size(); i++)
         {
             //slipting and getting all the posicion
@@ -383,12 +382,13 @@ void MainWindow::on_actionCreateBTreeIndex_triggered()
         }
 
        QMessageBox::information(this, tr("Information"), tr("B-Tree Index has been created"));
-       btree->traverse();
 
-     }else
-     {
-        QMessageBox::critical(this, tr("Error"), tr("There is no Record's file open"));
-     }
+       //btree->traverse();
+
+    }else
+    {
+       QMessageBox::critical(this, tr("Error"), tr("There is no Record's file open"));
+    }
 }
 
 void MainWindow::on_actionReindexing_triggered()
@@ -1044,12 +1044,14 @@ bool MainWindow::indexListSearch(QString key)
 
 bool MainWindow::bTreeSearch(QString key)
 {
+    BTreeNode *m = btree->search( key.toInt() );
 
-    //we get the posicion and the length of the record searched
-    QString keyInfo =  btree->search( key.toInt() )->getPosicionLength();
-
-    if ( !keyInfo.isEmpty() )
+    if ( m != NULL )
     {
+        //we get the posicion and the length of the record searched
+        QString keyInfo = m->getPosicionLength();
+
+        qDebug() << keyInfo;
         QFile file( this->recordFileName );
 
         if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
@@ -1085,15 +1087,20 @@ bool MainWindow::bTreeSearch(QString key)
 
             //Insert a row
             ui->tableWidgetSearch->setItem(0, column, item);
-        }
+         }
 
-        //Close
-        file.close();
+         //Close
+         file.close();
 
-        return true;
+         return true;
+     }else
+     {
+        QMessageBox::information(this, tr("Information"), tr("First you have to create the B-Tree Index "));
+
+        return false;
     }
 
-    return false;
+    delete [] m;
 }
 
 bool MainWindow::compact()
