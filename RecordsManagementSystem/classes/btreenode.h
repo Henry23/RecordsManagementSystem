@@ -44,7 +44,6 @@ class BTreeNode
         QString getPosicionLength()
         {  return ( x != -1 )? QString::number(posicion[x]) + "," + QString::number(length[x]): NULL; }
 
-
         // A function to search a key in subtree rooted with this node.
         BTreeNode *search( int k );   // returns NULL if k is not present.
 

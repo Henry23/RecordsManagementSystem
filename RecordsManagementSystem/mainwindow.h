@@ -95,7 +95,7 @@ private:
     RecordOperations recordOperations;
     QList<QString> indexList; //( key, position, length )
     QMap<int, int> availList; //position, length
-    BTree *btree; // btree
+    BTree *btree = new BTree(4);//B-Tree with minium degree 4;
 
 };
 
