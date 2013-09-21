@@ -566,7 +566,7 @@ void MainWindow::on_tableWidgetRecords_customContextMenuRequested(const QPoint &
         }
 
         //If the user did not save tha last record
-        if ( ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount()-1, ui->tableWidgetRecords->columnCount()-1)->text().isEmpty() )
+        if ( ( ui->tableWidgetRecords->rowCount() > 0 ) && ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount()-1, ui->tableWidgetRecords->columnCount()-1)->text().isEmpty() )
         {
             //Can not add a row or delete a record
             this->actionInsertRow->setEnabled(false);
@@ -1175,10 +1175,18 @@ bool MainWindow::compact()
         int position = fieldsInformationSize + QString(numberOfRecords).length() + 1; //Position of a record (first record by default)
         int endOfFilePosition = fieldsInformationSize + QString(numberOfRecords).length() + this->recordOperations.getLengthOfRecordsInformation();
 
+        QMapIterator<int, int> i(this->availList);
+        while (i.hasNext()) {
+            i.next();
+            qDebug() << i.key() << ": " << i.value();
+        }
+
         //All the records (until the last record)
         while ( position < endOfFilePosition )
         {
             int recordPositionForAvailList = position + recordOperations.getLengthOfTheSizeOfARecordInformation(position) + 1;
+
+            qDebug() << position << "->" << recordPositionForAvailList;
 
             //If the user has deleted the record in the current position (the availList contain the position(key))
             if ( this->availList.contains( recordPositionForAvailList ) )
@@ -1349,7 +1357,7 @@ void MainWindow::deleteRecord()
 
      //-------------------------------------------------------------------------------------------------------------
 
-     length1 += recordOperations.getLengthOfTheSizeOfARecordInformation(length1);
+     length1 += recordOperations.getLengthOfTheSizeOfARecordInformation(length1) + 1;
 
      //using availList
      availList.insert(length1, recordList.at(0).toInt() - 2);
