@@ -61,6 +61,20 @@ void CreateFieldDialog::on_comboBoxType_currentIndexChanged(int index)
     }
 }
 
+void CreateFieldDialog::on_checkBoxKey_clicked()
+{
+    if ( ui->checkBoxKey->isChecked() )
+    {
+        ui->comboBoxType->setCurrentIndex(1);
+        ui->comboBoxType->setEnabled(false);
+    }
+
+    else
+    {
+        ui->comboBoxType->setEnabled(true);
+    }
+}
+
 void CreateFieldDialog::on_pushButtonAccept_clicked()
 {
     //Validate if the user has entered a name
@@ -102,6 +116,7 @@ void CreateFieldDialog::on_pushButtonAccept_clicked()
         ui->lineEditName->clear();
         ui->lineEditName->setFocus();
         ui->checkBoxKey->setChecked(false);
+        ui->comboBoxType->setEnabled(true);
     }
 }
 

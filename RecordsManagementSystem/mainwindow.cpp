@@ -172,7 +172,7 @@ void MainWindow::on_actionOpenFile_triggered()
                 ui->actionPrintFile->setEnabled(true);
                 ui->actionCloseFile->setEnabled(true);
                 ui->actionCreateField->setEnabled(true);
-                ui->actionModifyField->setEnabled(true);
+                ( this->indexList.size() == 0 ? ui->actionModifyField->setEnabled(true) : ui->actionModifyField->setEnabled(false) );
                 ui->actionCrossRecords->setEnabled(true);
                 ui->actionCreateSimpleIndex->setEnabled(true);
                 ui->actionCreateBTreeIndex->setEnabled(true);
@@ -318,6 +318,9 @@ void MainWindow::on_actionCloseFile_triggered()
     this->indexList.clear();
     this->availList.clear();
 
+    //delete this->btree;
+    //this->btree = nullptr;
+
     //Enable actions
     ui->actionOpenFile->setEnabled(true);
     ui->actionNewFile->setEnabled(true);
@@ -442,7 +445,7 @@ bool MainWindow::isIndexFileCorrupted()
     return false;
 }
 
-void MainWindow::loadIndexFile(int structure)
+void MainWindow::loadIndexFile()
 {
     QFile file(this->indexFileName);
 
@@ -456,17 +459,7 @@ void MainWindow::loadIndexFile(int structure)
     {
         QString line = in.readLine(); //Read a line
 
-        //If the structure is a QList
-        if ( structure == 0 )
-        {
-            this->indexList.append(line);
-        }
-
-        else
-        {
-
-
-        }
+        this->indexList.append(line);
     }
 }
 
@@ -572,13 +565,11 @@ void MainWindow::on_tableWidgetRecords_customContextMenuRequested(const QPoint &
             this->actionDeleteRecord->setEnabled(false);
         }
 
-        //If the number of records in the file is not equals to the number of rows, the user has not save the last row
-        if ( this->recordOperations.getNumberOfRecords() != ui->tableWidgetRecords->rowCount() )
+        //If the user did not save tha last record
+        if ( ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount()-1, ui->tableWidgetRecords->columnCount()-1)->text().isEmpty() )
         {
-            //Can not insert a row
+            //Can not add a row or delete a record
             this->actionInsertRow->setEnabled(false);
-
-            //Can not delete a record
             this->actionDeleteRecord->setEnabled(false);
         }
 
@@ -594,6 +585,18 @@ void MainWindow::insertRow()
 
     //Select the new row
     ui->tableWidgetRecords->selectRow(ui->tableWidgetRecords->rowCount() - 1);
+
+    //------------------------------------------------------------------------
+
+    ui->tableWidgetRecords->blockSignals(true);
+
+    //All columns of the last row (new row)
+    for ( int a = 0; a < ui->tableWidgetRecords->columnCount(); a++ )
+    {
+        ui->tableWidgetRecords->setItem(ui->tableWidgetRecords->rowCount() - 1, a, new QTableWidgetItem(""));
+    }
+
+    ui->tableWidgetRecords->blockSignals(false);
 }
 
 void MainWindow::on_tableWidgetRecords_cellChanged(int row, int column)
@@ -601,8 +604,23 @@ void MainWindow::on_tableWidgetRecords_cellChanged(int row, int column)
     //Checks if there is a row selected (because while adding items, this function is call and there is no row selected)
     if ( ui->tableWidgetRecords->currentIndex().row() > -1 )
     {
+        //If the user has left some column in blank
+        if ( ( column > 0 ) && ( ui->tableWidgetRecords->item(row, column - 1)->text().isEmpty() ) )
+        {
+            QMessageBox::critical(this, tr("Error"), tr("Can not leave a blank value"));
+
+            //Block the signal (to avoid a bucle with this function)
+            ui->tableWidgetRecords->blockSignals(true);
+
+            //set item
+            ui->tableWidgetRecords->item(row, column)->setText("");
+
+            //Enable the signal
+            ui->tableWidgetRecords->blockSignals(false);
+        }
+
         //If the item is not valid
-        if ( !this->isValidItem(row, column) )
+        else if ( !this->isValidItem(row, column) )
         {
             QMessageBox::critical(this, tr("Error"), tr("Value is not valid"));
 
@@ -616,16 +634,10 @@ void MainWindow::on_tableWidgetRecords_cellChanged(int row, int column)
             ui->tableWidgetRecords->blockSignals(false);
         }
 
-        //If the user leave the current item in blank
-        else if ( ui->tableWidgetRecords->item(row, column)->text().isEmpty() )
+        //Checks if the length does not match
+        else if ( !this->isValidItemLength(row, column) )
         {
-            QMessageBox::critical(this, tr("Error"), tr("Can not leave a blank value"));
-        }
-
-        //If the user has left some column in blank
-        else if ( ( column > 0 ) && ( ui->tableWidgetRecords->item(row, column - 1)->text().isEmpty() ) )
-        {
-            QMessageBox::critical(this, tr("Error"), tr("Can not leave a blank value"));
+            QMessageBox::critical(this, tr("Error"), tr("The length of the value is greater than set"));
 
             //Block the signal (to avoid a bucle with this function)
             ui->tableWidgetRecords->blockSignals(true);
@@ -910,6 +922,11 @@ bool MainWindow::insertRecord()
         recordFile.close();
     }
 
+    //delete this->btree;
+    //this->btree = nullptr;
+
+    ui->actionModifyField->setEnabled(false);
+
     return true;
 }
 
@@ -948,7 +965,12 @@ bool MainWindow::isValidItem(int row, int column)
 
     //----------------------------------------------------------------------------
 
-    if ( ( type == "Text" ) && ( textCounter >= integerCounter ) )
+    if ( ( type == "Double" ) && ( isDouble ) )
+    {
+        return true;
+    }
+
+    else if ( ( type == "Text" ) && ( textCounter > 0 ) )
     {
         return true;
     }
@@ -958,7 +980,18 @@ bool MainWindow::isValidItem(int row, int column)
         return true;
     }
 
-    else if ( ( type == "Double" ) && ( isDouble ) )
+    return false;
+}
+
+bool MainWindow::isValidItemLength(int row, int column)
+{
+    //All the fields information
+    QStringList fieldsInformation = this->recordOperations.getFieldsInformation();
+    int length = fieldsInformation.at(column).split(",").at(3).toInt() + fieldsInformation.at(column).split(",").at(4).toInt();
+
+    QString item = ui->tableWidgetRecords->item(row, column)->text();
+
+    if ( item.length() <= length )
     {
         return true;
     }
@@ -1098,6 +1131,92 @@ bool MainWindow::bTreeSearch(QString key)
 
 bool MainWindow::compact()
 {
+    //If ths user deleted a record o more
+    if ( !this->availList.isEmpty() )
+    {
+        //Temporary record file
+        QString TemporaryRecordFileName = this->recordFileName; //same filename
+        TemporaryRecordFileName.remove(this->recordFileName.length() - 4, 4); //remove last 4 characters(.txt)
+        TemporaryRecordFileName += "2.txt"; //Append
+
+        QFile recordFile(this->recordFileName);
+        QFile TemporaryRecordFile(TemporaryRecordFileName);
+
+        //Open the record file
+        if ( !recordFile.open(QIODevice::ReadOnly | QIODevice::Text) )
+            return false;
+
+        //Open the temp file
+        if ( !TemporaryRecordFile.open(QIODevice::WriteOnly | QIODevice::Text) )
+            return false;
+
+
+        //--------------Copy fields information and the new number of records--------------------
+
+        int fieldsInformationSize = this->recordOperations.getInitialPositionOfRecordsInformation();
+        char fieldsInformation[fieldsInformationSize];
+        recordFile.seek(0);
+        recordFile.read(fieldsInformation, fieldsInformationSize);
+        TemporaryRecordFile.write(fieldsInformation, fieldsInformationSize);
+
+        int numberOfRecords = this->recordOperations.getNumberOfRecords();
+        QString newNumberOfRecords = QString::number(numberOfRecords - this->availList.size()) + "|";
+        TemporaryRecordFile.write(newNumberOfRecords.toStdString().c_str(), newNumberOfRecords.size());
+
+        //----------------------------------------------------------------------------------------
+
+        int position = fieldsInformationSize + QString(numberOfRecords).length() + 1; //Position of a record (first record by default)
+        int endOfFilePosition = fieldsInformationSize + QString(numberOfRecords).length() + this->recordOperations.getLengthOfRecordsInformation();
+
+        //All the records (until the last record)
+        while ( position < endOfFilePosition )
+        {
+            int recordPositionForAvailList = position + recordOperations.getLengthOfTheSizeOfARecordInformation(position) + 1;
+
+            //If the user has deleted the record in the current position (the availList contain the position(key))
+            if ( this->availList.contains( recordPositionForAvailList ) )
+            {
+                int informationSize = recordOperations.getLengthOfTheSizeOfARecordInformation(position) +
+                                      recordOperations.getSizeOfARecordInformation(position);
+
+                //Jump to the next record
+                position += informationSize;
+            }
+
+            else
+            {
+                int informationSize = recordOperations.getLengthOfTheSizeOfARecordInformation(position) +
+                                      recordOperations.getSizeOfARecordInformation(position);
+
+                char information[informationSize];
+
+                recordFile.seek(position);
+                recordFile.read(information, informationSize);//Read the record
+
+                TemporaryRecordFile.write(information, informationSize);//write the record(in other file)
+
+                //Set the position in the next record
+                position += informationSize;
+            }
+        }
+
+        //Close files
+        recordFile.close();
+        TemporaryRecordFile.close();
+
+        //Remove the record file
+        if ( !recordFile.remove() )
+        {
+            return false;
+        }
+
+        //Change the name of the temporary record file
+        if ( !TemporaryRecordFile.rename(TemporaryRecordFileName, this->recordFileName) )
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -1223,15 +1342,18 @@ void MainWindow::deleteRecord()
 
      //-------------------------------------------------------------------------------------------------------------
 
-     length1 += recordOperations.getLengthOfTheSizeOfARecordInformation(length1) + 1;
+     length1 += recordOperations.getLengthOfTheSizeOfARecordInformation(length1);
 
      //using availList
      availList.insert(length1, recordList.at(0).toInt() - 2);
 
-     //updating the table
-     //ui->tableWidgetRecords->removeRow(index);
+     //Delete from indexList
+     this->indexList.removeAt(index);
 
-     ui->statusBar->showMessage(tr("Deleted"), 2500);
+     //updating the table
+     ui->tableWidgetRecords->removeRow(index);
+
+     ui->statusBar->showMessage(tr("Deleted!"), 2500);
 
      //Enable the "save" option
      ui->actionSaveFile->setEnabled(true);

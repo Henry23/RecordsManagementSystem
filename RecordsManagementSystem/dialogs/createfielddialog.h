@@ -20,6 +20,8 @@ public:
 private slots:
     void on_comboBoxType_currentIndexChanged(int index);
 
+    void on_checkBoxKey_clicked();
+
     void on_pushButtonAccept_clicked();
 
     void on_pushButtonCancel_clicked();
