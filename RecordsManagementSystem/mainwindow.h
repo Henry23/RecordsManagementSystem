@@ -38,8 +38,6 @@ private slots:
 
     void on_actionModifyField_triggered();
 
-    void on_actionSearchRecord_triggered();
-
     void on_actionCrossRecords_triggered();
 
     void on_actionCreateSimpleIndex_triggered();
@@ -71,10 +69,15 @@ private slots:
 private:
     void init();
     bool validFile(); //Checks if the selected file is compatible with the application
+    bool hasIndexFile();
+    bool isIndexFileCorrupted();
     void loadIndexFile(int = 0); //(0) QList - (1) B-Tree
     void showFields();
     void showRecords();
     bool insertRecord();
+    bool isValidItem(int, int);
+    bool isKey(int);
+    bool isValidKey(int, int);
     bool indexListSearch(QString);
     bool bTreeSearch(QString);
     bool compact();

@@ -46,7 +46,6 @@ public:
     QAction *actionCreateSimpleIndex;
     QAction *actionShowFields;
     QAction *actionInsertRecord;
-    QAction *actionSearchRecord;
     QAction *actionEraseRecord;
     QAction *actionShowRecords;
     QAction *actionCrossRecords;
@@ -136,12 +135,6 @@ public:
         actionInsertRecord = new QAction(MainWindow);
         actionInsertRecord->setObjectName(QStringLiteral("actionInsertRecord"));
         actionInsertRecord->setEnabled(false);
-        actionSearchRecord = new QAction(MainWindow);
-        actionSearchRecord->setObjectName(QStringLiteral("actionSearchRecord"));
-        actionSearchRecord->setEnabled(false);
-        QIcon icon7;
-        icon7.addFile(QStringLiteral(":/images/search.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionSearchRecord->setIcon(icon7);
         actionEraseRecord = new QAction(MainWindow);
         actionEraseRecord->setObjectName(QStringLiteral("actionEraseRecord"));
         actionEraseRecord->setEnabled(false);
@@ -173,9 +166,9 @@ public:
         actionReindexing->setEnabled(false);
         actionOpenFile = new QAction(MainWindow);
         actionOpenFile->setObjectName(QStringLiteral("actionOpenFile"));
-        QIcon icon8;
-        icon8.addFile(QStringLiteral(":/images/openFile.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionOpenFile->setIcon(icon8);
+        QIcon icon7;
+        icon7.addFile(QStringLiteral(":/images/openFile.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionOpenFile->setIcon(icon7);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         verticalLayout = new QVBoxLayout(centralWidget);
@@ -289,8 +282,6 @@ public:
         menuFile->addAction(actionExit);
         menuFields->addAction(actionCreateField);
         menuFields->addAction(actionModifyField);
-        menuRecords->addAction(actionSearchRecord);
-        menuRecords->addSeparator();
         menuRecords->addAction(actionCrossRecords);
         menuIndices->addAction(actionCreateSimpleIndex);
         menuIndices->addAction(actionCreateBTreeIndex);
@@ -308,7 +299,6 @@ public:
         mainToolBar->addAction(actionPrintFile);
         mainToolBar->addAction(actionCreateField);
         mainToolBar->addAction(actionModifyField);
-        mainToolBar->addAction(actionSearchRecord);
         mainToolBar->addSeparator();
         mainToolBar->addAction(actionCloseFile);
         mainToolBar->addAction(actionExit);
@@ -341,10 +331,6 @@ public:
         actionCreateSimpleIndex->setText(QApplication::translate("MainWindow", "Create a Simple Index", 0));
         actionShowFields->setText(QApplication::translate("MainWindow", "Show Fields", 0));
         actionInsertRecord->setText(QApplication::translate("MainWindow", "Insert", 0));
-        actionSearchRecord->setText(QApplication::translate("MainWindow", "Search", 0));
-#ifndef QT_NO_TOOLTIP
-        actionSearchRecord->setToolTip(QApplication::translate("MainWindow", "Search Record", 0));
-#endif // QT_NO_TOOLTIP
         actionEraseRecord->setText(QApplication::translate("MainWindow", "Erase", 0));
         actionShowRecords->setText(QApplication::translate("MainWindow", "Show Records", 0));
         actionCrossRecords->setText(QApplication::translate("MainWindow", "Cross", 0));

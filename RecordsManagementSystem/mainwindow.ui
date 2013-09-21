@@ -185,8 +185,6 @@
     <property name="title">
      <string>Records</string>
     </property>
-    <addaction name="actionSearchRecord"/>
-    <addaction name="separator"/>
     <addaction name="actionCrossRecords"/>
    </widget>
    <widget class="QMenu" name="menuIndices">
@@ -237,7 +235,6 @@
    <addaction name="actionPrintFile"/>
    <addaction name="actionCreateField"/>
    <addaction name="actionModifyField"/>
-   <addaction name="actionSearchRecord"/>
    <addaction name="separator"/>
    <addaction name="actionCloseFile"/>
    <addaction name="actionExit"/>
@@ -355,21 +352,6 @@
    </property>
    <property name="text">
     <string>Insert</string>
-   </property>
-  </action>
-  <action name="actionSearchRecord">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="images.qrc">
-     <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
-   </property>
-   <property name="text">
-    <string>Search</string>
-   </property>
-   <property name="toolTip">
-    <string>Search Record</string>
    </property>
   </action>
   <action name="actionEraseRecord">
