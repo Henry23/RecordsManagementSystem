@@ -79,7 +79,6 @@ private:
     bool bTreeSearch(QString);
     bool compact();
     bool saveIndexList();
-    int key_ToInt( QString );
 
     Ui::MainWindow *ui;
     QMenu *popupMenu;

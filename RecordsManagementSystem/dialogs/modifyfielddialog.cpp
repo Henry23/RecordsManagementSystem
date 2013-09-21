@@ -336,10 +336,6 @@ void ModifyFieldDialog::modifyField(int row, int column, QString data)
      string temp_str = strs.str();
      const char * changeField = (char*)temp_field.c_str();
      char * char_type = (char*) temp_str.c_str();
-    /*
-     qDebug() << "data" << data;
-     qDebug() << changeField;
-    */
 
      //we create the new file
      create.write( buffer1, length1 ) ;

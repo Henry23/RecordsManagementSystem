@@ -19,6 +19,16 @@ BTreeNode::BTreeNode( int t1, bool leaf1 )
     n = 0;
 }
 
+BTreeNode::~BTreeNode()
+{
+    delete [] keys;
+    for( int i = 0; i < t * 2; i++)
+        delete [] C[i];
+      delete [] C;
+    delete [] posicion;
+    delete [] length;
+}
+
 // Function to search key k in subtree rooted with this node
 BTreeNode *BTreeNode::search( int k )
 {

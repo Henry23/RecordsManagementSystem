@@ -347,34 +347,27 @@ void MainWindow::on_actionCreateSimpleIndex_triggered()
 
 void MainWindow::on_actionCreateBTreeIndex_triggered()
 {
-    btree =  new BTree(4);//B-Tree with minium degree 4
-     for ( int i = 0 ; i < indexList.size(); i++){
+    if( !indexList.isEmpty() )
+    {
+        btree =  new BTree(4);//B-Tree with minium degree 4
+        for ( int i = 0 ; i < indexList.size(); i++)
+        {
+            //slipting and getting all the posicion
+            QStringList a = indexList.at(i).split(',');
 
-         //slipting and getting all the posicion
-         QStringList a = indexList.at(i).split(',');
+            //inserting the posicion on the btree
+            btree->insert( a[0].toInt(), a[1].toInt(), a[2].toInt() );
 
-         //inserting the posicion on the btree
-         btree->insert( /*key_ToInt( a[0] )*/ a[0].toInt(), a[1].toInt(), a[2].toInt() );
+        }
 
-         qDebug() << btree->search(a[0].toInt())->getPosicion();
+       QMessageBox::information(this, tr("Information"), tr("B-Tree Index has been created"));
+       btree->traverse();
+
+     }else
+     {
+        QMessageBox::critical(this, tr("Error"), tr("There is no Record's file open"));
      }
-
-     btree->traverse();
 }
-
-//changing key to int
-int MainWindow::key_ToInt(QString key){
-
-  stringstream str;
-  str << key.toStdString();
-  string temp_str = str.str();
-  char *newKey = (char*)temp_str.c_str();
-
-///more code here;
-  return 9;
-}
-
-
 
 void MainWindow::on_actionReindexing_triggered()
 {
@@ -729,6 +722,55 @@ bool MainWindow::indexListSearch(QString key)
 
 bool MainWindow::bTreeSearch(QString key)
 {
+
+    //we get the posicion and the length of the record searched
+    QString keyInfo =  btree->search( key.toInt() )->getPosicionLength();
+
+    if ( !keyInfo.isEmpty() )
+    {
+        QFile file( this->recordFileName );
+
+        if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+        {
+            return false;
+        }
+
+        //splitting the information( posicion,length )
+        QStringList keyInfoList = keyInfo.split( "," );
+
+        qDebug() << keyInfoList[0] << " , " << keyInfoList[1];
+        //set the initial position of the record
+        file.seek( keyInfoList.at(0).toInt() );
+
+        //buffer
+        char buffer[ keyInfoList.at(1).toInt() ];
+
+        //Read
+        file.read( buffer, keyInfoList.at(1).toInt() );
+
+        QString record = buffer;
+
+        qDebug() << record;
+        //Separate the record
+        QStringList columnsList = record.split(",");
+
+        //All the columns
+        for (int column = 0; column < columnsList.size(); column++)
+        {
+            //Create a item
+            QTableWidgetItem *item = new QTableWidgetItem(columnsList.at(column));
+            item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled); //item not editable
+
+            //Insert a row
+            ui->tableWidgetSearch->setItem(0, column, item);
+        }
+
+        //Close
+        file.close();
+
+        return true;
+    }
+
     return false;
 }
 

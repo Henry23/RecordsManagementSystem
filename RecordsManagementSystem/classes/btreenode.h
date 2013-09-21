@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <QString>
 
 using std::string;
 using std::stringstream;
@@ -25,6 +26,8 @@ class BTreeNode
     public:
         BTreeNode( int _t, bool _leaf );   // Constructor
 
+        ~BTreeNode(); //Destructor
+
         // A utility function to insert a new key in the subtree rooted with
         // this node. The assumption is, the node must be non-full when this
         // function is called
@@ -37,13 +40,10 @@ class BTreeNode
         // A function to traverse all nodes in a subtree rooted with this node
         void traverse();
 
-         // A function to get the posicion of the searched key
-        int getPosicion()
-        { return ( x != -1 )? posicion[x] : -1; }
-
         // A function to get the length of the searched key
-        int getLength()
-        { return ( x != -1 )? length[x] : -1; }
+        QString getPosicionLength()
+        {  return ( x != -1 )? QString::number(posicion[x]) + "," + QString::number(length[x]): NULL; }
+
 
         // A function to search a key in subtree rooted with this node.
         BTreeNode *search( int k );   // returns NULL if k is not present.
