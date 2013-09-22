@@ -9,6 +9,9 @@
 #include <QList>
 #include <QMap>
 
+#include <sstream>
+using std::stringstream;
+
 namespace Ui {
 class MainWindow;
 }
