@@ -1320,99 +1320,79 @@ void MainWindow::deleteRecord()
     //index of the record im trying to delete
     int index = ui->tableWidgetRecords->currentRow();
 
+    //getting the information of the record we are trying to delete
+    QStringList recordInfo = indexList.at(index).split(",");
+    qDebug() << recordInfo[1] << " " << recordInfo[2];
+
     // opening the record's file
     RecordsFile file ( this->recordFileName.toStdString() );
 
-    //we open the record's clase center control
-    RecordOperations a;
-        a.setFileName ( this->recordFileName );
+    int length1 = recordInfo[1].toInt() + recordInfo[2].toInt();
+    int length2 = file.fileLength() - length1;
+    qDebug() << " length2 " << length2;
 
-    // counting the length of the records we dont need to delete
-    int positonIndex = 0;
-    for (int i = 0; i < index; i++)
+    //buffers
+    char * buffer1 = new char[recordInfo[1].toInt()];
+    char * buffer2 = new char[length2];
+
+    //we read the file
+    file.read ( buffer1 ,recordInfo[1].toInt() );
+
+    //we are setting the posicion
+    file.seek( length1 );
+
+    //reading
+    file.read ( buffer2 , length2 );
+
+    file.close();
+    qDebug() << "buffer 1 " << buffer1;
+    qDebug() <<"buffer 2 " << buffer2;
+
+    //delete the old file
+    const char *path = this->recordFileName.toStdString().c_str();
+    remove( path );
+
+    //creating the new file
+    RecordsFile create;
+    //Check if there is a problem while creating the file
+    if ( !create.open(this->recordFileName.toStdString(),  ios::out) )
     {
-        positonIndex += a.getRecordsInformation()[i].length() + 1;
+        QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
     }
 
-     //we get the length of the position we need to be
-     int length1 = a.getInitialPositionOfRecordsInformation() + a.getLengthOfTheNumberOfRecords() + 1 + positonIndex;
-     int length2 = 0;
-     if( a.getNumberOfRecords() == index + 1)
-     {
-         length2 = 1;
-     }else
-     {
-        length2 = a.getLengthOfRecordsInformation() - ( a.getRecordsInformation()[index].length() +  a.getLengthOfTheNumberOfRecords() + 1 );
-     }
-     //buffers
-     char * buffer1 = new char[length1];
-     char * buffer2 = new char[length2];
-
-     //we read the file
-     file.read ( buffer1 ,length1 );
-     file.seek ( length1 + a.getRecordsInformation()[index].length() );
-     file.read ( buffer2 , length2 );
-     file.close();
-
-     //delete the old file
-     const char *path = this->recordFileName.toStdString().c_str();
-
-     //we get the first position of the actul record
-     QStringList recordList =   a.getRecordsInformation().at(index).split(',');
-
-     //the length of the empty record
-     int length3 = recordList.at(0).toInt()-2;
-
-     //buffer is empty
-     char * buffer3 = new char[length3];
-
-
-     for ( int i = 0; i < length3; i++)
-     {
-         buffer3[i] = '-';
-     }
-     remove( path );
-
-     //creating the new file
-     RecordsFile create;
-     //Check if there is a problem while creating the file
-     if ( !create.open(this->recordFileName.toStdString(),  ios::out) )
-     {
-         QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
+    //buffer is empty
+    char * buffer3 = new char[recordInfo[2].toInt()];
+    for ( int i = 0; i < recordInfo[2].toInt(); i++)
+    {
+        buffer3[i] = '-';
     }
 
-     const char* lenghtOfrecord = recordList.at(0).toStdString().c_str();
+    //writing new information on the new file
+    create.write ( buffer1, recordInfo[1].toInt());
+    create.write( buffer3, recordInfo[2].toInt());
+    create.write ( buffer2, length2 );
+    create.close();
 
-     //writing new information on the new file
-     create.write ( buffer1, length1);
-     create.write ( lenghtOfrecord, 2);
-     create.write ( ",", 1);
-     create.write ( buffer3, length3);
-     create.write ( buffer2, length2) ;
-     create.close();
+    //delete the buffer
+    delete [] buffer1;
+    delete [] buffer2;
+    delete [] buffer3;
 
-     //delete the buffer
-     delete [] buffer1;
-     delete [] buffer2;
-     delete [] buffer3;
+    //-------------------------------------------------------------------------------------------------------------
 
-     //-------------------------------------------------------------------------------------------------------------
+    //using availList
+    availList.insert(recordInfo[1].toInt(), recordInfo[2].toInt());
 
-     length1 += recordOperations.getLengthOfTheSizeOfARecordInformation(length1) + 1;
+    //Delete from indexList
+    this->indexList.removeAt(index);
 
-     //using availList
-     availList.insert(length1, recordList.at(0).toInt() - 2);
+    //updating the table
+    ui->tableWidgetRecords->removeRow(index);
 
-     //Delete from indexList
-     this->indexList.removeAt(index);
+    ui->statusBar->showMessage(tr("Deleted!"), 2500);
 
-     //updating the table
-     ui->tableWidgetRecords->removeRow(index);
-
-     ui->statusBar->showMessage(tr("Deleted!"), 2500);
-
-     //Enable the "save" option
-     ui->actionSaveFile->setEnabled(true);
+    //Enable the "save" option
+    ui->actionSaveFile->setEnabled(true);
 }
 
 void MainWindow::on_pushButtonSearch_clicked()
