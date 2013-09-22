@@ -726,6 +726,70 @@ void MainWindow::on_actionImportXML_triggered()
 
 void MainWindow::on_actionExportXML_triggered()
 {
+    //index file name
+    QString newFileName = this->recordFileName; //same filename
+    newFileName.remove(this->recordFileName.length() - 4, 4); //remove last 4 characters(.txt)
+    newFileName += ".xml"; //Append
+
+    QFile outFile( newFileName );
+
+    outFile.open( outFile.Text | outFile.WriteOnly );
+
+    char* xml = "<?xml version= 1.0 encoding= UTF-8 ?>\n";
+    RecordOperations in;
+    in.setFileName( this->recordFileName );
+
+    outFile.write( xml, strlen ( xml ) );
+
+    QStringList fields;
+    QStringList key;
+    QStringList lenght;
+    QStringList type;
+    QStringList Decimal;
+    for( int i = 0; i < in.getFieldsInformation().length(); i++)
+    {
+        QStringList fieldInfo = in.getFieldsInformation().at(i).split(",");
+        fields.append( fieldInfo[1] );
+        lenght.append( fieldInfo[3] );
+        type.append( fieldInfo[2] );
+        Decimal.append( fieldInfo[4] );
+        key.append( fieldInfo[5] );
+    }
+    char *record = "<records>\n";
+    outFile.write( record, strlen ( record ) );
+
+    QStringList Records;
+    for( int j = 0; j < in.getRecordsInformation().length(); j++)
+    {
+        Records = in.getRecordInformationAt(j);
+
+        QString recordInfo;
+
+        for( int i = 0; i < fields.length(); i++ )
+        {
+
+            if( key[i].toInt() == 1 )
+                recordInfo ="   <"+fields[i]+"="+Records[i+1]+">\n";
+            else
+                recordInfo ="       <"+fields[i]+">"+Records[i+1]+"</"+fields[i]+">\n";
+
+            stringstream sst;
+            sst << recordInfo.toStdString();
+            string temp_recordInfo = sst.str();
+            const char * changeField = (char*)temp_recordInfo.c_str();
+            outFile.write( changeField, recordInfo.length() );
+        }
+        char *recordEnd = "   </record>";
+        char *jump = "\n";
+        outFile.write( recordEnd, 12 );
+        outFile.write( jump, 1 );
+    }
+    char *recordEnd = "</records>";
+    char *jump = "\n";
+    outFile.write( recordEnd, 12 );
+    outFile.write( jump, 1 );
+    outFile.close();
+    QMessageBox::information(this, tr("Information"), tr("XML File has been created"));
 }
 
 void MainWindow::on_actionImportJSON_triggered()
