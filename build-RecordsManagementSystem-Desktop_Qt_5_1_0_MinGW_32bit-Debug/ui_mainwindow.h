@@ -129,6 +129,9 @@ public:
         actionCreateSimpleIndex = new QAction(MainWindow);
         actionCreateSimpleIndex->setObjectName(QStringLiteral("actionCreateSimpleIndex"));
         actionCreateSimpleIndex->setEnabled(false);
+        QIcon icon7;
+        icon7.addFile(QStringLiteral(":/images/simpleIndex.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionCreateSimpleIndex->setIcon(icon7);
         actionShowFields = new QAction(MainWindow);
         actionShowFields->setObjectName(QStringLiteral("actionShowFields"));
         actionShowFields->setEnabled(false);
@@ -147,6 +150,9 @@ public:
         actionCreateBTreeIndex = new QAction(MainWindow);
         actionCreateBTreeIndex->setObjectName(QStringLiteral("actionCreateBTreeIndex"));
         actionCreateBTreeIndex->setEnabled(false);
+        QIcon icon8;
+        icon8.addFile(QStringLiteral(":/images/bTreeIndex.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionCreateBTreeIndex->setIcon(icon8);
         actionAbout = new QAction(MainWindow);
         actionAbout->setObjectName(QStringLiteral("actionAbout"));
         actionImportXML = new QAction(MainWindow);
@@ -166,9 +172,9 @@ public:
         actionReindexing->setEnabled(false);
         actionOpenFile = new QAction(MainWindow);
         actionOpenFile->setObjectName(QStringLiteral("actionOpenFile"));
-        QIcon icon7;
-        icon7.addFile(QStringLiteral(":/images/openFile.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionOpenFile->setIcon(icon7);
+        QIcon icon9;
+        icon9.addFile(QStringLiteral(":/images/openFile.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionOpenFile->setIcon(icon9);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         verticalLayout = new QVBoxLayout(centralWidget);
@@ -297,8 +303,12 @@ public:
         mainToolBar->addAction(actionOpenFile);
         mainToolBar->addAction(actionSaveFile);
         mainToolBar->addAction(actionPrintFile);
+        mainToolBar->addSeparator();
         mainToolBar->addAction(actionCreateField);
         mainToolBar->addAction(actionModifyField);
+        mainToolBar->addSeparator();
+        mainToolBar->addAction(actionCreateSimpleIndex);
+        mainToolBar->addAction(actionCreateBTreeIndex);
         mainToolBar->addSeparator();
         mainToolBar->addAction(actionCloseFile);
         mainToolBar->addAction(actionExit);

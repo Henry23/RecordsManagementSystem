@@ -1383,7 +1383,7 @@ bool MainWindow::insertRecordAvailList()
     TemporaryRecordFile.write(informationAfterNewRecord, informationAfterNewRecordSize);
 
 
-    //-----------------------------------------------------------------------------------
+    //---------------------------------Files--------------------------------------
 
     //Close the file
     recordFile.close();
@@ -1400,6 +1400,74 @@ bool MainWindow::insertRecordAvailList()
     {
         return false;
     }
+
+
+    //-------------------------Identify the row to set the new record in and add a index in the list----------------------------
+
+    int row = 0;
+
+    for (int a = 0; a < indexList.size(); a++)
+    {
+        if ( newRecordPosition < indexList.at(a).split(",").at(1).toInt() )
+        {
+            row = a;
+
+            //All the fields information
+            QStringList fieldsInformation = this->recordOperations.getFieldsInformation();
+
+            int column = 0;
+
+            //Search which column(field) is a key
+            for (;column < fieldsInformation.size(); column++)
+            {
+                QStringList fieldInformation = fieldsInformation.at(column).split(",");
+
+                //If a field is key
+                if ( fieldInformation.at(fieldInformation.size() - 1) == "1" )
+                {
+                    break;
+                }
+            }
+
+
+            QString keyForIndexFile = newRecord.split(",").at(column) + ",";
+            QString positionForIndexFile = QString::number(newRecordPosition) + ",";
+            QString lengthForIndexFile = QString::number(this->availList.value(newRecordPosition));
+
+            QString index = keyForIndexFile + positionForIndexFile + lengthForIndexFile;
+
+            this->indexList.insert(row, index);
+
+            break;
+        }
+    }
+
+
+    //----------------------------Change the row position-----------------------------------
+
+    ui->tableWidgetRecords->blockSignals(true);
+
+    ui->tableWidgetRecords->insertRow(row);
+
+    QStringList items = newRecord.split(",");
+
+    for (int column = 0; column < items.size(); column++)
+    {
+        //Create a item
+        QTableWidgetItem *item = new QTableWidgetItem(items.at(column));
+        item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled); //item not editable
+
+        //set item
+        ui->tableWidgetRecords->setItem(row, column, item);
+    }
+
+    ui->tableWidgetRecords->removeRow(ui->tableWidgetRecords->rowCount() - 1);
+
+    ui->tableWidgetRecords->selectRow(row);
+
+    ui->tableWidgetRecords->blockSignals(false);
+
+    //------------------------------------------------------------------------------------
 
     this->availList.remove(newRecordPosition);
 

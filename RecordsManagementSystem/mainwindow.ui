@@ -233,8 +233,12 @@
    <addaction name="actionOpenFile"/>
    <addaction name="actionSaveFile"/>
    <addaction name="actionPrintFile"/>
+   <addaction name="separator"/>
    <addaction name="actionCreateField"/>
    <addaction name="actionModifyField"/>
+   <addaction name="separator"/>
+   <addaction name="actionCreateSimpleIndex"/>
+   <addaction name="actionCreateBTreeIndex"/>
    <addaction name="separator"/>
    <addaction name="actionCloseFile"/>
    <addaction name="actionExit"/>
@@ -334,6 +338,10 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/simpleIndex.png</normaloff>:/images/simpleIndex.png</iconset>
+   </property>
    <property name="text">
     <string>Create a Simple Index</string>
    </property>
@@ -381,6 +389,10 @@
   <action name="actionCreateBTreeIndex">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/bTreeIndex.png</normaloff>:/images/bTreeIndex.png</iconset>
    </property>
    <property name="text">
     <string>Create a B-Tree index</string>
