@@ -556,7 +556,13 @@ QStringList RecordOperations::getRecordInformationAt(int index)
     //Store the buffer in a Qstring because of the split function
     QString recordInformation = buffer;
 
-    return recordInformation.split(",");
+    QString info;
+    for( int j = 0; j < size; j++ )
+    {
+        info += recordInformation[j];
+    }
+
+    return info.split(",");
 }
 
 QStringList RecordOperations::getRecordsInformation()
