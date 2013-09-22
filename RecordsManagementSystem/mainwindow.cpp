@@ -436,14 +436,13 @@ void MainWindow::on_actionExportXML_triggered()
         Decimal.append( fieldInfo[4] );
         key.append( fieldInfo[5] );
     }
+    char *record = "<records>\n";
+    outFile.write( record, strlen ( record ) );
 
     QStringList Records;
     for( int j = 0; j < in.getRecordsInformation().length(); j++)
     {
         Records = in.getRecordInformationAt(j);
-
-        char *record = "<record>\n";
-        outFile.write( record, strlen ( record ) );
 
         QString recordInfo;
 
@@ -453,7 +452,7 @@ void MainWindow::on_actionExportXML_triggered()
             if( key[i].toInt() == 1 )
                 recordInfo ="   <"+fields[i]+"="+Records[i+1]+">\n";
             else
-                recordInfo ="         <"+fields[i]+">"+Records[i+1]+"</"+fields[i]+">\n";
+                recordInfo ="       <"+fields[i]+">"+Records[i+1]+"</"+fields[i]+">\n";
 
             stringstream sst;
             sst << recordInfo.toStdString();
@@ -461,13 +460,17 @@ void MainWindow::on_actionExportXML_triggered()
             const char * changeField = (char*)temp_recordInfo.c_str();
             outFile.write( changeField, recordInfo.length() );
         }
-         char *recordEnd = "</record>";
-         char *jump = "\n";
-         outFile.write( recordEnd, 9 );
-         outFile.write( jump, 1 );
-
+        char *recordEnd = "   </record>";
+        char *jump = "\n";
+        outFile.write( recordEnd, 12 );
+        outFile.write( jump, 1 );
     }
+    char *recordEnd = "</records>";
+    char *jump = "\n";
+    outFile.write( recordEnd, 12 );
+    outFile.write( jump, 1 );
     outFile.close();
+     QMessageBox::information(this, tr("Information"), tr("XML File has been created"));
     qDebug () << "end";
 }
 
