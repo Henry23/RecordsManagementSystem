@@ -1369,7 +1369,6 @@ void MainWindow::deleteRecord()
 
     //writing new information on the new file
     create.write ( buffer1, recordInfo[1].toInt());
-    //create.write ( ",", 1);
     create.write( buffer3, recordInfo[2].toInt());
     create.write ( buffer2, length2 );
     create.close();
