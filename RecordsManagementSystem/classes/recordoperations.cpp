@@ -549,23 +549,14 @@ QStringList RecordOperations::getRecordInformationAt(int index)
     char buffer[size];
 
     file.seek(position);
-    file.read( buffer, size );
+    file.read(buffer, size);
 
     file.close();
 
     //Store the buffer in a Qstring because of the split function
     QString recordInformation = buffer;
 
-    QString info;
-    for( int j = 0; j < size; j++ )
-    {
-        info += recordInformation[j];
-    }
-
-    qDebug() << size;
-    qDebug() << info;
-
-    return info.split(",");
+    return recordInformation.split(",");
 }
 
 QStringList RecordOperations::getRecordsInformation()
