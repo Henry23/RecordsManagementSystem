@@ -258,49 +258,7 @@ void MainWindow::on_actionSaveFile_triggered()
 
 void MainWindow::on_actionPrintFile_triggered()
 {
-    QString outputFileName = QFileDialog::getSaveFileName(this, tr("Save"), QDir::homePath(), tr("PDF (*.pdf)"));
-
-    if ( !outputFileName.isEmpty() )
-    {
-        QPrinter printer;
-        printer.setOutputFormat(QPrinter::PdfFormat);
-        printer.setOutputFileName(outputFileName);
-
-        QPainter painter;
-
-        if ( !painter.begin(&printer) )
-        {
-            // failed to open file
-            QMessageBox::critical(this, tr("Error"), tr("Failed to open file"));
-        }
-
-        else
-        {
-            /*int x = 0, y = 0;
-
-            for ( int row = 0; row < ui->tableWidgetRecords->rowCount(); row++ )
-            {
-                for (int column = 1; column < ui->tableWidgetRecords->colorCount(); column++)
-                {
-                    painter.drawText(x, y, ui->tableWidgetRecords->item(row, column)->text());
-
-                    x += 100;
-                }
-
-                y += 30;
-            }
-
-            painter.drawText(0, 0, "Test1");
-            painter.drawText(100, 0, "Test2");
-            painter.drawText(200, 0, "Test3");
-
-            painter.drawText(0, 30, "Test4");
-            painter.drawText(100, 30, "Test5");
-            painter.drawText(200, 30, "Test6");*/
-
-            painter.end();
-        }
-    }
+    //---------------------
 }
 
 void MainWindow::on_actionCloseFile_triggered()
@@ -736,6 +694,7 @@ void MainWindow::on_actionExportXML_triggered()
     outFile.open( outFile.Text | outFile.WriteOnly );
 
     char* xml = "<?xml version= 1.0 encoding= UTF-8 ?>\n";
+
     RecordOperations in;
     in.setFileName( this->recordFileName );
 
@@ -746,7 +705,8 @@ void MainWindow::on_actionExportXML_triggered()
     QStringList lenght;
     QStringList type;
     QStringList Decimal;
-    for( int i = 0; i < in.getFieldsInformation().length(); i++)
+    int length1 = in.getFieldsInformation().length();
+    for( int i = 0; i < length1; i++)
     {
         QStringList fieldInfo = in.getFieldsInformation().at(i).split(",");
         fields.append( fieldInfo[1] );
@@ -755,29 +715,41 @@ void MainWindow::on_actionExportXML_triggered()
         Decimal.append( fieldInfo[4] );
         key.append( fieldInfo[5] );
     }
+
     char *record = "<records>\n";
     outFile.write( record, strlen ( record ) );
-
+    int length2 =in.getRecordsInformation().length();
     QStringList Records;
-    for( int j = 0; j < in.getRecordsInformation().length(); j++)
+    for( int j = 0; j < length2; j++)
     {
         Records = in.getRecordInformationAt(j);
 
         QString recordInfo;
-
-        for( int i = 0; i < fields.length(); i++ )
+        int i =0;
+        for( ; i < key.length(); i++ )
         {
-
             if( key[i].toInt() == 1 )
-                recordInfo ="   <"+fields[i]+"="+Records[i+1]+">\n";
-            else
-                recordInfo ="       <"+fields[i]+">"+Records[i+1]+"</"+fields[i]+">\n";
-
-            stringstream sst;
-            sst << recordInfo.toStdString();
-            string temp_recordInfo = sst.str();
-            const char * changeField = (char*)temp_recordInfo.c_str();
-            outFile.write( changeField, recordInfo.length() );
+            {
+                recordInfo = "   <record "+fields[i]+"="+Records[i+1]+">\n";
+                stringstream sst;
+                sst << recordInfo.toStdString();
+                string temp_recordInfo = sst.str();
+                const char * changeField = (char*)temp_recordInfo.c_str();
+                outFile.write( changeField, recordInfo.length() );
+                break;
+             }
+         }
+        for (int x = 0; x < fields.length(); x++)
+        {
+            if( x != i )
+            {
+                recordInfo = "       <"+fields[x]+">"+Records[x+1]+"</"+fields[x]+">\n";
+                stringstream sst;
+                sst << recordInfo.toStdString();
+                string temp_recordInfo = sst.str();
+                const char * changeField = (char*)temp_recordInfo.c_str();
+                outFile.write( changeField, recordInfo.length() );
+             }
         }
         char *recordEnd = "   </record>";
         char *jump = "\n";
@@ -786,7 +758,7 @@ void MainWindow::on_actionExportXML_triggered()
     }
     char *recordEnd = "</records>";
     char *jump = "\n";
-    outFile.write( recordEnd, 12 );
+    outFile.write( recordEnd, 10 );
     outFile.write( jump, 1 );
     outFile.close();
     QMessageBox::information(this, tr("Information"), tr("XML File has been created"));
@@ -798,6 +770,104 @@ void MainWindow::on_actionImportJSON_triggered()
 
 void MainWindow::on_actionExportJSON_triggered()
 {
+    //index file name
+    QString newFileName = this->recordFileName; //same filename
+    newFileName.remove(this->recordFileName.length() - 4, 4); //remove last 4 characters(.txt)
+    newFileName += ".json"; //Append
+
+    char *json ="{\n";
+
+    QFile outFile( newFileName );
+
+    outFile.open( outFile.Text | outFile.WriteOnly );
+
+    RecordOperations in;
+    in.setFileName( this->recordFileName );
+
+    outFile.write( json, 2 );
+
+    QStringList fields;
+    QStringList key;
+    QStringList lenght;
+    QStringList type;
+    QStringList Decimal;
+    int length1 = in.getFieldsInformation().length();
+    int length = in.getRecordsInformation().length();
+    for( int i = 0; i < length1; i++)
+    {
+        QStringList fieldInfo = in.getFieldsInformation().at(i).split(",");
+        fields.append( fieldInfo[1] );
+        lenght.append( fieldInfo[3] );
+        type.append( fieldInfo[2] );
+        Decimal.append( fieldInfo[4] );
+        key.append( fieldInfo[5] );
+    }
+
+    char *record = "records:     [\n";
+    outFile.write( record, strlen ( record ) );
+
+    QStringList Records;
+    for( int j = 0; j < length; j++)
+    {
+        Records = in.getRecordInformationAt(j);
+
+        QString recordInfo;
+        int i =0;
+        for( ; i < key.length(); i++ )
+        {
+            if( key[i].toInt() == 1 )
+            {
+                recordInfo = "{ record "+fields[i]+": "+Records[i+1]+", ";
+                stringstream sst;
+                sst << recordInfo.toStdString();
+                string temp_recordInfo = sst.str();
+                const char * changeField = (char*)temp_recordInfo.c_str();
+                outFile.write( changeField, recordInfo.length() );
+                break;
+              }
+        }
+
+        for (int x = 0; x < fields.length(); x++)
+        {
+            if( x != i && x != fields.length() - 1 )
+            {
+                recordInfo = fields[x]+":"+Records[x+1]+", ";
+                stringstream sst;
+                sst << recordInfo.toStdString();
+                string temp_recordInfo = sst.str();
+                const char * changeField = (char*)temp_recordInfo.c_str();
+                outFile.write( changeField, recordInfo.length() );
+            }
+            else if ( x != i && j != length - 1)
+            {
+                recordInfo = fields[x]+":"+Records[x+1]+" },";
+                stringstream sst;
+                sst << recordInfo.toStdString();
+                string temp_recordInfo = sst.str();
+                const char * changeField = (char*)temp_recordInfo.c_str();
+                outFile.write( changeField, recordInfo.length() );
+                char *jump= "\n";
+                outFile.write( jump, 1 );
+            }
+            else
+            {
+                recordInfo = fields[x]+":"+Records[x+1]+" }";
+                stringstream sst;
+                sst << recordInfo.toStdString();
+                string temp_recordInfo = sst.str();
+                const char * changeField = (char*)temp_recordInfo.c_str();
+                outFile.write( changeField, recordInfo.length() );
+                char *jump= "\n";
+                outFile.write( jump, 1 );
+            }
+        }
+    }
+
+    char *jump0 = "]\n";
+    char *jump1 = "}\n";
+    outFile.write( jump0, 2 );
+    outFile.write( jump1, 2 );
+    QMessageBox::information(this, tr("Information"), tr("JSON File has been created"));
 }
 
 void MainWindow::on_actionAbout_triggered()
