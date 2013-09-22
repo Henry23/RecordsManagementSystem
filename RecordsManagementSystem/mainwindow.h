@@ -75,6 +75,8 @@ private:
     void showFields();
     void showRecords();
     bool insertRecord();
+    bool insertRecordEOF();
+    bool insertRecordAvailList();
     bool isValidItem(int, int);
     bool isValidItemLength(int, int);
     bool isKey(int);

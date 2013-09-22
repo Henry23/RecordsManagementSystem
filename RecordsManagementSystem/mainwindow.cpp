@@ -16,8 +16,6 @@ using std::remove;
 #include <QMessageBox>
 #include <QDebug>
 
-
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -96,18 +94,9 @@ void MainWindow::on_actionNewFile_triggered()
         this->recordOperations.setFileName(this->recordFileName);
 
         //Enable actions
-        ui->actionPrintFile->setEnabled(true);
         ui->actionCloseFile->setEnabled(true);
         ui->actionCreateField->setEnabled(true);
         ui->actionModifyField->setEnabled(true);
-        ui->actionCrossRecords->setEnabled(true);
-        ui->actionCreateSimpleIndex->setEnabled(true);
-        ui->actionCreateBTreeIndex->setEnabled(true);
-        ui->actionReindexing->setEnabled(true);
-        ui->actionImportXML->setEnabled(true);
-        ui->actionExportXML->setEnabled(true);
-        ui->actionImportJSON->setEnabled(true);
-        ui->actionExportJSON->setEnabled(true);
 
         //Disable actions
         ui->actionOpenFile->setEnabled(false);
@@ -119,7 +108,6 @@ void MainWindow::on_actionNewFile_triggered()
         //Enable search widgets
         ui->lineEditKey->setEnabled(true);
         ui->comboBoxIndex->setEnabled(true);
-        ui->pushButtonSearch->setEnabled(true);
         ui->tableWidgetSearch->setEnabled(true);
     }
 }
@@ -168,32 +156,56 @@ void MainWindow::on_actionOpenFile_triggered()
                 this->showFields();
                 this->showRecords();
 
-                //Enable actions
-                ui->actionPrintFile->setEnabled(true);
-                ui->actionCloseFile->setEnabled(true);
-                ui->actionCreateField->setEnabled(true);
-                ( this->indexList.size() == 0 ? ui->actionModifyField->setEnabled(true) : ui->actionModifyField->setEnabled(false) );
-                ui->actionCrossRecords->setEnabled(true);
-                ui->actionCreateSimpleIndex->setEnabled(true);
-                ui->actionCreateBTreeIndex->setEnabled(true);
-                ui->actionReindexing->setEnabled(true);
-                ui->actionImportXML->setEnabled(true);
-                ui->actionExportXML->setEnabled(true);
-                ui->actionImportJSON->setEnabled(true);
-                ui->actionExportJSON->setEnabled(true);
+                //-----------------------------------Enable / Disable----------------------------------------
 
-                //Disable actions
-                ui->actionOpenFile->setEnabled(false);
-                ui->actionNewFile->setEnabled(false);
+                //If there are no records
+                if ( this->indexList.isEmpty() )
+                {
+                    //Enable actions
+                    ui->actionCloseFile->setEnabled(true);
+                    ui->actionCreateField->setEnabled(true);
+                    ui->actionModifyField->setEnabled(true);
 
-                //Enable the table
-                ui->tableWidgetRecords->setEnabled(true);
+                    //Disable actions
+                    ui->actionOpenFile->setEnabled(false);
+                    ui->actionNewFile->setEnabled(false);
 
-                //Enable search widgets
-                ui->lineEditKey->setEnabled(true);
-                ui->comboBoxIndex->setEnabled(true);
-                ui->pushButtonSearch->setEnabled(true);
-                ui->tableWidgetSearch->setEnabled(true);
+                    //Enable the table
+                    ui->tableWidgetRecords->setEnabled(true);
+
+                    //Enable search widgets
+                    ui->lineEditKey->setEnabled(true);
+                    ui->comboBoxIndex->setEnabled(true);
+                    ui->tableWidgetSearch->setEnabled(true);
+                }
+
+                else
+                {
+                    //Enable actions
+                    ui->actionPrintFile->setEnabled(true);
+                    ui->actionCloseFile->setEnabled(true);
+                    ui->actionCrossRecords->setEnabled(true);
+                    ui->actionCreateBTreeIndex->setEnabled(true);
+                    ui->actionImportXML->setEnabled(true);
+                    ui->actionExportXML->setEnabled(true);
+                    ui->actionImportJSON->setEnabled(true);
+                    ui->actionExportJSON->setEnabled(true);
+
+                    //Disable actions
+                    ui->actionOpenFile->setEnabled(false);
+                    ui->actionNewFile->setEnabled(false);
+                    ui->actionCreateField->setEnabled(false);
+                    ui->actionModifyField->setEnabled(false);
+
+                    //Enable the table
+                    ui->tableWidgetRecords->setEnabled(true);
+
+                    //Enable search widgets
+                    ui->lineEditKey->setEnabled(true);
+                    ui->comboBoxIndex->setEnabled(true);
+                    ui->pushButtonSearch->setEnabled(true);
+                    ui->tableWidgetSearch->setEnabled(true);
+                }
             }
         }
     }
@@ -204,10 +216,30 @@ void MainWindow::on_actionSaveFile_triggered()
     //If the record file could compact
     if ( this->compact() )
     {
-        //Save the list of indexes in the index file
-        if ( !this->saveIndexList() )
+        //If a compaction is made
+        if ( !this->availList.isEmpty() )
         {
-            QMessageBox::critical(this, tr("Error"), tr("A problem occurred when trying to save the index file"));
+            //Delete the index file
+            QFile currentIndexFile(this->indexFileName);
+            currentIndexFile.remove();
+
+            this->indexList.clear();
+
+            ui->tableWidgetRecords->setColumnCount(0);
+            ui->tableWidgetRecords->setRowCount(0);
+
+            //Create a index file
+            this->on_actionCreateSimpleIndex_triggered();
+        }
+
+        //Just save the index list
+        else
+        {
+            //Save the list of indexes in the index file
+            if ( !this->saveIndexList() )
+            {
+                QMessageBox::critical(this, tr("Error"), tr("A problem occurred when trying to save the index file"));
+            }
         }
 
         this->availList.clear();
@@ -368,6 +400,170 @@ void MainWindow::on_actionCrossRecords_triggered()
 
 void MainWindow::on_actionCreateSimpleIndex_triggered()
 {
+    QString keyForIndexFile = "";
+    int positionForIndexFile = 0;
+    int lengthForIndexFile = 0;
+
+    int numberOfRecords = this->recordOperations.getNumberOfRecords();
+    QString LengthOfNumberOfRecords = QString::number(numberOfRecords);
+
+    if ( LengthOfNumberOfRecords.length() == 1 )
+    {
+        LengthOfNumberOfRecords.prepend("00000");
+    }
+
+    else if ( LengthOfNumberOfRecords.length() == 2 )
+    {
+        LengthOfNumberOfRecords.prepend("0000");
+    }
+
+    else if ( LengthOfNumberOfRecords.length() == 3 )
+    {
+        LengthOfNumberOfRecords.prepend("000");
+    }
+
+    else if ( LengthOfNumberOfRecords.length() == 4 )
+    {
+        LengthOfNumberOfRecords.prepend("00");
+    }
+
+    else if ( LengthOfNumberOfRecords.length() == 5 )
+    {
+        LengthOfNumberOfRecords.prepend("0");
+    }
+
+
+
+    int position = recordOperations.getInitialPositionOfRecordsInformation() + LengthOfNumberOfRecords.length() + 1;
+
+    for (int a = 0; a < numberOfRecords; a++)
+    {
+        int recordSize = recordOperations.getSizeOfARecordInformation(position);
+        int lengthOfRecordSize = recordOperations.getLengthOfTheSizeOfARecordInformation(position);
+
+        positionForIndexFile = position + lengthOfRecordSize + 1;
+        lengthForIndexFile = recordSize - 2;
+
+
+        //------------------------------------Search key------------------------------------------
+
+        //All the fields information
+        QStringList fieldsInformation = this->recordOperations.getFieldsInformation();
+
+        int field = 0;
+
+        //Search which field is a key
+        for (; field < fieldsInformation.size(); field++)
+        {
+            QStringList fieldInformation = fieldsInformation.at(field).split(",");
+
+            //If the field is key
+            if ( fieldInformation.at(fieldInformation.size() - 1) == "1" )
+            {
+                break;
+            }
+        }
+
+        //------------------------------------------------------------------------------------------
+
+        RecordsFile file(this->recordFileName.toStdString());
+        file.seek(position);
+
+        char recordBuffer[recordSize + lengthOfRecordSize - 1];
+        file.read(recordBuffer, recordSize + lengthOfRecordSize - 1);
+
+        file.close();
+
+        QString record = recordBuffer;
+
+        keyForIndexFile = record.split(",").at(field + 1);
+
+        //-------------------------------------------------------------------------------------------
+
+        //Move to the next record
+        position += recordSize + lengthOfRecordSize;
+
+
+        //Save the index
+        QString index = keyForIndexFile + "," + QString::number(positionForIndexFile) + "," + QString::number(lengthForIndexFile);
+        this->indexList.append(index);
+    }
+
+    RecordsFile createIndexFile;
+
+    //Check if there is a problem while creating the index file
+    if ( !createIndexFile.open(indexFileName.toStdString(), ios::out) )
+    {
+        QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the index file"));
+    }
+
+    createIndexFile.close();
+
+
+    //Save the list of indexes in the index file
+    if ( !this->saveIndexList() )
+    {
+        QMessageBox::critical(this, tr("Error"), tr("A problem occurred when trying to save the index file"));
+    }
+
+    else
+    {
+        ui->statusBar->showMessage(tr("The index file was created successfully!"), 2500);
+
+        this->showFields();
+        this->showRecords();
+
+        //-----------------------------------Enable / Disable----------------------------------------
+
+        //If there are no records
+        if ( this->indexList.isEmpty() )
+        {
+            //Enable actions
+            ui->actionCloseFile->setEnabled(true);
+            ui->actionCreateField->setEnabled(true);
+            ui->actionModifyField->setEnabled(true);
+
+            //Disable actions
+            ui->actionOpenFile->setEnabled(false);
+            ui->actionNewFile->setEnabled(false);
+
+            //Enable the table
+            ui->tableWidgetRecords->setEnabled(true);
+
+            //Enable search widgets
+            ui->lineEditKey->setEnabled(true);
+            ui->comboBoxIndex->setEnabled(true);
+            ui->tableWidgetSearch->setEnabled(true);
+        }
+
+        else
+        {
+            //Enable actions
+            ui->actionPrintFile->setEnabled(true);
+            ui->actionCloseFile->setEnabled(true);
+            ui->actionCrossRecords->setEnabled(true);
+            ui->actionCreateBTreeIndex->setEnabled(true);
+            ui->actionImportXML->setEnabled(true);
+            ui->actionExportXML->setEnabled(true);
+            ui->actionImportJSON->setEnabled(true);
+            ui->actionExportJSON->setEnabled(true);
+
+            //Disable actions
+            ui->actionOpenFile->setEnabled(false);
+            ui->actionNewFile->setEnabled(false);
+            ui->actionCreateField->setEnabled(false);
+            ui->actionModifyField->setEnabled(false);
+
+            //Enable the table
+            ui->tableWidgetRecords->setEnabled(true);
+
+            //Enable search widgets
+            ui->lineEditKey->setEnabled(true);
+            ui->comboBoxIndex->setEnabled(true);
+            ui->pushButtonSearch->setEnabled(true);
+            ui->tableWidgetSearch->setEnabled(true);
+        }
+    }
 }
 
 void MainWindow::on_actionCreateBTreeIndex_triggered()
@@ -396,6 +592,132 @@ void MainWindow::on_actionCreateBTreeIndex_triggered()
 
 void MainWindow::on_actionReindexing_triggered()
 {
+    int missingRecords = recordOperations.getNumberOfRecords() - this->indexList.size();
+
+    QString keyForIndexFile = "";
+    int positionForIndexFile = 0;
+    int lengthForIndexFile = 0;
+
+    int position = this->indexList.at(indexList.size() - 1).split(",").at(1).toInt() +
+                   this->indexList.at(indexList.size() - 1).split(",").at(2).toInt() + 1;
+
+    for (int a = 0; a < missingRecords; a++)
+    {
+        int recordSize = recordOperations.getSizeOfARecordInformation(position);
+        int lengthOfRecordSize = recordOperations.getLengthOfTheSizeOfARecordInformation(position);
+
+        positionForIndexFile = position + lengthOfRecordSize + 1;
+        lengthForIndexFile = recordSize - 2;
+
+
+        //------------------------------------Search key------------------------------------------
+
+        //All the fields information
+        QStringList fieldsInformation = this->recordOperations.getFieldsInformation();
+
+        int field = 0;
+
+        //Search which field is a key
+        for (; field < fieldsInformation.size(); field++)
+        {
+            QStringList fieldInformation = fieldsInformation.at(field).split(",");
+
+            //If the field is key
+            if ( fieldInformation.at(fieldInformation.size() - 1) == "1" )
+            {
+                break;
+            }
+        }
+
+        //------------------------------------------------------------------------------------------
+
+        RecordsFile file(this->recordFileName.toStdString());
+        file.seek(position);
+
+        char recordBuffer[recordSize + lengthOfRecordSize - 1];
+        file.read(recordBuffer, recordSize + lengthOfRecordSize - 1);
+
+        file.close();
+
+        QString record = recordBuffer;
+
+        keyForIndexFile = record.split(",").at(field + 1);
+
+        //-------------------------------------------------------------------------------------------
+
+        //Move to the next record
+        position += recordSize + lengthOfRecordSize;
+
+
+        //Save the index
+        QString index = keyForIndexFile + "," + QString::number(positionForIndexFile) + "," + QString::number(lengthForIndexFile);
+        this->indexList.append(index);
+    }
+
+    //Save the list of indexes in the index file
+    if ( !this->saveIndexList() )
+    {
+        QMessageBox::critical(this, tr("Error"), tr("A problem occurred when trying to save the index file"));
+    }
+
+    else
+    {
+        ui->statusBar->showMessage(tr("The reindexing was performed successfully!"), 2500);
+
+        this->showFields();
+        this->showRecords();
+
+        //-----------------------------------Enable / Disable----------------------------------------
+
+        //If there are no records
+        if ( this->indexList.isEmpty() )
+        {
+            //Enable actions
+            ui->actionCloseFile->setEnabled(true);
+            ui->actionCreateField->setEnabled(true);
+            ui->actionModifyField->setEnabled(true);
+
+            //Disable actions
+            ui->actionOpenFile->setEnabled(false);
+            ui->actionNewFile->setEnabled(false);
+
+            //Enable the table
+            ui->tableWidgetRecords->setEnabled(true);
+
+            //Enable search widgets
+            ui->lineEditKey->setEnabled(true);
+            ui->comboBoxIndex->setEnabled(true);
+            ui->tableWidgetSearch->setEnabled(true);
+        }
+
+        else
+        {
+            //Enable actions
+            ui->actionPrintFile->setEnabled(true);
+            ui->actionCloseFile->setEnabled(true);
+            ui->actionCrossRecords->setEnabled(true);
+            ui->actionCreateBTreeIndex->setEnabled(true);
+            ui->actionImportXML->setEnabled(true);
+            ui->actionExportXML->setEnabled(true);
+            ui->actionImportJSON->setEnabled(true);
+            ui->actionExportJSON->setEnabled(true);
+
+            //Disable actions
+            ui->actionOpenFile->setEnabled(false);
+            ui->actionNewFile->setEnabled(false);
+            ui->actionCreateField->setEnabled(false);
+            ui->actionModifyField->setEnabled(false);
+
+            //Enable the table
+            ui->tableWidgetRecords->setEnabled(true);
+
+            //Enable search widgets
+            ui->lineEditKey->setEnabled(true);
+            ui->comboBoxIndex->setEnabled(true);
+            ui->pushButtonSearch->setEnabled(true);
+            ui->tableWidgetSearch->setEnabled(true);
+        }
+    }
 }
 
 void MainWindow::on_actionImportXML_triggered()
@@ -696,6 +1018,21 @@ void MainWindow::on_tableWidgetRecords_cellChanged(int row, int column)
 
                     //Enable the "save" option
                     ui->actionSaveFile->setEnabled(true);
+
+                    ui->actionPrintFile->setEnabled(true);
+                    ui->actionCrossRecords->setEnabled(true);
+                    ui->actionCreateBTreeIndex->setEnabled(true);
+                    ui->actionImportXML->setEnabled(true);
+                    ui->actionExportXML->setEnabled(true);
+                    ui->actionImportJSON->setEnabled(true);
+                    ui->actionExportJSON->setEnabled(true);
+                    ui->pushButtonSearch->setEnabled(true);
+
+                    ui->actionCreateField->setEnabled(false);
+                    ui->actionModifyField->setEnabled(false);
+
+                    //delete this->btree;
+                    //this->btree = nullptr;
                 }
             }
         }
@@ -707,266 +1044,300 @@ bool MainWindow::insertRecord()
     //If the user has not deleted a record, insert at the end
     if ( this->availList.isEmpty() )
     {
-        RecordsFile recordFile;
-        RecordsFile newRecordFile;
-
-        if ( !recordFile.open(this->recordFileName.toStdString()) )
+        if ( !this->insertRecordEOF() )
         {
             return false;
         }
-
-        //------------------------------------Fields information------------------------------------
-
-        //Number of fields length + fields information + ' : '
-        int fieldsInformationSize = this->recordOperations.getInitialPositionOfRecordsInformation();
-        char fieldsInformationBuffer[fieldsInformationSize];
-
-        recordFile.read(fieldsInformationBuffer, fieldsInformationSize);
-
-
-        //------------------------------------New number of records------------------------------------
-
-        QString newNumberOfRecords = QString::number(this->recordOperations.getNumberOfRecords() + 1);
-
-        if ( newNumberOfRecords.length() == 1 )
-        {
-            newNumberOfRecords.prepend("00000");
-        }
-
-        else if ( newNumberOfRecords.length() == 2 )
-        {
-            newNumberOfRecords.prepend("0000");
-        }
-
-        else if ( newNumberOfRecords.length() == 3 )
-        {
-            newNumberOfRecords.prepend("000");
-        }
-
-        else if ( newNumberOfRecords.length() == 4 )
-        {
-            newNumberOfRecords.prepend("00");
-        }
-
-        else if ( newNumberOfRecords.length() == 5 )
-        {
-            newNumberOfRecords.prepend("0");
-        }
-
-
-        //-----------------------------------Current records--------------------------------------------
-
-        int currentRecordsSize = this->recordOperations.getLengthOfRecordsInformation(); //all the records from ' | ' to ' | '
-        char currentRecordsBuffer[currentRecordsSize];
-
-        //Before the ' | ' of the first record
-        recordFile.seek(fieldsInformationSize + this->recordOperations.getLengthOfTheNumberOfRecords());
-        recordFile.read(currentRecordsBuffer, currentRecordsSize);
-
-        recordFile.close();
-
-
-        //------------------------------------------New Record------------------------------------------
-
-        QString newRecord = "";
-
-        int recordLengthForIndexFile = 0;
-        int recordLength = 0;
-
-        //All the columns of the last row
-        for ( int a = 0; a < ui->tableWidgetRecords->columnCount(); a++ )
-        {
-            newRecord += ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, a)->text() + ",";
-        }
-
-        //Remove the last ' , '
-        newRecord.remove(newRecord.size() - 1, 1);
-
-        //Record length for the index file
-        recordLengthForIndexFile = newRecord.length();
-
-        //Add the last ' | '
-        newRecord += "|";
-
-        //Length of the record + ' , '
-        recordLength = newRecord.size() + 1;
-
-        //Add the length and the comma
-        newRecord.prepend(QString::number(recordLength) + ",");
-
-        //If this is the first record
-        if ( this->recordOperations.getNumberOfRecords() == 0 )
-        {
-            newRecord.prepend("|");
-        }
-
-
-        //----------------------------------------Add Record-------------------------------------------
-
-        if ( remove(this->recordFileName.toStdString().c_str()) != 0 )
-        {
-            return false;
-        }
-
-        if ( !newRecordFile.open(this->recordFileName.toStdString(), ios::out) )
-        {
-            return false;
-        }
-
-        //Write
-        newRecordFile.write(fieldsInformationBuffer, fieldsInformationSize);
-        newRecordFile.write(newNumberOfRecords.toStdString().c_str(), newNumberOfRecords.size());
-        newRecordFile.write(currentRecordsBuffer, currentRecordsSize);\
-
-        //Position in the record file after the new record
-        int newRecordPosition = newRecordFile.tell();
-
-        newRecordFile.write(newRecord.toStdString().c_str(), newRecord.size());
-
-        //Close the file
-        newRecordFile.close();
-
-        //--------------------------------------Add to the Index list-------------------------------------------
-
-        //All the fields information
-        QStringList fieldsInformation = this->recordOperations.getFieldsInformation();
-
-        int column = 0;
-
-        //Search which column(field) is a key
-        for (;column < fieldsInformation.size(); column++)
-        {
-            QStringList fieldInformation = fieldsInformation.at(column).split(",");
-
-            //If a field is key
-            if ( fieldInformation.at(fieldInformation.size() - 1) == "1" )
-            {
-                break;
-            }
-        }
-
-        int lastRow = ui->tableWidgetRecords->rowCount() - 1;
-
-        QString key = ui->tableWidgetRecords->item(lastRow, column)->text() + ",";//
-
-        //Search for the first comma ' , ' to get the position for the index file
-        for (int a = 0; a < newRecord.size(); a++)
-        {
-            if ( newRecord.at(a) == ',' )
-            {
-                newRecordPosition++;
-                break;
-            }
-
-            newRecordPosition++;
-        }
-
-        QString position =  QString::number(newRecordPosition) + ",";
-        QString length = QString::number(recordLengthForIndexFile);
-
-        QString newIndex = key + position + length;
-
-        this->indexList.append(newIndex);
     }
 
-    //search where to save the record (fisrt fit)
+    //search in the availList where to save the record (fisrt fit)
     else
     {
-        RecordsFile recordFile;
-        RecordsFile newRecordFile;
+        if ( !this->insertRecordAvailList() )
+        {
+            return false;
+        }
+    }
 
-        if ( !recordFile.open(this->recordFileName.toStdString()) )
+    return true;
+}
+
+bool MainWindow::insertRecordEOF()
+{
+    RecordsFile recordFile;
+    RecordsFile newRecordFile;
+
+    if ( !recordFile.open(this->recordFileName.toStdString()) )
+    {
+        return false;
+    }
+
+    //------------------------------------Fields information------------------------------------
+
+    //Number of fields length + fields information + ' : '
+    int fieldsInformationSize = this->recordOperations.getInitialPositionOfRecordsInformation();
+    char fieldsInformationBuffer[fieldsInformationSize];
+
+    recordFile.seek(0);
+    recordFile.read(fieldsInformationBuffer, fieldsInformationSize);
+
+
+    //------------------------------------New number of records------------------------------------
+
+    QString newNumberOfRecords = QString::number(this->recordOperations.getNumberOfRecords() + 1);
+
+    if ( newNumberOfRecords.length() == 1 )
+    {
+        newNumberOfRecords.prepend("00000");
+    }
+
+    else if ( newNumberOfRecords.length() == 2 )
+    {
+        newNumberOfRecords.prepend("0000");
+    }
+
+    else if ( newNumberOfRecords.length() == 3 )
+    {
+        newNumberOfRecords.prepend("000");
+    }
+
+    else if ( newNumberOfRecords.length() == 4 )
+    {
+        newNumberOfRecords.prepend("00");
+    }
+
+    else if ( newNumberOfRecords.length() == 5 )
+    {
+        newNumberOfRecords.prepend("0");
+    }
+
+
+    //-----------------------------------Current records--------------------------------------------
+
+    int currentRecordsSize = this->recordOperations.getLengthOfRecordsInformation(); //all the records from ' | ' to ' | '
+    char currentRecordsBuffer[currentRecordsSize];
+
+    //Before the ' | ' of the first record
+    recordFile.seek(fieldsInformationSize + this->recordOperations.getLengthOfTheNumberOfRecords());
+    recordFile.read(currentRecordsBuffer, currentRecordsSize);
+
+    recordFile.close();
+
+
+    //------------------------------------------New Record------------------------------------------
+
+    QString newRecord = "";
+
+    int recordLengthForIndexFile = 0;
+    int recordLength = 0;
+
+    //All the columns of the last row
+    for ( int a = 0; a < ui->tableWidgetRecords->columnCount(); a++ )
+    {
+        newRecord += ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, a)->text() + ",";
+    }
+
+    //Remove the last ' , '
+    newRecord.remove(newRecord.size() - 1, 1);
+
+    //Record length for the index file
+    recordLengthForIndexFile = newRecord.length();
+
+    //Add the last ' | '
+    newRecord += "|";
+
+    //Length of the record + ' , '
+    recordLength = newRecord.size() + 1;
+
+    //Add the length and the comma
+    newRecord.prepend(QString::number(recordLength) + ",");
+
+    //If this is the first record
+    if ( this->recordOperations.getNumberOfRecords() == 0 )
+    {
+        newRecord.prepend("|");
+    }
+
+
+    //----------------------------------------Add Record-------------------------------------------
+
+    if ( remove(this->recordFileName.toStdString().c_str()) != 0 )
+    {
+        return false;
+    }
+
+    if ( !newRecordFile.open(this->recordFileName.toStdString(), ios::out) )
+    {
+        return false;
+    }
+
+    //Write
+    newRecordFile.write(fieldsInformationBuffer, fieldsInformationSize);
+    newRecordFile.write(newNumberOfRecords.toStdString().c_str(), newNumberOfRecords.size());
+    newRecordFile.write(currentRecordsBuffer, currentRecordsSize);\
+
+    //Position in the record file after the new record
+    int newRecordPosition = newRecordFile.tell();
+
+    newRecordFile.write(newRecord.toStdString().c_str(), newRecord.size());
+
+    //Close the file
+    newRecordFile.close();
+
+    //--------------------------------------Add to the Index list-------------------------------------------
+
+    //All the fields information
+    QStringList fieldsInformation = this->recordOperations.getFieldsInformation();
+
+    int column = 0;
+
+    //Search which column(field) is a key
+    for (;column < fieldsInformation.size(); column++)
+    {
+        QStringList fieldInformation = fieldsInformation.at(column).split(",");
+
+        //If a field is key
+        if ( fieldInformation.at(fieldInformation.size() - 1) == "1" )
+        {
+            break;
+        }
+    }
+
+    int lastRow = ui->tableWidgetRecords->rowCount() - 1;
+
+    QString key = ui->tableWidgetRecords->item(lastRow, column)->text() + ",";//
+
+    //Search for the first comma ' , ' to get the position for the index file
+    for (int a = 0; a < newRecord.size(); a++)
+    {
+        if ( newRecord.at(a) == ',' )
+        {
+            newRecordPosition++;
+            break;
+        }
+
+        newRecordPosition++;
+    }
+
+    QString position =  QString::number(newRecordPosition) + ",";
+    QString length = QString::number(recordLengthForIndexFile);
+
+    QString newIndex = key + position + length;
+
+    this->indexList.append(newIndex);
+
+    return true;
+}
+
+bool MainWindow::insertRecordAvailList()
+{
+    //Temporary record file
+    QString TemporaryRecordFileName = this->recordFileName; //same filename
+    TemporaryRecordFileName.remove(this->recordFileName.length() - 4, 4); //remove last 4 characters(.txt)
+    TemporaryRecordFileName += "2.txt"; //Append
+
+    QFile recordFile(this->recordFileName);
+    QFile TemporaryRecordFile(TemporaryRecordFileName);
+
+    //Open the record file
+    if ( !recordFile.open(QIODevice::ReadOnly | QIODevice::Text) )
+        return false;
+
+    //Open the temp file
+    if ( !TemporaryRecordFile.open(QIODevice::WriteOnly | QIODevice::Text) )
+        return false;
+
+
+    //------------------------------------------New Record------------------------------------------
+
+    QString newRecord = "";
+
+    //All the columns of the last row
+    for ( int a = 0; a < ui->tableWidgetRecords->columnCount(); a++ )
+    {
+        newRecord += ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, a)->text() + ",";
+    }
+
+    //Remove the last ' , '
+    newRecord.remove(newRecord.size() - 1, 1);
+
+
+    //-----------------------------search where to save the record--------------------------------
+
+    //The position in the record file of the new record
+    int newRecordPosition = 0;
+
+    QMapIterator<int, int> iterator(this->availList);
+
+    //All the availList
+    while (iterator.hasNext())
+    {
+        iterator.next();
+
+        //If the length of the new record <= of the length of a deleted record
+        if ( newRecord.length() <= iterator.value() )
+        {
+            newRecordPosition = iterator.key();
+
+            break;
+        }
+    }
+
+    //If the new record does not fit in any space of the avaiList, save at the end
+    if ( newRecordPosition == 0 )
+    {
+        TemporaryRecordFile.close();
+        TemporaryRecordFile.remove();
+
+        if ( !this->insertRecordEOF() )
         {
             return false;
         }
 
-
-        //------------------------------------------New Record------------------------------------------
-
-        QString newRecord = "";
-
-        //All the columns of the last row
-        for ( int a = 0; a < ui->tableWidgetRecords->columnCount(); a++ )
-        {
-            newRecord += ui->tableWidgetRecords->item(ui->tableWidgetRecords->rowCount() - 1, a)->text() + ",";
-        }
-
-        //Remove the last ' , '
-        newRecord.remove(newRecord.size() - 1, 1);
-
-
-        //-----------------------------search where to save the record--------------------------------
-
-        //The position in the record file of the new record
-        int newRecordPosition = 0;
-
-        QMapIterator<int, int> iterator(this->availList);
-
-        //All the availList
-        while (iterator.hasNext())
-        {
-            iterator.next();
-
-            //If the length of the new record <= of the length of a deleted record
-            if ( newRecord.length() <= iterator.value() )
-            {
-                newRecordPosition = iterator.key();
-
-                break;
-            }
-        }
-
-
-        //------------------------------------Fields information------------------------------------
-
-        //Number of fields length + fields information + ' : '
-        int fieldsInformationSize = this->recordOperations.getInitialPositionOfRecordsInformation();
-        char fieldsInformationBuffer[fieldsInformationSize];
-
-        recordFile.read(fieldsInformationBuffer, fieldsInformationSize);
-
-
-        //------------------------------------New number of records------------------------------------
-
-        QString newNumberOfRecords = QString::number(this->recordOperations.getNumberOfRecords() + 1);
-
-
-        //----------------------------------Current records(cases)--------------------------------------
-
-        //Fit in the first deleted record
-        if ( newRecordPosition == this->indexList.at(0).split(",").at(1).toInt() )
-        {
-            int currentRecordsSizeA1 = 2;
-            currentRecordsSizeA1 += recordOperations.getLengthOfTheSizeOfARecordInformation(fieldsInformationSize + recordOperations.getLengthOfTheNumberOfRecords() + 1);
-
-
-        }
-
-        //Fit in some deleted record at the middle of the records
-        else if ( newRecordPosition > this->indexList.at(0).split(",").at(1).toInt() )
-        {
-
-        }
-
-        //Does not fit in any space
-        else if ( newRecordPosition == 0 )
-        {
-            int currentRecordsSizeC = this->recordOperations.getLengthOfRecordsInformation(); //all the records from ' | ' to ' | '
-            char currentRecordsBufferC[currentRecordsSizeC];
-
-            //Before the ' | ' of the first record
-            recordFile.seek(fieldsInformationSize + this->recordOperations.getLengthOfTheNumberOfRecords());
-            recordFile.read(currentRecordsBufferC, currentRecordsSizeC);
-        }
-
-        //Close the file
-        recordFile.close();
+        return true;
     }
 
-    //delete this->btree;
-    //this->btree = nullptr;
 
-    ui->actionModifyField->setEnabled(false);
+    //---------------------------------Read/Write----------------------------------------
+
+    char informationBeforeNewRecord[newRecordPosition];
+    recordFile.seek(0);
+    recordFile.read(informationBeforeNewRecord, newRecordPosition);
+
+    TemporaryRecordFile.write(informationBeforeNewRecord, newRecordPosition);
+    TemporaryRecordFile.write(newRecord.toStdString().c_str(), newRecord.size());
+
+    int endOfFilePosition = this->recordOperations.getInitialPositionOfRecordsInformation() +
+                            this->recordOperations.getLengthOfTheNumberOfRecords() +
+                            this->recordOperations.getLengthOfRecordsInformation();
+
+    int informationAfterNewRecordSize = endOfFilePosition - newRecordPosition - newRecord.size();
+    char informationAfterNewRecord[informationAfterNewRecordSize];
+    recordFile.seek(newRecordPosition + newRecord.size());
+    recordFile.read(informationAfterNewRecord, informationAfterNewRecordSize);
+
+    TemporaryRecordFile.write(informationAfterNewRecord, informationAfterNewRecordSize);
+
+
+    //-----------------------------------------------------------------------------------
+
+    //Close the file
+    recordFile.close();
+    TemporaryRecordFile.close();
+
+    //Remove the record file
+    if ( !recordFile.remove() )
+    {
+        return false;
+    }
+
+    //Change the name of the temporary record file
+    if ( !TemporaryRecordFile.rename(TemporaryRecordFileName, this->recordFileName) )
+    {
+        return false;
+    }
+
+    this->availList.remove(newRecordPosition);
 
     return true;
 }
@@ -1207,27 +1578,76 @@ bool MainWindow::compact()
         recordFile.read(fieldsInformation, fieldsInformationSize);
         TemporaryRecordFile.write(fieldsInformation, fieldsInformationSize);
 
+
         int numberOfRecords = this->recordOperations.getNumberOfRecords();
-        QString newNumberOfRecords = QString::number(numberOfRecords - this->availList.size()) + "|";
+        QString previousNumberOfRecords = QString::number(numberOfRecords);
+        QString newNumberOfRecords = QString::number(numberOfRecords - this->availList.size());
+
+        if ( previousNumberOfRecords.length() == 1 )
+        {
+            previousNumberOfRecords.prepend("00000");
+        }
+
+        else if ( previousNumberOfRecords.length() == 2 )
+        {
+            previousNumberOfRecords.prepend("0000");
+        }
+
+        else if ( previousNumberOfRecords.length() == 3 )
+        {
+            previousNumberOfRecords.prepend("000");
+        }
+
+        else if ( previousNumberOfRecords.length() == 4 )
+        {
+            previousNumberOfRecords.prepend("00");
+        }
+
+        else if ( previousNumberOfRecords.length() == 5 )
+        {
+            previousNumberOfRecords.prepend("0");
+        }
+
+        //        --------------------------
+
+        if ( newNumberOfRecords.length() == 1 )
+        {
+            newNumberOfRecords.prepend("00000");
+        }
+
+        else if ( newNumberOfRecords.length() == 2 )
+        {
+            newNumberOfRecords.prepend("0000");
+        }
+
+        else if ( newNumberOfRecords.length() == 3 )
+        {
+            newNumberOfRecords.prepend("000");
+        }
+
+        else if ( newNumberOfRecords.length() == 4 )
+        {
+            newNumberOfRecords.prepend("00");
+        }
+
+        else if ( newNumberOfRecords.length() == 5 )
+        {
+            newNumberOfRecords.prepend("0");
+        }
+
+        newNumberOfRecords += "|";
+
         TemporaryRecordFile.write(newNumberOfRecords.toStdString().c_str(), newNumberOfRecords.size());
 
         //----------------------------------------------------------------------------------------
 
-        int position = fieldsInformationSize + QString(numberOfRecords).length() + 1; //Position of a record (first record by default)
-        int endOfFilePosition = fieldsInformationSize + QString(numberOfRecords).length() + this->recordOperations.getLengthOfRecordsInformation();
-
-        QMapIterator<int, int> i(this->availList);
-        while (i.hasNext()) {
-            i.next();
-            qDebug() << i.key() << ": " << i.value();
-        }
+        int position = fieldsInformationSize + previousNumberOfRecords.length() + 1; //Position of a record (first record by default)
+        int endOfFilePosition = fieldsInformationSize + previousNumberOfRecords.length() + this->recordOperations.getLengthOfRecordsInformation();
 
         //All the records (until the last record)
         while ( position < endOfFilePosition )
         {
             int recordPositionForAvailList = position + recordOperations.getLengthOfTheSizeOfARecordInformation(position) + 1;
-
-            qDebug() << position << "->" << recordPositionForAvailList;
 
             //If the user has deleted the record in the current position (the availList contain the position(key))
             if ( this->availList.contains( recordPositionForAvailList ) )
@@ -1364,7 +1784,7 @@ void MainWindow::deleteRecord()
     char * buffer3 = new char[recordInfo[2].toInt()];
     for ( int i = 0; i < recordInfo[2].toInt(); i++)
     {
-        buffer3[i] = '-';
+        buffer3[i] = ' ';
     }
 
     //writing new information on the new file
