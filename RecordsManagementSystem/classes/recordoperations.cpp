@@ -289,7 +289,7 @@ int RecordOperations::getNumberOfRecords()
         return 0;
     }
 
-    const unsigned short int size = 4; //max number of digits of the number of records (Example: 1000 records)
+    const unsigned short int size = 7; //max number of digits of the number of records (Example: 1000 records)
     char buffer[size] = {};
 
     //Sets the read start position (after ' : ')
@@ -340,7 +340,7 @@ int RecordOperations::getLengthOfTheNumberOfRecords()
         return 0;
     }
 
-    const unsigned short int size = 4; //max number of digits of the number of records (Example: 1000 records)
+    const unsigned short int size = 7; //max number of digits of the number of records (Example: 1000 records)
     char buffer[size] = {};
 
     //Sets the read start position (after ' : ')

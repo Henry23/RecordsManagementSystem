@@ -728,6 +728,31 @@ bool MainWindow::insertRecord()
 
         QString newNumberOfRecords = QString::number(this->recordOperations.getNumberOfRecords() + 1);
 
+        if ( newNumberOfRecords.length() == 1 )
+        {
+            newNumberOfRecords.prepend("00000");
+        }
+
+        else if ( newNumberOfRecords.length() == 2 )
+        {
+            newNumberOfRecords.prepend("0000");
+        }
+
+        else if ( newNumberOfRecords.length() == 3 )
+        {
+            newNumberOfRecords.prepend("000");
+        }
+
+        else if ( newNumberOfRecords.length() == 4 )
+        {
+            newNumberOfRecords.prepend("00");
+        }
+
+        else if ( newNumberOfRecords.length() == 5 )
+        {
+            newNumberOfRecords.prepend("0");
+        }
+
 
         //-----------------------------------Current records--------------------------------------------
 
@@ -792,6 +817,10 @@ bool MainWindow::insertRecord()
         newRecordFile.write(fieldsInformationBuffer, fieldsInformationSize);
         newRecordFile.write(newNumberOfRecords.toStdString().c_str(), newNumberOfRecords.size());
         newRecordFile.write(currentRecordsBuffer, currentRecordsSize);\
+
+        //Position in the record file after the new record
+        int newRecordPosition = newRecordFile.tell();
+
         newRecordFile.write(newRecord.toStdString().c_str(), newRecord.size());
 
         //Close the file
@@ -819,13 +848,25 @@ bool MainWindow::insertRecord()
         int lastRow = ui->tableWidgetRecords->rowCount() - 1;
 
         QString key = ui->tableWidgetRecords->item(lastRow, column)->text() + ",";//
-        QString position =  QString::number(this->recordOperations.getRecordPositionAt(lastRow) + QString::number(recordLength).length() + 1) + ",";
+
+        //Search for the first comma ' , ' to get the position for the index file
+        for (int a = 0; a < newRecord.size(); a++)
+        {
+            if ( newRecord.at(a) == ',' )
+            {
+                newRecordPosition++;
+                break;
+            }
+
+            newRecordPosition++;
+        }
+
+        QString position =  QString::number(newRecordPosition) + ",";
         QString length = QString::number(recordLengthForIndexFile);
 
         QString newIndex = key + position + length;
 
         this->indexList.append(newIndex);
-
     }
 
     //search where to save the record (fisrt fit)
