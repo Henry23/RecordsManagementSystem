@@ -239,6 +239,7 @@
    <addaction name="separator"/>
    <addaction name="actionCreateSimpleIndex"/>
    <addaction name="actionCreateBTreeIndex"/>
+   <addaction name="actionReindexing"/>
    <addaction name="separator"/>
    <addaction name="actionCloseFile"/>
    <addaction name="actionExit"/>
@@ -438,6 +439,10 @@
   <action name="actionReindexing">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/reindexing.png</normaloff>:/images/reindexing.png</iconset>
    </property>
    <property name="text">
     <string>Reindexing</string>

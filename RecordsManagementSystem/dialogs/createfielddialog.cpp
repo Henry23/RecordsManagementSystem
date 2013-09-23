@@ -96,6 +96,7 @@ void CreateFieldDialog::on_pushButtonAccept_clicked()
     {
         QMessageBox::critical(this, tr("Error"), tr("A key already exist"));
         ui->checkBoxKey->setChecked(false);
+        ui->comboBoxType->setEnabled(true);
     }
 
 

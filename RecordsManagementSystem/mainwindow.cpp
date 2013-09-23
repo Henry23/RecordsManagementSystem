@@ -1420,6 +1420,7 @@ bool MainWindow::insertRecordAvailList()
     //If the new record does not fit in any space of the avaiList, save at the end
     if ( newRecordPosition == 0 )
     {
+        recordFile.close();
         TemporaryRecordFile.close();
         TemporaryRecordFile.remove();
 

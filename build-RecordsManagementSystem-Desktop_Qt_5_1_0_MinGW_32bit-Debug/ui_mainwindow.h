@@ -170,11 +170,14 @@ public:
         actionReindexing = new QAction(MainWindow);
         actionReindexing->setObjectName(QStringLiteral("actionReindexing"));
         actionReindexing->setEnabled(false);
+        QIcon icon9;
+        icon9.addFile(QStringLiteral(":/images/reindexing.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionReindexing->setIcon(icon9);
         actionOpenFile = new QAction(MainWindow);
         actionOpenFile->setObjectName(QStringLiteral("actionOpenFile"));
-        QIcon icon9;
-        icon9.addFile(QStringLiteral(":/images/openFile.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionOpenFile->setIcon(icon9);
+        QIcon icon10;
+        icon10.addFile(QStringLiteral(":/images/openFile.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionOpenFile->setIcon(icon10);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         verticalLayout = new QVBoxLayout(centralWidget);
@@ -309,6 +312,7 @@ public:
         mainToolBar->addSeparator();
         mainToolBar->addAction(actionCreateSimpleIndex);
         mainToolBar->addAction(actionCreateBTreeIndex);
+        mainToolBar->addAction(actionReindexing);
         mainToolBar->addSeparator();
         mainToolBar->addAction(actionCloseFile);
         mainToolBar->addAction(actionExit);

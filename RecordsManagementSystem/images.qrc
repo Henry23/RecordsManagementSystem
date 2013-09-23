@@ -11,5 +11,6 @@
         <file>images/search.png</file>
         <file>images/bTreeIndex.png</file>
         <file>images/simpleIndex.png</file>
+        <file>images/reindexing.png</file>
     </qresource>
 </RCC>
