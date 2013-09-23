@@ -296,11 +296,11 @@ void MainWindow::on_actionPrintFile_triggered()
     {
         if( k != length - 1 )
         {
-            m += fields[k] + ",";
+            m += fields[k] + "                  ";
         }
         else
         {
-            m += fields[k]+"\n";
+            m += fields[k]+"<br>";
         }
     }
     m2 = m;
@@ -317,18 +317,22 @@ void MainWindow::on_actionPrintFile_triggered()
 
               if( k != lenghtRecord - 1 )
               {
-                  m1 += Records[k] + ",";
+                  m1 += Records[k] + "                  ";
               }
               else
               {
-                  m1 += Records[k]+"\n";
+                  m1 += Records[k]+"<br>";
               }
         }
     }
     m2 += m1;
     doc.setHtml(m2);
-    printer1.setOutputFormat(QPrinter::PdfFormat);
+    printer1.setOutputFormat(QPrinter::PdfFormat);  
     doc.print(&printer1);
+    printer1.newPage();
+
+
+
     QMessageBox::information(this, tr("Information"), tr("PDF File has been created") );
 }
 
@@ -762,7 +766,7 @@ void MainWindow::on_actionImportXML_triggered()
     {
         QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
 
-        //return;
+        return;
     }
 
     int lengthFile = outFile.fileLength();
