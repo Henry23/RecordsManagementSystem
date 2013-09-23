@@ -9,6 +9,8 @@
 #include <cstdio>
 using std::remove;
 
+#include <QTextDocument>
+#include <QPrinter>
 #include <QFileDialog>
 #include <QTableWidgetItem>
 #include <QtPrintSupport/QPrinter>
@@ -258,7 +260,76 @@ void MainWindow::on_actionSaveFile_triggered()
 
 void MainWindow::on_actionPrintFile_triggered()
 {
-    //---------------------
+    //index file name
+    QString newFileName2 = this->recordFileName;
+    newFileName2.remove(this->recordFileName.length() - 4, 4);
+    newFileName2 += ".pdf";
+
+    RecordOperations in;
+    in.setFileName( this->recordFileName );
+
+    QStringList fields;
+    QStringList key;
+    QStringList lenght;
+    QStringList type;
+    QStringList Decimal;
+
+    QString m2;
+    QTextDocument doc;
+    QPrinter printer1;
+    printer1.setOutputFileName( newFileName2 );
+
+
+    int length = in.getFieldsInformation().length();
+    for( int i = 0; i < length; i++)
+    {
+        QStringList fieldInfo = in.getFieldsInformation().at(i).split(",");
+        fields.append( fieldInfo[1] );
+        lenght.append( fieldInfo[3] );
+        type.append( fieldInfo[2] );
+        Decimal.append( fieldInfo[4] );
+        key.append( fieldInfo[5] );
+    }
+
+    QString m;
+    for( int k = 0; k < length; k++ )
+    {
+        if( k != length - 1 )
+        {
+            m += fields[k] + ",";
+        }
+        else
+        {
+            m += fields[k]+"\n";
+        }
+    }
+    m2 = m;
+    int length1 = in.getRecordsInformation().length();
+    QString m1;
+    QStringList Records;
+    for( int j = 0; j < length1; j++)
+    {
+        Records = in.getRecordInformationAt(j);
+        int lenghtRecord = Records.length();
+
+        for ( int k = 1; k < lenghtRecord; k++ )
+        {
+
+              if( k != lenghtRecord - 1 )
+              {
+                  m1 += Records[k] + ",";
+              }
+              else
+              {
+                  m1 += Records[k]+"\n";
+              }
+        }
+    }
+    m2 += m1;
+    doc.setHtml(m2);
+    printer1.setOutputFormat(QPrinter::PdfFormat);
+    doc.print(&printer1);
+    QMessageBox::information(this, tr("Information"), tr("PDF File has been created") );
 }
 
 void MainWindow::on_actionCloseFile_triggered()
@@ -1699,7 +1770,6 @@ bool MainWindow::bTreeSearch(QString key)
         //we get the posicion and the length of the record searched
         QString keyInfo = m->getPosicionLength();
 
-        qDebug() << keyInfo;
         QFile file( this->recordFileName );
 
         if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
@@ -1710,7 +1780,6 @@ bool MainWindow::bTreeSearch(QString key)
         //splitting the information( posicion,length )
         QStringList keyInfoList = keyInfo.split( "," );
 
-        qDebug() << keyInfoList[0] << " , " << keyInfoList[1];
         //set the initial position of the record
         file.seek( keyInfoList.at(0).toInt() );
 
@@ -1722,7 +1791,6 @@ bool MainWindow::bTreeSearch(QString key)
 
         QString record = buffer;
 
-        qDebug() << record;
         //Separate the record
         QStringList columnsList = record.split(",");
 
@@ -1743,8 +1811,6 @@ bool MainWindow::bTreeSearch(QString key)
          return true;
      }else
      {
-        QMessageBox::information(this, tr("Information"), tr("First you have to create the B-Tree Index "));
-
         return false;
     }
 
@@ -1945,14 +2011,12 @@ void MainWindow::deleteRecord()
 
     //getting the information of the record we are trying to delete
     QStringList recordInfo = indexList.at(index).split(",");
-    qDebug() << recordInfo[1] << " " << recordInfo[2];
 
     // opening the record's file
     RecordsFile file ( this->recordFileName.toStdString() );
 
     int length1 = recordInfo[1].toInt() + recordInfo[2].toInt();
     int length2 = file.fileLength() - length1;
-    qDebug() << " length2 " << length2;
 
     //buffers
     char * buffer1 = new char[recordInfo[1].toInt()];
@@ -1968,8 +2032,6 @@ void MainWindow::deleteRecord()
     file.read ( buffer2 , length2 );
 
     file.close();
-    qDebug() << "buffer 1 " << buffer1;
-    qDebug() <<"buffer 2 " << buffer2;
 
     //delete the old file
     const char *path = this->recordFileName.toStdString().c_str();
@@ -2035,7 +2097,7 @@ void MainWindow::on_pushButtonSearch_clicked()
         {
             if ( !this->bTreeSearch(ui->lineEditKey->text()) )
             {
-                QMessageBox::critical(this, tr("Error"), tr("Record not found"));
+                QMessageBox::critical(this, tr("Error"), tr("Record not found or B-Tree Index does not exist"));
             }
         }
     }
