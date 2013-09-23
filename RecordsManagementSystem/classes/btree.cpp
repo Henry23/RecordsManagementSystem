@@ -1,5 +1,4 @@
 #include "btree.h"
-#include <qDebug>
 
 // Constructor for BTreeNode class
 BTreeNode::BTreeNode( int t1, bool leaf1 )
@@ -208,7 +207,6 @@ void BTreeNode::traverse()
         // traverse the subtree rooted with child C[i].
         if (leaf == false)
             C[i]->traverse();
-        qDebug() << " " << keys[i];
     }
 
     // Print the subtree rooted with last child

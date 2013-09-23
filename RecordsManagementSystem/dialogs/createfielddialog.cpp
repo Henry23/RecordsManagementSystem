@@ -7,7 +7,6 @@
 using std::remove;
 
 #include <QMessageBox>
-#include <QDebug>
 
 CreateFieldDialog::CreateFieldDialog(QString fileName, QWidget *parent) :
     QDialog(parent),

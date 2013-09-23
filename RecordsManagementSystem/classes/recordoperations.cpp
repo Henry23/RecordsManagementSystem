@@ -1,7 +1,5 @@
 #include "recordoperations.h"
 
-#include <QDebug>
-
 RecordOperations::RecordOperations(QObject *parent) :
     QObject(parent)
 {

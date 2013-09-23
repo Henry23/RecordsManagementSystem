@@ -11,7 +11,6 @@
 #include <QMessageBox>
 #include <sstream>
 #include <string.h>
-#include <qDebug>
 
 #include <fstream>
 

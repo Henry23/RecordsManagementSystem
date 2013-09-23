@@ -9,6 +9,7 @@
 #include <cstdio>
 using std::remove;
 
+#include <QTextStream>
 #include <QTextDocument>
 #include <QPrinter>
 #include <QFileDialog>
@@ -16,7 +17,6 @@ using std::remove;
 #include <QtPrintSupport/QPrinter>
 #include <QPainter>
 #include <QMessageBox>
-#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
