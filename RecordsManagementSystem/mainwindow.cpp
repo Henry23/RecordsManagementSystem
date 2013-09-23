@@ -1181,6 +1181,12 @@ void MainWindow::on_actionExportJSON_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
+    QMessageBox m;
+    m.setWindowTitle(tr("About"));
+    m.setText(tr("Organization of files project"));
+    m.setInformativeText(tr("Ariel Esquivel and Henry Acosta"));
+    m.setIcon(QMessageBox::Information);
+    m.exec();
 }
 
 bool MainWindow::validFile()

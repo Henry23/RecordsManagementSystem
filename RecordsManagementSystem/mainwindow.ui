@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Records Management System - Alpha 2</string>
+   <string>Records Management System - Beta</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -242,6 +242,7 @@
    <addaction name="actionReindexing"/>
    <addaction name="separator"/>
    <addaction name="actionCloseFile"/>
+   <addaction name="actionAbout"/>
    <addaction name="actionExit"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -400,6 +401,10 @@
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/about.png</normaloff>:/images/about.png</iconset>
+   </property>
    <property name="text">
     <string>About</string>
    </property>

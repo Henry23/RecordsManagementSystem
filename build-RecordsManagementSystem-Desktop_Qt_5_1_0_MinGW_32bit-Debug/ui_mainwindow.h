@@ -155,6 +155,9 @@ public:
         actionCreateBTreeIndex->setIcon(icon8);
         actionAbout = new QAction(MainWindow);
         actionAbout->setObjectName(QStringLiteral("actionAbout"));
+        QIcon icon9;
+        icon9.addFile(QStringLiteral(":/images/about.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionAbout->setIcon(icon9);
         actionImportXML = new QAction(MainWindow);
         actionImportXML->setObjectName(QStringLiteral("actionImportXML"));
         actionImportXML->setEnabled(false);
@@ -170,14 +173,14 @@ public:
         actionReindexing = new QAction(MainWindow);
         actionReindexing->setObjectName(QStringLiteral("actionReindexing"));
         actionReindexing->setEnabled(false);
-        QIcon icon9;
-        icon9.addFile(QStringLiteral(":/images/reindexing.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionReindexing->setIcon(icon9);
+        QIcon icon10;
+        icon10.addFile(QStringLiteral(":/images/reindexing.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionReindexing->setIcon(icon10);
         actionOpenFile = new QAction(MainWindow);
         actionOpenFile->setObjectName(QStringLiteral("actionOpenFile"));
-        QIcon icon10;
-        icon10.addFile(QStringLiteral(":/images/openFile.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionOpenFile->setIcon(icon10);
+        QIcon icon11;
+        icon11.addFile(QStringLiteral(":/images/openFile.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionOpenFile->setIcon(icon11);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         verticalLayout = new QVBoxLayout(centralWidget);
@@ -315,6 +318,7 @@ public:
         mainToolBar->addAction(actionReindexing);
         mainToolBar->addSeparator();
         mainToolBar->addAction(actionCloseFile);
+        mainToolBar->addAction(actionAbout);
         mainToolBar->addAction(actionExit);
 
         retranslateUi(MainWindow);
