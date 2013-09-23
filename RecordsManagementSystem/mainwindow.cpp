@@ -751,6 +751,230 @@ void MainWindow::on_actionReindexing_triggered()
 
 void MainWindow::on_actionImportXML_triggered()
 {
+    //index file name
+    QString newFileName = this->recordFileName; //same filename
+    newFileName.remove(this->recordFileName.length() - 4, 4); //remove last 4 characters(.txt)
+    newFileName += ".xml"; //Append
+
+    RecordsFile outFile;
+    //Check if there is a problem while creating the file
+    if ( !outFile.open(newFileName.toStdString(),  ios::out | ios::in ) )
+    {
+        QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
+
+        //return;
+    }
+
+    int lengthFile = outFile.fileLength();
+
+    char *bufferPower = new char[lengthFile];
+
+    outFile.read( bufferPower, lengthFile );
+
+    outFile.close();
+
+    QString line = bufferPower;
+
+    QStringList arrayLine = line.split("\n");
+
+    QStringList metadata;
+    QStringList metadataInfo;
+
+    int f = 0;
+    for( ; f < arrayLine.length(); f++ )
+    {
+
+        if(arrayLine[f] == "<metadata>")
+        {
+            int k = f + 1;
+            do{
+
+                metadata += arrayLine[k];
+
+                k++;
+
+            }while( arrayLine[k].toStdString() != "</metadata>" );
+            break;
+        }
+    }
+
+    for(int i = 0 ; i < metadata.length(); i++ )
+    {
+        QStringList filedInfo = metadata.at(i).split(",");
+
+        for( int j = 0; j < filedInfo.length(); j++ )
+        {
+            QStringList fixField = filedInfo.at(j).split("=");
+
+            for( int Q = 1; Q < fixField.length(); Q+=2 )
+            {
+               metadataInfo << fixField.at(Q);
+
+            }
+
+        }
+    }
+
+    int lengthField = metadataInfo.length() / 5;
+
+    QString fields;
+    fields += QString::number(lengthField);
+
+    QStringList m;
+    for( int s = 4 ; s < metadataInfo.length(); s+=5 )
+    {
+        QString lastElement = metadataInfo.at(s);
+        lastElement.remove( lastElement.length() - 2 , 2);
+        m << lastElement;
+    }
+
+
+    int p = 4;
+    int r = 0;
+    QString temp_fields;
+    for( int s = 0 ; s < metadataInfo.length(); s++ )
+    {
+        if( s != p ){
+            temp_fields += metadataInfo.at(s)+",";
+        }else if ( s < metadataInfo.length() - 1 )
+        {
+
+            temp_fields += m.at(r)+"|";
+            r++;
+            p+=5;
+        }else
+        {
+            temp_fields += m.at(r);
+        }
+    }
+    QStringList  a = temp_fields.split("|");
+
+    for( int k = 0; k < a.length(); k++)
+    {
+      fields+= "|"+QString::number(a.at(k).length() + 2) +","+ a.at(k);
+    }
+    fields+="|:";
+
+    QString newFileName1 = this->recordFileName; //same filename
+    newFileName1.remove(this->recordFileName.length() - 4, 4); //remove last 4 characters(.txt)
+    newFileName1 += "COPY.txt"; //Append
+    QFile newFile (newFileName1);
+    newFile.open( newFile.Text | newFile.WriteOnly );
+    stringstream sst;
+    sst << fields.toStdString();
+    string temp_field = sst.str();
+    const char * buffer = (char*)temp_field.c_str();
+    newFile.write( buffer, fields.length() );
+
+    QStringList records;
+   // QStringList metadataInfo;
+    for( ; f < arrayLine.length(); f++ )
+    {
+
+        if(arrayLine[f] == "<records>")
+        {
+            int k = f + 1;
+            do{
+                records << arrayLine[k];
+
+                k++;
+            }while( arrayLine[k].toStdString() != "</records>" );
+            break;
+        }
+    }
+
+    QStringList record;
+    QString reds;
+    for( int z = 0; z < records.length(); z++ )
+    {
+        if("   </record>" != records[z] )
+        {
+            reds+= records[z]+",";
+            reds = reds.simplified();
+        }else
+        {
+            record << reds;
+            reds ="";
+        }
+    }
+
+
+    int *lenghts = new int[lengthField];
+    int n=0;
+    for( int s = 0 ; s < metadataInfo.length(); s+=5 )
+    {
+        QString lastElement = metadataInfo.at(s);
+        lenghts[n] = lastElement.length();
+        n++;
+    }
+
+    QString lengthRecords = QString::number(record.length());
+
+    QString recordx = "000000";
+    recordx.remove(recordx.length() - lengthRecords.length(),  lengthRecords.length());
+    recordx += lengthRecords+"|";
+    QString temp_record;
+    for( int k =0; k < lengthRecords.toInt(); k++ )
+    {
+        QStringList m = record[k].split(",");
+        int r = 0;
+        int v = 0;
+        int cont = 0;
+        for( int t = 0; t < m.length(); t++ )
+        {
+            if( cont == lengthField ){
+                v = 0;
+            }
+
+            if( r == t )
+            {
+                QString recordInfo = m[t];
+                recordInfo = recordInfo.remove( 0,9+lenghts[v]  );
+                recordInfo.remove(recordInfo.length() - 1 , 1);
+                r+=6;
+                v++;
+                temp_record += recordInfo+",";
+            }
+            else if( !m[t].isEmpty() )
+            {
+                QString recordInfo = m[t];
+                int lenght = 3+lenghts[v];
+                recordInfo = recordInfo.remove( 0 , lenght );
+                recordInfo.remove(recordInfo.length() - lenght , lenght + 1);
+                v++;
+                temp_record += recordInfo+",";
+            }else
+            {
+                temp_record.remove(temp_record.length() - 1, 1);
+                temp_record+="|";
+            }
+            cont++;
+        }
+    }
+
+    QStringList temp_records = temp_record.split("|");
+
+    for( int i = 0; i< temp_records.length(); i++ )
+    {
+        if( i ==  temp_records.length() - 1 )
+        {
+            int lenthRcords = temp_records[i].length() + 2 ;
+            recordx+=QString::number(lenthRcords)+","+temp_records[i]+"|";
+            recordx.remove(recordx.length() - 3 , 3);
+        }
+        else
+        {
+            int lenthRcords = temp_records[i].length() + 2 ;
+            recordx+=QString::number(lenthRcords)+","+temp_records[i]+"|";
+        }
+    }
+    stringstream st;
+    st << recordx.toStdString();
+    string temp_recordx = st.str();
+    const char * buffer1 = (char*)temp_recordx.c_str();
+    newFile.write( buffer1, recordx.length() );
+
+    QMessageBox::information(this, tr("Information"), tr("COPY xml File has been created"));
 }
 
 void MainWindow::on_actionExportXML_triggered()
@@ -787,6 +1011,20 @@ void MainWindow::on_actionExportXML_triggered()
         key.append( fieldInfo[5] );
     }
 
+    char *meta= "<metadata>\n";
+    outFile.write( meta, strlen ( meta ) );
+    QString metadata;
+    for( int l = 0; l < key.length(); l++ )
+    {
+        metadata = "   <NAME="+fields[l] +",TYPE="+type[l] +",lENGTH=" + lenght[l] +",DECIMAL="+Decimal[l]+",KEY="+key[l]+"/>\n";
+        stringstream sst;
+        sst << metadata.toStdString();
+        string temp_metadata = sst.str();
+        const char * changeField = (char*)temp_metadata.c_str();
+        outFile.write( changeField, strlen ( changeField ) );
+    }
+    char *meta1= "</metadata>\n";
+    outFile.write( meta1, strlen ( meta1 ) );
     char *record = "<records>\n";
     outFile.write( record, strlen ( record ) );
     int length2 =in.getRecordsInformation().length();
