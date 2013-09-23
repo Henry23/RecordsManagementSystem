@@ -762,7 +762,7 @@ void MainWindow::on_actionImportXML_triggered()
     {
         QMessageBox::critical(this, tr("Error"), tr("An error occurred while trying to create the file"));
 
-        //return;
+        return;
     }
 
     int lengthFile = outFile.fileLength();
